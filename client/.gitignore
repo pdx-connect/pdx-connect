@@ -1,0 +1,9 @@
+/node_modules
+/dist
+/src/js
+/*.js
+/*.js.map
+/*.d.ts
+/test/*.js
+/test/*.js.map
+/test/*.d.ts

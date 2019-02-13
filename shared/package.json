@@ -1,0 +1,10 @@
+{
+  "name": "shared",
+  "version": "0.0.1",
+  "description": "The shared sub-project.",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "clean": "shx rm -rf ./dist"
+  }
+}

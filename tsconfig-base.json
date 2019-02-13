@@ -1,0 +1,14 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": "node_modules",
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "target": "es5",
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitReturns": true
+  }
+}

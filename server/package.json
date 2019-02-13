@@ -1,0 +1,15 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "description": "The server sub-project.",
+  "main": "dist/index",
+  "dependencies": {
+    "shared": "^0.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node dist/index",
+    "test": "node test/index",
+    "clean": "shx rm -r ./dist"
+  }
+}

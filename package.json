@@ -1,0 +1,67 @@
+{
+  "name": "pdx-connect",
+  "version": "0.0.1",
+  "description": "A responsive social media web-app for Portland State University.",
+  "keywords": [
+    "pdx",
+    "psu",
+    "portland",
+    "state",
+    "university",
+    "connect",
+    "social",
+    "media"
+  ],
+  "author": "Team C (Antarctica)",
+  "contributors": [
+    "Terry Eggebrecht <tegg2@pdx.edu>",
+    "Bradley Odell <btodell@hotmail.com>",
+    "Doanh Tran Caraballo <tochi.caraballo@gmail.com>",
+    "Yian Chen <y22@pdx.edu>",
+    "Brooke Dedrickson <mdedri2@pdx.edu>",
+    "Lee Hoang <lt5@pdx.edu>",
+    "Daniel Persson <dpersson@pdx.edu>",
+    "David Georgiyev <dg8@pdx.edu>"
+  ],
+  "homepage": "https://github.com/idavidgeo/PSUconnect",
+  "bugs": "https://github.com/idavidgeo/PSUconnect/issues",
+  "repository": {
+    "type": "git",
+    "url": "github:idavidgeo/PSUconnect"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "dependencies": {
+    "@types/node": "^11.9.3"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "shx": "^0.3.2",
+    "typescript": "^3.3.3",
+    "yarn": "^1.13.0"
+  },
+  "scripts": {
+    "setup": "npm install && yarn install && npm run build",
+    "update": "yarn upgrade",
+    "reinstall": "run-s -cs clean-all setup",
+    "build": "tsc -b .",
+    "clean": "run-p -cs clean:*",
+    "clean:client": "cd client && npm run clean",
+    "clean:server": "cd server && npm run clean",
+    "clean:shared": "cd shared && npm run clean",
+    "clean-nm": "shx rm -rf ./**/node_modules",
+    "clean-all": "run-s -cs clean clean-nm",
+    "client": "cd client && npm run bundle",
+    "start": "cd server && npm start",
+    "test": "cd server && npm test"
+  },
+  "engines": {
+    "node": ">=11.0.0",
+    "npm": ">=6.0.0"
+  }
+}
