@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig-client.json",
-  "compilerOptions": {
-    "outDir": "../js"
-  },
-  "references": [
-    { "path": "../../../shared/src" }
-  ]
-}

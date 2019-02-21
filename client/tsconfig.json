@@ -1,11 +1,9 @@
 {
-  "extends": "./tsconfig-client.json",
+  "extends": "../tsconfig-base.json",
+  "compilerOptions": {
+    "jsx": "react"
+  },
   "references": [
-    { "path": "src/ts" },
-    { "path": "test" }
-  ],
-  "exclude": [
-    "src",
-    "test"
+    { "path": "../shared/src" }
   ]
 }

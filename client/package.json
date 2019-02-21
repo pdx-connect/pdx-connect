@@ -3,14 +3,32 @@
   "version": "0.0.1",
   "description": "The client sub-project.",
   "dependencies": {
+    "@types/react": "^16.8.4",
+    "@types/react-dom": "^16.8.2",
+    "react": "^16.8.2",
+    "react-dom": "^16.8.2",
     "shared": "^0.0.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/clean-webpack-plugin": "^0.1.2",
+    "@types/copy-webpack-plugin": "^4.4.3",
+    "@types/html-webpack-plugin": "^3.2.0",
+    "@types/webpack": "^4.4.24",
+    "awesome-typescript-loader": "^5.2.1",
+    "clean-webpack-plugin": "^1.0.1",
+    "copy-webpack-plugin": "^5.0.0",
+    "html-webpack-plugin": "^3.2.0",
+    "source-map-loader": "^0.2.4",
+    "webpack": "^4.29.5",
+    "webpack-cli": "^3.2.3"
+  },
   "scripts": {
     "clean": "run-p -cs clean:*",
     "compile": "run-s -cs clean tsc",
-    "clean:js": "shx rm -rf ./src/js ./*.js ./*.js.map ./*.d.ts",
+    "bundle": "run-s -cs compile webpack",
+    "clean:js": "shx rm -rf ./src/**/*.js ./src/**/*.js.map ./src/**/*.d.ts ./*.js ./*.js.map ./*.d.ts",
     "clean:dist": "shx rm -rf ./dist",
-    "tsc": "tsc -b ."
+    "tsc": "tsc -b .",
+    "webpack": "webpack"
   }
 }
