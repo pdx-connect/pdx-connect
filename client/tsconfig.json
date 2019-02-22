@@ -1,9 +1,9 @@
 {
   "extends": "../tsconfig-base.json",
-  "compilerOptions": {
-    "jsx": "react"
-  },
   "references": [
-    { "path": "../shared/src" }
+    { "path": "src" }
+  ],
+  "exclude": [
+    "src"
   ]
 }

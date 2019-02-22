@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig-base.json",
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es2018"
+    ],
+    "jsx": "react"
+  },
+  "references": [
+    { "path": "../../shared/src"}
+  ]
+}

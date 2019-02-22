@@ -7,6 +7,6 @@
   "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "clean": "shx rm -rf ./dist"
+    "clean": "shx rm -rf ./dist ./test/**/*.js ./test/**/*.js.map ./test/**/*.d.ts"
   }
 }

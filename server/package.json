@@ -18,6 +18,6 @@
   "scripts": {
     "start": "node dist/index",
     "test": "node test/index",
-    "clean": "shx rm -r ./dist"
+    "clean": "shx rm -r ./dist ./test/**/*.js ./test/**/*.js.map ./test/**/*.d.ts"
   }
 }

@@ -5,7 +5,10 @@
     "baseUrl": "node_modules",
     "module": "commonjs",
     "allowSyntheticDefaultImports": true,
-    "target": "es5",
+    "target": "es2018",
+    "lib": [
+      "es2018"
+    ],
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "strict": true,
