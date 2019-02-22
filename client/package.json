@@ -2,6 +2,8 @@
   "name": "client",
   "version": "0.0.1",
   "description": "The client sub-project.",
+  "license": "UNLICENSED",
+  "private": true,
   "dependencies": {
     "@types/react": "^16.8.4",
     "@types/react-dom": "^16.8.2",

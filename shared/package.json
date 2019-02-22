@@ -2,6 +2,8 @@
   "name": "shared",
   "version": "0.0.1",
   "description": "The shared sub-project.",
+  "license": "UNLICENSED",
+  "private": true,
   "dependencies": {},
   "devDependencies": {},
   "scripts": {

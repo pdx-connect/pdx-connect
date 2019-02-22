@@ -2,14 +2,16 @@
   "name": "server",
   "version": "0.0.1",
   "description": "The server sub-project.",
+  "license": "UNLICENSED",
+  "private": true,
   "main": "dist/index",
   "dependencies": {
     "@types/express": "^4.16.1",
     "@types/helmet": "^0.0.42",
-    "@types/pg": "^7.4.13",
+    "@types/mysql": "^2.15.5",
     "express": "^4.16.4",
     "helmet": "^3.15.1",
-    "pg": "^7.8.1",
+    "mysql": "^2.16.0",
     "shared": "^0.0.1"
   },
   "devDependencies": {},
