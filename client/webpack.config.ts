@@ -27,7 +27,7 @@ const config: webpack.Configuration = {
     },
     module: {
         rules: [
-            { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
+            { test: /\.tsx?$/, loader: "awesome-typescript-loader", options: { configFileName: path.resolve(input, "tsconfig.json") } },
             { test: /\.js$/, enforce: "pre", loader: "source-map-loader" }
         ]
     },
