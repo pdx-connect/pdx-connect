@@ -10,11 +10,14 @@
     "@types/express": "^4.16.1",
     "@types/helmet": "^0.0.42",
     "@types/mysql": "^2.15.5",
+    "@types/node": "^11.10.5",
     "bcrypt": "^3.0.4",
     "express": "^4.16.4",
     "helmet": "^3.15.1",
     "mysql": "^2.16.0",
-    "shared": "^0.0.1"
+    "reflect-metadata": "^0.1.13",
+    "shared": "^0.0.1",
+    "typeorm": "^0.2.14"
   },
   "devDependencies": {},
   "scripts": {
