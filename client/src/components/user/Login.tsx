@@ -1,16 +1,18 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
+import {Button} from "react-bootstrap";
+import "Login.css";
 
 /**
- * The main application class.
+ * TODO
  */
-export class App extends Component {
+export class Login extends Component {
 
     /**
      * @override
      */
     public render(): ReactNode {
-        return <h1>React is functioning properly!</h1>;
+        return <Button>Login</Button>;
     }
-    
+
 }

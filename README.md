@@ -1,4 +1,4 @@
-PSU Connect
+pdx-connect
 ===========================================
 
 [![Build Status](https://travis-ci.com/idavidgeo/pdx-connect.svg?token=Xw69C3ppNdAkCSetcdxG&branch=master)](https://travis-ci.com/idavidgeo/pdx-connect)
@@ -7,7 +7,12 @@ PSU Connect
 
 Installation (for development)
 ------------------------------
-TODO
+
+```shell
+$ npm run setup
+```
+
+This command will use NPM to install Yarn and then use Yarn to install the project.
 
 Deployment (for production)
 ---------------------------
