@@ -20,7 +20,7 @@ Configuration
 The server must be configured to access a MySQL database. Create a file `server/config/db.json` with the following format:
 ```json
 {
-  "hostname": "localhost",
+  "host": "localhost",
   "database": "DATABASE",
   "username": "USERNAME",
   "password": "PASSWORD"

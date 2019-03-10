@@ -1,4 +1,4 @@
-import {BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {UserEmail} from "./UserEmail";
 import {Tag} from "./Tag";
 
@@ -44,23 +44,23 @@ export class User extends BaseEntity {
         collation: "utf8mb4_bin",
         comment: "About me"
     })
-    description: string|null = null;
-    
-    @Column({
-        name: "major",
-        comment: "A reference to an academic major tag"
+    description?: string;
+
+    @JoinColumn({
+        name: "major"
     })
-    major: Promise<Tag>|null = null;
+    @ManyToOne(type => Tag)
+    major?: Promise<Tag>;
     
     @Column({
         name: "on_campus"
     })
-    isOnCampus: boolean|null = null;
+    isOnCampus?: boolean;
     
     @Column({
         name: "deactivated",
         comment: "Users should never be deleted, only deactivated"
     })
-    deactivated: boolean = false;
+    deactivated!: boolean;
     
 }

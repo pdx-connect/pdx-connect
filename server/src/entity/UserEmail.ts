@@ -5,7 +5,9 @@ import {User} from "./User";
 export class UserEmail extends BaseEntity {
     
     @PrimaryColumn({
-        name: "user_id"
+        name: "user_id",
+        type: "int",
+        unsigned: true
     })
     @ManyToOne(type => User, user => user.emails)
     user!: User;
@@ -25,7 +27,7 @@ export class UserEmail extends BaseEntity {
         unsigned: true,
         comment: "NULL is inactive, 1 is primary, 2 is secondary, etc"
     })
-    activePriority!: number|null;
+    activePriority?: number;
     
     @Column({
         name: "verification_code",
@@ -34,13 +36,13 @@ export class UserEmail extends BaseEntity {
         collation: "ascii_bin",
         comment: "Bcrypt'd verification code. If this is NULL, the user is verified."
     })
-    verificationCode!: string|null;
+    verificationCode?: string;
     
     @Column({
         name: "verification_time",
         type: "datetime",
         comment: "The time when the verification code was generated"
     })
-    verificationTime!: Date|null;
+    verificationTime?: Date;
     
 }
