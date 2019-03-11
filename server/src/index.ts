@@ -3,13 +3,26 @@ import * as path from "path";
 import * as fs from "fs";
 import * as express from "express";
 import {Express, Request, Response} from "express";
-import {Connection, createConnection} from "typeorm";
+import session = require("express-session");
+import {randomBytes} from "crypto";
+import {Connection, createConnection, IsNull, Not} from "typeorm";
 import {route as api} from "./api";
 import {DatabaseConfiguration} from "./config/DatabaseConfiguration";
 import {ServerConfiguration} from "./config/ServerConfiguration";
+import * as passport from "passport";
+import {Strategy as LocalStrategy} from "passport-local";
+import {User} from "./entity/User";
+import {UserEmail} from "./entity/UserEmail";
 
 const configDirectory: string = path.join(__dirname, "..", "config");
 const clientDirectory: string = path.join(__dirname, "..", "..", "client", "dist");
+
+/**
+ * Generates a random key for the session management.
+ */
+function generateSessionKey(): string {
+    return randomBytes(64).toString("base64");
+}
 
 // Create async context
 (async () => {
@@ -20,6 +33,7 @@ const clientDirectory: string = path.join(__dirname, "..", "..", "client", "dist
         return;
     }
     
+    // Load configuration files
     const databaseConfigFile: string = path.join(configDirectory, "db.json");
     if (!fs.existsSync(databaseConfigFile)) {
         console.error("No database configuration file: " + databaseConfigFile);
@@ -62,13 +76,59 @@ const clientDirectory: string = path.join(__dirname, "..", "..", "client", "dist
         ]
     });
     
+    // Initialize session management and user authentication with the "passport" library
+    passport.use(new LocalStrategy({
+        usernameField: "email",
+        passwordField: "password",
+        session: true
+    }, async (email: string, password: string, done) => {
+        // Look up user by email
+        const userEmail: UserEmail|undefined = await UserEmail.findOne({
+            where: {
+                email: email,
+                activePriority: Not(IsNull()),
+                verificationCode: IsNull()
+            }
+        });
+        if (userEmail == null) {
+            // TODO Invalid email
+            return;
+        }
+        const user: User = userEmail.user;
+        // TODO Compare password
+    }));
+    passport.serializeUser((user: User, done: (err: any, userID: number) => void) => {
+        done(null, user.id);
+    });
+    passport.deserializeUser(async (userID: number, done: (err: any, user?: User) => void) => {
+        try {
+            done(null, await User.findOneOrFail({
+                where: {
+                    id: userID
+                }
+            }));
+        } catch (err) {
+            done(err, void 0);
+        }
+    });
+    
     // Initialize Express app
-    const port: number = serverConfig.port || 9999;
+    const port: number = serverConfig.port || 80;
     const app: Express = express();
 
     // Serve static files from the client directory
     app.use(express.static(clientDirectory));
-
+    
+    // Configure session support
+    app.use(session({
+        secret: serverConfig.sessionKey || generateSessionKey(),
+        resave: false,
+        saveUninitialized: false
+        // TODO May need to configure this session more (secure cookies, proxy, session store, etc)
+    }));
+    app.use(passport.initialize());
+    app.use(passport.session());
+    
     // Configure API routes
     api(app, db);
 

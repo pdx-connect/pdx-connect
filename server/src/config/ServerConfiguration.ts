@@ -4,9 +4,14 @@
 export interface ServerConfiguration {
     
     /**
-     * Optional port (defaults to 9999)
+     * Optional port (defaults to 80)
      */
     port?: number;
+    
+    /**
+     * The secret key for session management.
+     */
+    sessionKey?: string;
 
 }
 
@@ -17,7 +22,8 @@ export namespace ServerConfiguration {
      * @param obj The object to check.
      */
     export function isInstance(obj: any): obj is ServerConfiguration {
-        return (obj.port === void 0 || typeof obj.port === "number");
+        return (obj.port === void 0 || typeof obj.port === "number") &&
+            (obj.sessionKey === void 0 || typeof obj.sessionKey === "string");
     }
 
 }
