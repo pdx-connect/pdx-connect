@@ -5,17 +5,18 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "@types/react": "^16.8.4",
+    "@types/react": "^16.8.8",
     "@types/react-dom": "^16.8.2",
     "@types/react-router-dom": "^4.3.1",
     "bootstrap": "^4.3.1",
-    "react": "^16.8.2",
+    "react": "^16.8.4",
     "react-bootstrap": "^1.0.0-beta.5",
-    "react-dom": "^16.8.2",
+    "react-dom": "^16.8.4",
     "react-router-dom": "^4.3.1",
     "shared": "^0.0.1"
   },
   "devDependencies": {
+    "@hot-loader/react-dom": "^16.8.4",
     "@types/clean-webpack-plugin": "^0.1.2",
     "@types/copy-webpack-plugin": "^4.4.3",
     "@types/html-webpack-plugin": "^3.2.0",
@@ -38,6 +39,6 @@
     "clean:js": "shx rm -rf ./src/**/*.js ./src/**/*.js.map ./src/**/*.d.ts ./*.js ./*.js.map ./*.d.ts",
     "clean:dist": "shx rm -rf ./dist",
     "tsc": "tsc -b .",
-    "webpack": "webpack"
+    "webpack": "webpack --mode production"
   }
 }

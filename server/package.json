@@ -25,7 +25,16 @@
     "shared": "^0.0.1",
     "typeorm": "^0.2.14"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/opn": "^5.1.0",
+    "@types/webpack": "^4.4.25",
+    "@types/webpack-dev-middleware": "^2.0.2",
+    "@types/webpack-hot-middleware": "^2.16.5",
+    "opn": "^5.4.0",
+    "webpack": "^4.29.6",
+    "webpack-dev-middleware": "^3.6.1",
+    "webpack-hot-middleware": "^2.24.3"
+  },
   "scripts": {
     "start": "node dist/index",
     "test": "node test/index",

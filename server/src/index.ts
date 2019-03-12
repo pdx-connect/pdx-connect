@@ -13,9 +13,16 @@ import * as passport from "passport";
 import {Strategy as LocalStrategy} from "passport-local";
 import {User} from "./entity/User";
 import {UserEmail} from "./entity/UserEmail";
+import opn = require("opn");
 
-const configDirectory: string = path.join(__dirname, "..", "config");
-const clientDirectory: string = path.join(__dirname, "..", "..", "client", "dist");
+// TODO Dynamically calculate this value from the program arguments
+const developmentMode: boolean = true;
+
+const serverDirectory: string = path.join(__dirname, "..");
+const configDirectory: string = path.join(serverDirectory, "config");
+const rootDirectory: string = path.join(serverDirectory, "..");
+const clientDirectory: string = path.join(rootDirectory, "client");
+const publicDirectory: string = path.join(clientDirectory, "dist");
 
 /**
  * Generates a random key for the session management.
@@ -27,7 +34,7 @@ function generateSessionKey(): string {
 // Create async context
 (async () => {
     // Ensure that client code has been built
-    if (!fs.existsSync(clientDirectory)) {
+    if (!developmentMode && !fs.existsSync(publicDirectory)) {
         console.error("Client does not appear to be compiled.");
         console.error("Run 'npm run client' to build the client package.");
         return;
@@ -74,6 +81,13 @@ function generateSessionKey(): string {
         migrations: [
             __dirname + "/migration/*.js"
         ]
+    }).catch((err: any) => {
+        if (databaseConfig.override) {
+            // Return undefined connection (ignoring type-checking)
+            // If connection is used later, the program will crash!
+            return (void 0)!;
+        }
+        throw err;
     });
     
     // Initialize session management and user authentication with the "passport" library
@@ -113,11 +127,16 @@ function generateSessionKey(): string {
     });
     
     // Initialize Express app
-    const port: number = serverConfig.port || 80;
+    const port: number = serverConfig.port || 9999;
     const app: Express = express();
-
-    // Serve static files from the client directory
-    app.use(express.static(clientDirectory));
+    
+    if (developmentMode) {
+        // Lazy load development module
+        require("./dev").init(app);
+    }
+    
+    // Serve static files from the public directory
+    app.use(express.static(publicDirectory));
     
     // Configure session support
     app.use(session({
@@ -134,11 +153,15 @@ function generateSessionKey(): string {
 
     // Configure Express to route everything else to React app
     app.get("*", (request: Request, response: Response) => {
-        response.sendFile(path.join(clientDirectory, "index.html"));
+        response.sendFile(path.join(publicDirectory, "index.html"));
     });
 
     // Start Express server
     app.listen(port, () => {
         console.log("Server has started on port: " + port);
+        if (developmentMode) {
+            // Open default browser
+            opn("http://localhost:" + port).then();
+        }
     });
 })();

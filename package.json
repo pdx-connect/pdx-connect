@@ -48,7 +48,7 @@
     "update": "yarn upgrade",
     "reinstall": "run-s -cs clean-all setup",
     "build": "tsc -b .",
-    "dev": "npm run build && npm run client && npm start",
+    "dev": "npm run build && npm start",
     "clean": "run-p -cs clean:*",
     "clean:client": "cd client && npm run clean",
     "clean:server": "cd server && npm run clean",
@@ -58,7 +58,7 @@
     "client": "cd client && npm run bundle",
     "start": "cd server && npm start",
     "test": "cd server && npm test",
-    "deploy": ""
+    "deploy": "npm run build && npm run client && npm start"
   },
   "engines": {
     "node": ">=11.0.0",

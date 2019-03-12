@@ -27,6 +27,11 @@ export interface DatabaseConfiguration {
      * The password of the authorized user to connect to the database with.
      */
     password: string;
+
+    /**
+     * Whether to allow the application to start without connecting to a database.
+     */
+    override?: boolean;
     
 }
 
@@ -41,7 +46,8 @@ export namespace DatabaseConfiguration {
             (obj.port === void 0 || typeof obj.port === "number") &&
             typeof obj.database === "string" &&
             typeof obj.username === "string" &&
-            typeof obj.password === "string";
+            typeof obj.password === "string" &&
+            (obj.override === void 0 || typeof obj.override === "boolean");
     }
     
 }
