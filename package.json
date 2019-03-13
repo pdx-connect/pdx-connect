@@ -53,7 +53,7 @@
     "clean:client": "cd client && npm run clean",
     "clean:server": "cd server && npm run clean",
     "clean:shared": "cd shared && npm run clean",
-    "clean-nm": "shx rm -rf ./**/node_modules",
+    "clean-nm": "npx shx rm -rf ./**/node_modules",
     "clean-all": "run-s -cs clean clean-nm",
     "client": "cd client && npm run bundle",
     "start": "cd server && npm start",

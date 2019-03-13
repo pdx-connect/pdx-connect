@@ -36,7 +36,7 @@
     "clean": "run-p -cs clean:*",
     "compile": "run-s -cs clean tsc",
     "bundle": "run-s -cs compile webpack",
-    "clean:js": "shx rm -rf ./src/**/*.js ./src/**/*.js.map ./src/**/*.d.ts ./*.js ./*.js.map ./*.d.ts",
+    "clean:js": "shx rm -rf ./.build ./src/**/*.js ./src/**/*.js.map ./src/**/*.d.ts ./*.js ./*.js.map ./*.d.ts",
     "clean:dist": "shx rm -rf ./dist",
     "tsc": "tsc -b .",
     "webpack": "webpack --mode production"
