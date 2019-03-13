@@ -1,6 +1,6 @@
 import {Express, Request, Response} from "express";
 import {Connection} from "typeorm";
-import {User} from "../entity/User";
+import {User} from "../../entity/User";
 
 export function route(app: Express, db: Connection) {
     app.get("/api/users", async (request: Request, response: Response) => {

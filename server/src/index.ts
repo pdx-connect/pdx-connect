@@ -6,7 +6,7 @@ import {Express, Request, Response} from "express";
 import session = require("express-session");
 import {randomBytes} from "crypto";
 import {Connection, createConnection, IsNull, Not} from "typeorm";
-import {route as api} from "./api";
+import * as routes from "./routes";
 import {DatabaseConfiguration} from "./config/DatabaseConfiguration";
 import {ServerConfiguration} from "./config/ServerConfiguration";
 import * as passport from "passport";
@@ -130,11 +130,6 @@ function generateSessionKey(): string {
     const port: number = serverConfig.port || 9999;
     const app: Express = express();
     
-    if (developmentMode) {
-        // Lazy load development module
-        require("./dev").init(app);
-    }
-    
     // Serve static files from the public directory
     app.use(express.static(publicDirectory));
     
@@ -149,12 +144,17 @@ function generateSessionKey(): string {
     app.use(passport.session());
     
     // Configure API routes
-    api(app, db);
+    routes.configure(app, db);
 
-    // Configure Express to route everything else to React app
-    app.get("*", (request: Request, response: Response) => {
-        response.sendFile(path.join(publicDirectory, "index.html"));
-    });
+    if (developmentMode) {
+        // Lazy load development module
+        require("./dev").init(app);
+    } else {
+        // Configure Express to route everything else to React app
+        app.get("*", (request: Request, response: Response) => {
+            response.sendFile(path.join(publicDirectory, "index.html"));
+        });
+    }
 
     // Start Express server
     app.listen(port, () => {

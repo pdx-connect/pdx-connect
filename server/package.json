@@ -26,10 +26,12 @@
     "typeorm": "^0.2.14"
   },
   "devDependencies": {
+    "@types/connect-history-api-fallback": "^1.3.1",
     "@types/opn": "^5.1.0",
     "@types/webpack": "^4.4.25",
     "@types/webpack-dev-middleware": "^2.0.2",
     "@types/webpack-hot-middleware": "^2.16.5",
+    "connect-history-api-fallback": "^1.6.0",
     "opn": "^5.4.0",
     "webpack": "^4.29.6",
     "webpack-dev-middleware": "^3.6.1",

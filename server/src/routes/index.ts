@@ -1,9 +1,9 @@
 import {Express} from "express";
 import {Connection} from "typeorm";
 import {route as login} from "./login";
-import {route as user} from "./user";
+import {route as user} from "./api/user";
 
-export function route(app: Express, db: Connection) {
+export function configure(app: Express, db: Connection) {
     login(app, db);
     user(app, db);
 }

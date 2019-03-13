@@ -2,6 +2,7 @@ import {Express} from "express";
 import * as webpack from "webpack";
 import * as WebpackDevMiddleware from "webpack-dev-middleware";
 import * as WebpackHotMiddleware from "webpack-hot-middleware";
+import historyApiFallback = require("connect-history-api-fallback");
 
 export function init(app: Express) {
     // Load webpack configuration dynamically
@@ -23,6 +24,7 @@ export function init(app: Express) {
     });
     const webpackHotMiddleware = WebpackHotMiddleware(compiler);
     // Apply webpack modules to Express app
+    app.use(historyApiFallback());
     app.use(webpackDevMiddleware);
     app.use(webpackHotMiddleware);
 }
