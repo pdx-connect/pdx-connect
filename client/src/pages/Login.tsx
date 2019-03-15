@@ -1,22 +1,143 @@
 import * as React from "react";
-import {Component, ReactNode} from "react";
-import {Button} from "react-bootstrap";
+import {ReactNode} from "react";
+import {Container, Row, Col, Form, Button, Alert} from "react-bootstrap";
+import {Page} from "../Page";
+import {RouteComponentProps, withRouter} from "react-router-dom";
+
 import "./Login.css";
+
+
+interface Props extends RouteComponentProps {
+    
+}
+
+interface State {
+    email?: string;
+    password?: string;
+    notAuthorized: boolean;
+}
 
 /**
  * 
  */
-export class Login extends Component {
+export class Login extends Page<Props, State> {
+    
+    constructor(props: Props) {
+        super(props);
+        this.state = {
+            email: "",
+            password: "",
+            notAuthorized: false
+        };
+    }
 
+    private readonly setEmail = (e: any) => {
+        this.setState({email: e.target.value});
+    };
+
+    private readonly setPassword = (e: any) => {
+        this.setState({password: e.target.value});
+    };
+    
+    private readonly enterKeyPressed = (e: any) => {
+        if (e.keyCode === 13) {
+            this.processCredentials();
+        }
+    };
+
+    private readonly authenticate = async (email: string, password: string) => {
+        const response: Response = await fetch("/login", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        const data = await response.json();
+        if ('success' in data) {
+            this.props.history.push("/");
+        }
+        else
+        {
+            this.setState({notAuthorized: true});
+        }
+    };
+
+    private readonly processCredentials = () => {
+        if (this.state.email != null && this.state.password != null) {
+            this.authenticate(this.state.email, this.state.password).then();
+        }
+    };
+    
+    /**
+     * @override
+     */
+    public componentDidMount() {
+        document.addEventListener('keydown', this.enterKeyPressed);
+    }
+    
+    /**
+     * @override
+     */
+    public componentWillUnmount() {
+        document.removeEventListener('keydown', this.enterKeyPressed);
+    }
+    
     /**
      * @override
      */
     public render(): ReactNode {
+
+        const register =
+            <Button size="sm" variant="light" onClick={() => {this.props.history.push('/register')} } className="register">register</Button>;
+
+        const password =
+            <Button size="sm" variant="light" onClick={() => {this.props.history.push('/home')} } className="password-forgot">password?</Button>;
+
         return (
-            <div>
-                <pre>This is the login page!</pre>
-                <Button>Login</Button>
-            </div>
+            <Container fluid className="login">
+                <Row className="title">
+                    <Col sm={2}></Col>
+                    <Col sm={8}><h1>pdx connect</h1></Col>
+                    <Col sm={2}></Col>
+                </Row>
+
+                <Row>
+                    <Col sm={4}></Col>
+                    <Col sm={4} className="notAuthorized">
+                        {this.state.notAuthorized? <span>Credentials Incorrect</span> : null}
+                    </Col>
+                    <Col sm={4}></Col>
+                </Row>
+                <Row>
+                    <Col sm={4}></Col>
+                    <Col sm={4}>
+                        <Form>
+                            <Form.Group controlId="formBasicEmail">
+                                <Form.Control type="email" placeholder="email" className="email" onChange={this.setEmail}/>
+                            </Form.Group>
+
+                            <Form.Group controlId="formBasicPassword">
+                                <Form.Control type="password" placeholder="password" className="password" onChange={this.setPassword}/>
+                            </Form.Group>
+                        </Form>
+                    </Col>
+                    <Col sm={4}></Col>
+                </Row>
+
+                <Row>
+                    <Col sm={4}></Col>
+                    <Col sm={4}>
+                        { register }
+                        { password }
+                    </Col>
+                    <Col sm={4}></Col>
+                </Row>
+            </Container>
         );
     }
 

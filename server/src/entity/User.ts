@@ -13,8 +13,9 @@ export class User extends BaseEntity {
     })
     id!: number;
     
-    @OneToMany(type => UserEmail, userEmail => userEmail.user)
-    emails!: Promise<UserEmail[]>;
+    // TODO See UserEmail entity
+    // @OneToMany(type => UserEmail, userEmail => userEmail.userID)
+    // emails!: Promise<UserEmail[]>;
     
     @Column({
         name: "password",

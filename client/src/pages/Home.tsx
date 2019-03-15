@@ -1,11 +1,21 @@
 import * as React from "react";
-import {Component, ReactNode} from "react";
+import {ReactNode} from "react";
+import {Page} from "../Page";
+import {RouteComponentProps} from "react-router";
+
+interface Props extends RouteComponentProps {
+    
+}
+
+interface State {
+    
+}
 
 /**
  *
  */
-export class Home extends Component {
-
+export class Home extends Page<Props, State> {
+    
     /**
      * @override
      */

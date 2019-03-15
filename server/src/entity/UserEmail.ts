@@ -1,16 +1,22 @@
-import {BaseEntity, Column, Entity, ManyToOne, PrimaryColumn} from "typeorm";
+import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn} from "typeorm";
 import {User} from "./User";
 
 @Entity("user_emails")
 export class UserEmail extends BaseEntity {
+    
+    // TODO Having trouble getting many-to-one relation working with composite primary keys
     
     @PrimaryColumn({
         name: "user_id",
         type: "int",
         unsigned: true
     })
-    @ManyToOne(type => User, user => user.emails)
-    user!: User;
+    // @JoinColumn({
+    //     name: "user_id"
+    // })
+    // @ManyToOne(type => User, user => user.emails)
+    // user!: User;
+    userID!: number;
     
     @PrimaryColumn({
         name: "email",

@@ -9,6 +9,7 @@ import {Connection, createConnection, IsNull, Not} from "typeorm";
 import * as routes from "./routes";
 import {DatabaseConfiguration} from "./config/DatabaseConfiguration";
 import {ServerConfiguration} from "./config/ServerConfiguration";
+import * as bodyParser from "body-parser";
 import * as passport from "passport";
 import {Strategy as LocalStrategy} from "passport-local";
 import {User} from "./entity/User";
@@ -100,16 +101,26 @@ function generateSessionKey(): string {
         const userEmail: UserEmail|undefined = await UserEmail.findOne({
             where: {
                 email: email,
-                activePriority: Not(IsNull()),
-                verificationCode: IsNull()
+                activePriority: Not(IsNull())
             }
         });
         if (userEmail == null) {
-            // TODO Invalid email
+            done("Email does not exist.");
             return;
         }
-        const user: User = userEmail.user;
-        // TODO Compare password
+        if (userEmail.verificationCode != null) {
+            done("Email has not been verified yet.");
+            return;
+        }
+        // Check password of user
+        const user: User = await User.findOneOrFail(userEmail.userID);
+        // TODO Add bcrypt hashing
+        if (user.password != password) {
+            done("Password is incorrect.");
+            return;
+        }
+        // Success!
+        done(null, user);
     }));
     passport.serializeUser((user: User, done: (err: any, userID: number) => void) => {
         done(null, user.id);
@@ -122,7 +133,7 @@ function generateSessionKey(): string {
                 }
             }));
         } catch (err) {
-            done(err, void 0);
+            done(err);
         }
     });
     
@@ -140,6 +151,7 @@ function generateSessionKey(): string {
         saveUninitialized: false
         // TODO May need to configure this session more (secure cookies, proxy, session store, etc)
     }));
+    app.use(bodyParser.json());
     app.use(passport.initialize());
     app.use(passport.session());
     

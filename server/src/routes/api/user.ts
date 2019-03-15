@@ -8,7 +8,16 @@ export function route(app: Express, db: Connection) {
         const users: User[] = await User.find();
         response.send(JSON.stringify(users));
     });
-    app.get("/api/user/:userID/", async (request: Request, response: Response) => {
-        // TODO
+    app.get("/api/user/name", async (request: Request, response: Response) => {
+        const user: User|undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify({
+                error: "Not logged in"
+            }));
+            return;
+        }
+        response.send(JSON.stringify({
+            name: user.displayName
+        }));
     });
 }
