@@ -2,11 +2,12 @@ import * as React from "react";
 import {Component, ReactNode} from "react";
 import {BrowserRouter} from "react-router-dom";
 import {Routes} from "./Routes";
+import {hot} from "react-hot-loader/root";
 
 /**
  * The main application class.
  */
-export class App extends Component {
+class App extends Component {
 
     /**
      * @override
@@ -18,5 +19,8 @@ export class App extends Component {
             </BrowserRouter>
         );
     }
-    
+
 }
+
+const hotApp = hot(App);
+export { hotApp as App };

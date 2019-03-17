@@ -2,6 +2,9 @@ import {Express, NextFunction, Request, Response} from "express";
 import {Connection} from "typeorm";
 import * as passport from "passport";
 import {User} from "../entity/User";
+import {registerPublicPath} from "./authentication";
+
+registerPublicPath("/login");
 
 export function route(app: Express, db: Connection) {
     app.post("/login", (request: Request, response: Response, next: NextFunction) => {
