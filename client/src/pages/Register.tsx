@@ -2,7 +2,11 @@ import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Button} from "react-bootstrap";
 import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from "react-icons/fa";
+<<<<<<< HEAD
 import {RouteComponentProps} from "react-router-dom";
+=======
+import {RouteComponentProps, withRouter} from "react-router-dom";
+>>>>>>> dedrickson/back-button-on-register
 import "./Register.css";
 
 import BasicInfo from './RegisterSubpages/BasicInfo';
@@ -203,7 +207,8 @@ export class Register extends Component<Props, State> {
             </Row>
 
             <Row className="directionalButtons">
-                <Col sm={4}>{this.state.step != 1? <Button className="arrowButton" onClick={this.prev} ><FaArrowAltCircleLeft className="leftButton" size="4vw" /></Button>: null}</Col>
+                <Col sm={4}>{this.state.step != 1? <Button className="arrowButton" onClick={this.prev} ><FaArrowAltCircleLeft className="leftButton" size="4vw" /></Button>: null}
+                {this.state.step == 1? <Button className="arrowButton" onClick={() => {this.props.history.push('/login')} } ><FaArrowAltCircleLeft className="leftButton" size="4vw" /></Button>: null}</Col>
                 <Col sm={4}></Col>
                 <Col sm={4}>{this.state.step != 5? <Button className="arrowButton" onClick={this.next} disabled={this.state.nextDisabled}><FaArrowAltCircleRight className="rightButton" size="4vw" /></Button>:null}</Col>
             </Row>
