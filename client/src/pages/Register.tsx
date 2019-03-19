@@ -2,11 +2,7 @@ import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Button} from "react-bootstrap";
 import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from "react-icons/fa";
-<<<<<<< HEAD
 import {RouteComponentProps} from "react-router-dom";
-=======
-import {RouteComponentProps, withRouter} from "react-router-dom";
->>>>>>> dedrickson/back-button-on-register
 import "./Register.css";
 
 import BasicInfo from './RegisterSubpages/BasicInfo';
