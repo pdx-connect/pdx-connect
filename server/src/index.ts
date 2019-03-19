@@ -7,14 +7,19 @@ import session = require("express-session");
 import {randomBytes} from "crypto";
 import {Connection, createConnection, IsNull, Not} from "typeorm";
 import * as routes from "./routes";
-import {DatabaseConfiguration} from "./config/DatabaseConfiguration";
 import {ServerConfiguration} from "./config/ServerConfiguration";
+import {DatabaseConfiguration} from "./config/DatabaseConfiguration";
+import {MailConfiguration} from "./config/MailConfiguration";
+import * as SendmailTransport from "nodemailer/lib/sendmail-transport";
+import * as SMTPTransport from "nodemailer/lib/smtp-transport";
 import * as bodyParser from "body-parser";
 import * as passport from "passport";
 import {Strategy as LocalStrategy} from "passport-local";
 import {User} from "./entity/User";
 import {UserEmail} from "./entity/UserEmail";
 import opn = require("opn");
+import {init as initMail} from "./mail";
+import {compare} from "bcrypt";
 
 // TODO Dynamically calculate this value from the program arguments
 const developmentMode: boolean = true;
@@ -42,6 +47,25 @@ function generateSessionKey(): string {
     }
     
     // Load configuration files
+    let serverConfig: ServerConfiguration;
+    const serverConfigFile: string = path.join(configDirectory, "server.json");
+    if (fs.existsSync(serverConfigFile)) {
+        serverConfig = JSON.parse(fs.readFileSync(serverConfigFile, "utf8"));
+        if (!ServerConfiguration.isInstance(serverConfig)) {
+            console.error("Server configuration file has invalid format!");
+            console.error("See the README.md file for the correct JSON format.");
+            return;
+        }
+    } else if (developmentMode) {
+        serverConfig = {
+            host: "localhost"
+        };
+    } else {
+        console.error("No server configuration file: " + serverConfigFile);
+        console.error("See the README.md file for the server configuration JSON format.");
+        return;
+    }
+    
     const databaseConfigFile: string = path.join(configDirectory, "db.json");
     if (!fs.existsSync(databaseConfigFile)) {
         console.error("No database configuration file: " + databaseConfigFile);
@@ -54,20 +78,47 @@ function generateSessionKey(): string {
         console.error("See the README.md file for the correct JSON format.");
         return;
     }
-    
-    let serverConfig: ServerConfiguration;
-    const serverConfigFile: string = path.join(configDirectory, "server.json");
-    if (fs.existsSync(serverConfigFile)) {
-        serverConfig = JSON.parse(fs.readFileSync(serverConfigFile, "utf8"));
-        if (!ServerConfiguration.isInstance(serverConfig)) {
-            console.error("Server configuration file has invalid format!");
+
+    // Initialize mail transport
+    const mailConfigFile: string = path.join(configDirectory, "mail.json");
+    if (fs.existsSync(mailConfigFile)) {
+        const mailConfig = JSON.parse(fs.readFileSync(mailConfigFile, "utf8"));
+        if (!MailConfiguration.isInstance(mailConfig)) {
+            console.error("Mail configuration file has invalid format!");
             console.error("See the README.md file for the correct JSON format.");
             return;
         }
+        switch (mailConfig.service) {
+            case "smtp":
+                const smtpConfig: SMTPTransport.Options = {
+                    service: "smtp",
+                    host: mailConfig.host,
+                    port: mailConfig.port,
+                    secure: mailConfig.secure,
+                    auth: {
+                        user: mailConfig.auth.user,
+                        pass: mailConfig.auth.pass
+                    }
+                };
+                await initMail(smtpConfig);
+                break;
+            case "sendmail":
+                const sendmailConfig: SendmailTransport.Options = {
+                    sendmail: true
+                };
+                await initMail(sendmailConfig);
+                break;
+            default:
+                throw new Error("Invalid mail service: " + mailConfig!.service);
+        }
+    } else if (developmentMode) {
+        await initMail();
     } else {
-        serverConfig = {};
+        console.error("No mail configuration file: " + mailConfigFile);
+        console.error("See the README.md file for the mail configuration JSON format.");
+        return;
     }
-
+    
     // Initialize TypeORM connection to MySQL database
     const db: Connection = await createConnection({
         type: "mysql",
@@ -112,15 +163,15 @@ function generateSessionKey(): string {
             done("Email has not been verified yet.");
             return;
         }
-        // Check password of user
+        // Check password of user using bcrypt
         const user: User = await User.findOneOrFail(userEmail.userID);
-        // TODO Add bcrypt hashing
-        if (user.password != password) {
+        if (await compare(password, user.password)) {
+            // Success!
+            done(null, user);
+        } else {
+            // Failure!
             done("Password is incorrect.");
-            return;
         }
-        // Success!
-        done(null, user);
     }));
     passport.serializeUser((user: User, done: (err: any, userID: number) => void) => {
         done(null, user.id);
@@ -169,11 +220,11 @@ function generateSessionKey(): string {
     }
 
     // Start Express server
-    app.listen(port, () => {
+    app.listen(port, async () => {
         console.log("Server has started on port: " + port);
         if (developmentMode) {
             // Open default browser
-            opn("http://localhost:" + port).then();
+            await opn("http://localhost:" + port);
         }
     });
 })();

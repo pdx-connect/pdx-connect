@@ -1,0 +1,398 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i");
+@import url("https://fonts.googleapis.com/css?family=Varela+Round");
+
+.registerPage
+{
+    margin-top: 20%;
+    color: #565656;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f6f9fb;
+}
+
+.registerPage .title
+{
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 1vw;
+    color: #9fc1c0;
+    font-weight: bold;
+    margin-bottom: 3%;
+}
+
+.registerPage .subTitle
+{
+    color: #c5e06f;
+    text-transform: uppercase;
+    letter-spacing: .2vw;
+    text-align: center;
+    padding-bottom: 1%;
+    font-family: 'Varela Round', sans-serif;
+}
+
+.emailDisplay {
+    color: #565656;
+}
+
+.personalization {
+    width: 100%;
+}
+
+.personalizationTitle {
+    text-align: left;
+    text-transform: uppercase;
+    color: #565656;
+    letter-spacing: .5vw;
+    font-weight: bold;
+    font-size: 1vw;
+    margin-bottom: 1%;
+}
+
+.personalizationRowTitle {
+    margin-top: 4%;
+    margin-bottom: 4%;
+    box-shadow: 0 4px 2px -2px rgba(0,0,0,.14);
+}
+
+.personalizationRow {
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+
+.registrationContent {
+    height: 500px;
+}
+
+.check {
+    color: gray;
+}
+
+.submit {
+    text-align: right;
+}
+
+.tos h3 {
+    text-align: center;
+    margin-bottom: 2%;
+}
+
+.joinButton
+{
+    color: #565656;
+    letter-spacing: .4vw;
+    font-weight: bold;
+    background-color: #f2f2f2;
+    text-transform: uppercase;
+    font-family: 'Varela Round', sans-serif;
+}
+
+.joinButton:hover
+{
+    color: #f15a24;
+    text-decoration: none;
+}
+
+.switch {
+    text-align: right;
+}
+
+.switchTitle {
+    font-size: 1vw;
+    text-transform: uppercase;
+    padding-top: 1%;
+    text-align: left;
+}
+
+.blurb {
+    color: #9fc1c0;
+    text-align: center;
+    font-size: 1.5vw;
+}
+
+.directionalButtons {
+    text-align: center;
+}
+
+.information
+{
+    background-color: #565656;
+    padding: 1%;
+    width: 1vw;
+    height: 1vw;
+    color: #ffffff;
+    border-radius:50%;
+    -moz-border-radius:50%;
+    -webkit-border-radius:50%;
+    border: solid thin #565656;
+    margin-top: -10%;
+    margin-left: 5%;
+    cursor: pointer;
+}
+
+.arrowButton.btn.btn-primary,
+.arrowButton.btn.btn-primary:focus,
+.arrowButton.btn.btn-primary:active,
+.arrowButton.btn.btn-primary:active:focus {
+    background-color: #f6f9fb;
+    outline: none;
+    border: none;
+    box-shadow:none;
+}
+
+.leftButton, .rightButton {
+    color: #297d7d;
+}
+
+/**************   Place Holder Styleing   **************/
+input#username.form-control::-webkit-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* WebKit, Blink, Edge */
+
+
+input#username.form-control:-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+
+input#username.form-control:-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+
+input#username.form-control::-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 19+ */
+
+
+input#username.form-control:-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */
+
+
+input#username.form-control:-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */
+
+
+input#username.form-control::-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Microsoft Edge */
+
+/******************************************************************/
+
+input#password.form-control::-webkit-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* WebKit, Blink, Edge */
+
+
+input#password.form-control:-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+
+input#password.form-control:-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+
+input#password.form-control::-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 19+ */
+
+
+input#password.form-control:-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */
+
+
+input#password.form-control:-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */
+
+
+input#password.form-control::-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Microsoft Edge */
+
+/******************************************************************/
+
+input#email.form-control::-webkit-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* WebKit, Blink, Edge */
+
+
+input#email.form-control:-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+
+input#email.form-control:-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+
+input#email.form-control::-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 19+ */
+
+
+input#email.form-control:-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */
+
+
+input#email.form-control:-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */
+
+
+input#email.form-control::-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Microsoft Edge */
+
+/******************************************************************/
+
+input#confirmationCode.form-control::-webkit-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* WebKit, Blink, Edge */
+
+
+input#confirmationCode.form-control:-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+
+input#confirmationCode.form-control:-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+
+input#confirmationCode.form-control::-moz-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 19+ */
+
+
+input#confirmationCode.form-control:-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */
+
+
+input#confirmationCode.form-control:-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */
+
+
+input#confirmationCode.form-control::-ms-input-placeholder
+{
+    color: #eeeeee;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Microsoft Edge */
