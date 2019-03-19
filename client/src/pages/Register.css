@@ -3,7 +3,7 @@
 
 .registerPage
 {
-    margin-top: 20%;
+    margin-top: 10%;
     color: #565656;
     font-family: 'Montserrat', sans-serif;
     background-color: #f6f9fb;
@@ -59,7 +59,7 @@
 }
 
 .registrationContent {
-    height: 500px;
+    height: 10vh;
 }
 
 .check {

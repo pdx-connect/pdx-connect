@@ -2,6 +2,7 @@ import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Button} from "react-bootstrap";
 import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from "react-icons/fa";
+import {RouteComponentProps} from "react-router-dom";
 import "./Register.css";
 
 import BasicInfo from './RegisterSubpages/BasicInfo';
@@ -11,7 +12,7 @@ import Personalization from './RegisterSubpages/Personalization';
 import Agreement from './RegisterSubpages/Agreement';
 
 
-interface Props {
+interface Props extends RouteComponentProps{
 
 }
 
@@ -130,7 +131,7 @@ export class Register extends Component<Props, State> {
      * @override
      */
     public handleJoin = () => {
-        console.log('User clicked Join');
+        this.props.history.push("/login");
     }
 
     /**
