@@ -1,6 +1,6 @@
 import * as React from "react";
 import {ReactNode} from "react";
-import {Container, Row, Col, Form, Button, Alert} from "react-bootstrap";
+import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Page} from "../Page";
 import {RouteComponentProps, withRouter} from "react-router-dom";
 
@@ -96,7 +96,7 @@ export class Login extends Page<Props, State> {
             <Button size="sm" variant="light" onClick={() => {this.props.history.push('/register')} } className="register">register</Button>;
 
         const password =
-            <Button size="sm" variant="light" onClick={() => {this.props.history.push('/home')} } className="password-forgot">password?</Button>;
+            <Button size="sm" variant="light" onClick={() => {this.props.history.push('/reset')} } className="password-forgot">password?</Button>;
 
         return (
             <Container fluid className="login">

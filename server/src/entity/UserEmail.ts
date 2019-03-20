@@ -1,5 +1,4 @@
-import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn} from "typeorm";
-import {User} from "./User";
+import {BaseEntity, Column, Entity, PrimaryColumn} from "typeorm";
 
 @Entity("user_emails")
 export class UserEmail extends BaseEntity {
@@ -16,7 +15,7 @@ export class UserEmail extends BaseEntity {
     // })
     // @ManyToOne(type => User, user => user.emails)
     // user!: User;
-    userID!: number;
+    userID: number;
     
     @PrimaryColumn({
         name: "email",
@@ -24,7 +23,7 @@ export class UserEmail extends BaseEntity {
         length: 255,
         collation: "utf8_unicode_ci"
     })
-    email!: string;
+    email: string;
     
     @Column({
         name: "active_priority",
@@ -50,5 +49,20 @@ export class UserEmail extends BaseEntity {
         comment: "The time when the verification code was generated"
     })
     verificationTime?: Date;
+
+    /**
+     * Creates a new unverified email for the given user.
+     * @param userID
+     * @param email
+     * @param verificationCode
+     * @param verificationTime
+     */
+    constructor(userID: number, email: string, verificationCode: string, verificationTime: Date) {
+        super();
+        this.userID = userID;
+        this.email = email;
+        this.verificationCode = verificationCode;
+        this.verificationTime = verificationTime;
+    }
     
 }

@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as webpack from "webpack";
-import * as CleanWebpackPlugin from "clean-webpack-plugin";
+import CleanWebpackPlugin from "clean-webpack-plugin";
 import * as CopyWebpackPlugin from "copy-webpack-plugin";
 import * as HtmlWebpackPlugin from "html-webpack-plugin";
 
@@ -15,7 +15,7 @@ export = (env: unknown, argv: { mode: string }): webpack.Configuration => {
     ];
     
     const plugins: webpack.Plugin[] = [];
-    plugins.push(new CleanWebpackPlugin(outputPath));
+    plugins.push(new CleanWebpackPlugin());
     plugins.push(new CopyWebpackPlugin([
         { from: "favicon.ico" },
         { from: "resources", to: "resources" }

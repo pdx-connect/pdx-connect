@@ -5,7 +5,7 @@ import * as express from "express";
 import {Express, Request, Response} from "express";
 import session = require("express-session");
 import {randomBytes} from "crypto";
-import {Connection, createConnection, IsNull, Not} from "typeorm";
+import {Connection, createConnection} from "typeorm";
 import * as routes from "./routes";
 import {ServerConfiguration} from "./config/ServerConfiguration";
 import {DatabaseConfiguration} from "./config/DatabaseConfiguration";
@@ -16,7 +16,6 @@ import * as bodyParser from "body-parser";
 import * as passport from "passport";
 import {Strategy as LocalStrategy} from "passport-local";
 import {User} from "./entity/User";
-import {UserEmail} from "./entity/UserEmail";
 import opn = require("opn");
 import {init as initMail} from "./mail";
 import {compare} from "bcrypt";
@@ -100,19 +99,19 @@ function generateSessionKey(): string {
                         pass: mailConfig.auth.pass
                     }
                 };
-                await initMail(smtpConfig);
+                await initMail(serverConfig.host, smtpConfig);
                 break;
             case "sendmail":
                 const sendmailConfig: SendmailTransport.Options = {
                     sendmail: true
                 };
-                await initMail(sendmailConfig);
+                await initMail(serverConfig.host, sendmailConfig);
                 break;
             default:
                 throw new Error("Invalid mail service: " + mailConfig!.service);
         }
     } else if (developmentMode) {
-        await initMail();
+        await initMail(serverConfig.host);
     } else {
         console.error("No mail configuration file: " + mailConfigFile);
         console.error("See the README.md file for the mail configuration JSON format.");
@@ -149,22 +148,12 @@ function generateSessionKey(): string {
         session: true
     }, async (email: string, password: string, done) => {
         // Look up user by email
-        const userEmail: UserEmail|undefined = await UserEmail.findOne({
-            where: {
-                email: email,
-                activePriority: Not(IsNull())
-            }
-        });
-        if (userEmail == null) {
-            done("Email does not exist.");
-            return;
-        }
-        if (userEmail.verificationCode != null) {
-            done("Email has not been verified yet.");
+        const user: User|string = await User.findActiveByEmail(email);
+        if (typeof user === "string") {
+            done(user);
             return;
         }
         // Check password of user using bcrypt
-        const user: User = await User.findOneOrFail(userEmail.userID);
         if (await compare(password, user.password)) {
             // Success!
             done(null, user);

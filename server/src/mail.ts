@@ -4,16 +4,18 @@ import * as SendmailTransport from "nodemailer/lib/sendmail-transport";
 import * as Mail from "nodemailer/lib/mailer";
 import MailMessage = require("nodemailer/lib/mailer/mail-message");
 
+let hostSuffix: string;
 let transporter: Transporter|undefined;
 
 /**
  * Initializes the nodemailer transporter with the given SMTP options.
  * If no options are provided, the Linux sendmail binary is provided.
  */
-export async function init(options?: SMTPTransport.Options | SendmailTransport.Options) {
+export async function init(host: string, options?: SMTPTransport.Options | SendmailTransport.Options) {
     if (transporter != null) {
         throw new Error("Mail transporter is already initialized.");
     }
+    hostSuffix = "@" + host;
     if (options) {
         // Use SMTP server or Linux sendmail binary
         transporter = createTransport(options);
@@ -23,12 +25,27 @@ export async function init(options?: SMTPTransport.Options | SendmailTransport.O
     }
 }
 
+function patchFromAddress(address: string): string {
+    if (!address.includes("@")) {
+        address += hostSuffix;
+    }
+    return address;
+}
+
 /**
  * Sends mail using the initialized transporter.
  */
 export async function sendMail(options: Mail.Options): Promise<SentMessageInfo> {
     if (transporter == null) {
         throw new Error("Mail transporter is not initialized.");
+    }
+    // Patch mail options if 'from' doesn't include an "@" symbol
+    if (options.from) {
+        if (typeof options.from === "string") {
+            options.from = patchFromAddress(options.from);
+        } else {
+            options.from.address = patchFromAddress(options.from.address);
+        }
     }
     // Send mail using initialized transporter
     return transporter.sendMail(options);
