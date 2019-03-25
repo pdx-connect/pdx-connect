@@ -32,7 +32,7 @@ async function verify(email: string, verificationCode: string): Promise<[User, U
 }
 
 export function route(app: Express, db: Connection) {
-    app.post("/reset", async (request: Request, response: Response, next: NextFunction) => {
+    app.post("/reset", async (request: Request, response: Response) => {
         if (typeof request.body !== "object") {
             response.sendStatus(400);
             return;
@@ -71,7 +71,7 @@ export function route(app: Express, db: Connection) {
             to: email.toLowerCase(),
             subject: "Password Reset",
             text: "A request was submitted to reset your password.\n" +
-                "Verification Code: " + resetCode
+                "Verification Code:\n\n" + resetCode
         });
         // Respond with success
         response.send(JSON.stringify({

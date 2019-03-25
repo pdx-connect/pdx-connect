@@ -59,6 +59,7 @@ export class Login extends Page<Props, State> {
 
         const data = await response.json();
         if ('success' in data) {
+            localStorage.clear();
             this.props.history.push("/");
         }
         else
@@ -72,6 +73,15 @@ export class Login extends Page<Props, State> {
             this.authenticate(this.state.email, this.state.password).then();
         }
     };
+
+    public clearLocalStorage()
+    {
+        localStorage.removeItem('displayName');
+        localStorage.removeItem('email');
+        localStorage.removeItem('disabled');
+        localStorage.removeItem('userID');
+        localStorage.removeItem('tos');
+    }
     
     /**
      * @override
@@ -96,7 +106,7 @@ export class Login extends Page<Props, State> {
             <Button size="sm" variant="light" onClick={() => {this.props.history.push('/register')} } className="register">register</Button>;
 
         const password =
-            <Button size="sm" variant="light" onClick={() => {this.props.history.push('/reset')} } className="password-forgot">password?</Button>;
+            <Button size="sm" variant="light" onClick={() => {this.clearLocalStorage(); this.props.history.push('/reset')} } className="password-forgot">password?</Button>;
 
         return (
             <Container fluid className="login">
@@ -117,12 +127,12 @@ export class Login extends Page<Props, State> {
                     <Col sm={4}></Col>
                     <Col sm={4}>
                         <Form>
-                            <Form.Group controlId="formBasicEmail">
-                                <Form.Control type="email" placeholder="email" className="email" onChange={this.setEmail}/>
+                            <Form.Group className="formBasic">
+                                <Form.Control type="email" placeholder="email" className="generic" onChange={this.setEmail}/>
                             </Form.Group>
 
-                            <Form.Group controlId="formBasicPassword">
-                                <Form.Control type="password" placeholder="password" className="password" onChange={this.setPassword}/>
+                            <Form.Group className="formBasic">
+                                <Form.Control type="password" placeholder="password" className="generic" onChange={this.setPassword}/>
                             </Form.Group>
                         </Form>
                     </Col>

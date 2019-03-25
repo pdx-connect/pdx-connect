@@ -194,10 +194,10 @@ export class Reset extends Page<Props, State> {
                     <Col sm={4}></Col>
                     <Col sm={4}>
                         <Form>
-                            <Form.Group controlId="formBasic">
+                            <Form.Group className="formBasic">
                                 {!this.state.verificationCodeSent?
-                                    <Form.Control type="email" placeholder="account email" className="myFormControl" value={this.state.email} onChange={this.setEmail}/>
-                                    :<Form.Control disabled type="email" placeholder="account email" className="myFormControl" value={this.state.email} onChange={this.setEmail}/>
+                                    <Form.Control type="email" placeholder="account email" className="generic" value={this.state.email} onChange={this.setEmail}/>
+                                    :<Form.Control disabled type="email" placeholder="account email" className="generic" value={this.state.email} onChange={this.setEmail}/>
                                 }
                                 {this.state.verificationCodeSent? <span className="actionNotice">verification code sent</span> : null}
                                 {this.state.verificationCodeSent? <span className="update">edit<Button variant="light" size="sm" onClick={this.updateEmailAccount}><FaEdit size="1.5vw"/></Button></span> : null}
@@ -212,24 +212,24 @@ export class Reset extends Page<Props, State> {
                     <Col sm={4}></Col>
                     <Col sm={4}>
                         <Form>
-                            <Form.Group controlId="formBasic">
-                                <Form.Control type="text" className="myFormControl" placeholder="verification code" onChange={this.setVerificationCode}/>
+                            <Form.Group className="formBasic">
+                                <Form.Control type="text" className="generic" placeholder="verification code" onChange={this.setVerificationCode}/>
                                 {this.state.verificationCodeMatch? <span className="actionNotice">Match <FaCheck size="1vw"/></span> : null}
                                 {!this.state.verificationCodeMatch? <span className="update">resend code<Button variant="light" size="sm" onClick={this.resendVerificationCode}><FaRedo size="1.5vw"/></Button></span>: null}
                             </Form.Group>
 
-                            <Form.Group controlId="formBasic">
+                            <Form.Group className="formBasic">
                                 {this.state.verificationCodeMatch?
-                                    <Form.Control type="text" className="myFormControl" value={this.state.newPassword} placeholder="new password" onChange={this.setNewPassword}/>
+                                    <Form.Control type="text" className="generic" value={this.state.newPassword} placeholder="new password" onChange={this.setNewPassword}/>
                                     :
-                                    <Form.Control disabled type="text" className="myFormControl" value={this.state.newPassword} placeholder="new password" onChange={this.setNewPassword}/>}
+                                    <Form.Control disabled type="text" className="generic" value={this.state.newPassword} placeholder="new password" onChange={this.setNewPassword}/>}
                             </Form.Group>
 
                             <Form.Group controlId="formBasic">
                                 {this.state.verificationCodeMatch?
-                                    <Form.Control type="text" className="myFormControl" value={this.state.confirmPassword} placeholder="confirm new password" onChange={this.setConfirmPassword}/>
+                                    <Form.Control type="text" className="generic" value={this.state.confirmPassword} placeholder="confirm new password" onChange={this.setConfirmPassword}/>
                                     :
-                                    <Form.Control disabled type="text" className="myFormControl" value={this.state.confirmPassword}placeholder="confirm new password" onChange={this.setConfirmPassword}/>}
+                                    <Form.Control disabled type="text" className="generic" value={this.state.confirmPassword}placeholder="confirm new password" onChange={this.setConfirmPassword}/>}
                                     <span className="actionNoticeRed">{this.state.matchMessage}</span>
                             </Form.Group>
                         </Form>

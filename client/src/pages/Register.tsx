@@ -1,143 +1,273 @@
 import * as React from "react";
-import {Component, ReactNode} from "react";
-import {Container, Row, Col, Button} from "react-bootstrap";
+import {Page} from "../Page";
+import {ReactNode} from "react";
+import {Container, Row, Col, Modal} from "react-bootstrap";
 import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from "react-icons/fa";
 import {RouteComponentProps} from "react-router-dom";
 import "./Register.css";
 
-import BasicInfo from './RegisterSubpages/BasicInfo';
-import EmailConfirmation from './RegisterSubpages/EmailConfirmation';
-import Interests from './RegisterSubpages/Interests';
-import Personalization from './RegisterSubpages/Personalization';
-import Agreement from './RegisterSubpages/Agreement';
+import {BasicInfo} from './register/BasicInfo';
+import {Agreement} from './register/Agreement';
+import {EmailConfirmation} from './register/EmailConfirmation';
 
 
-interface Props extends RouteComponentProps{
-
+interface Props extends RouteComponentProps {
 }
 
 interface State {
     step: number;
-    username?: string;
-    password?: string;
-    email?: string;
+    displayName: string | null;
+    password: string | null;
+    email: string | null;
     title: string;
-    selectedOption?: any;
-    personalizations?: any;
-    tos?: boolean;
-    nextDisabled?: boolean;
+    tos: boolean;
+    show: boolean;
+    disabled: boolean;
+    confirmed: boolean;
+    confirmationCode: string;
+    userID?: number;
+    domain?: string;
+    passwordDisabled?: boolean;
 }
 
 /**
  * 
  */
-export class Register extends Component<Props, State> {
+export class Register extends Page<Props, State> {
 
     /**
-     * @override
+     * Creates the register page.
      */
-
-    constructor(props: Props)
-    {
+    constructor(props: Props) {
         super(props);
-
         this.state = {
             step: 1,
-            username: "",
+            displayName: "",
             password: "",
             email: "",
-            title: "register",
-            selectedOption: null,
-            personalizations: {
-                "profile": true,
-                "tags": true,
-                "notifications": true,
-                "messages": true,
-                "comments": true
-            },
+            title: "",
             tos: false,
-            nextDisabled: false
+            show: false,
+            disabled: false,
+            confirmed: false,
+            confirmationCode: "",
+            userID: undefined,
+            domain: "",
+            passwordDisabled: false
         };
     }
 
     private readonly next = () => {
         const { step }: any = this.state;
-        this.setState({
-            step: step + 1
-        })
-    }
+        if(step + 1 === 3){
+            if(this.state.confirmed) {
+                this.clearLocalStorage();
+                this.props.history.push("/login");
+            }
+            else
+                this.setState({
+                    step: 2
+                });
+        }
+        else {
+            this.setState({
+                step: step + 1
+            });
+        }
+    };
 
     private readonly prev = () => {
         const { step }: any = this.state;
         this.setState({
             step: step - 1
         })
-    }
+    };
 
     private readonly enterKeyPressed = (e: any) => {
-        if (e.keyCode === 13) {
-            console.log('enter key pressed, do something');
+        if (e.keyCode === 13 && !(this.state.email === "" || this.state.displayName === "" || this.state.password === "")) {
+            this.setState({show: true});
         }
     };
 
-    /**
-     * @override
-     */
-    public getEmail = () => {
-        return this.state.email;
-    }
+    private readonly closeTos = () => {
+        this.setState({show: false});
+    };
 
-    /**
-     * @override
-     */
-    public handleChange = (e: any) => {
-        this.setState({[e.target.id]: e.target.value} as any);
-    }
+    private readonly registerUser = async (displayName: string, password: string, email: string, domain:string) => {
+        const response: Response = await fetch("/register", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                displayName: displayName,
+                email: email.concat('@').concat(domain),
+                password: password
+            })
+        });
 
-    /**
-     * @override
-     */
-    public handlePersonalizationCheck = (checked: boolean, event: object, id: any) => {
-        let personalizations = this.state.personalizations;
-        personalizations[id] = checked;
-        this.setState({personalizations: personalizations});
+        const data = await response.json();
+        
+        if ('error' in data) {
+            console.log("Error: ", data['error']);
+        } else {            
+            this.setState({
+                show: false,
+                disabled: true,
+                userID: data.userID,
+                passwordDisabled: true
+            });
+
+            localStorage.setItem('displayName', displayName);
+            localStorage.setItem('email', email);
+            localStorage.setItem('disabled', 'true');
+            localStorage.setItem('userID', data.userID.toString());
+
+            this.next();
+        }
+    };
+
+    private readonly verifyUser = async (userID: number, confirmationCode: string) => {
+        const response: Response = await fetch("/register/verify", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userID: userID,
+                verificationCode: confirmationCode
+            })
+        });
+
+        const data = await response.json();
+
+        if ('error' in data) {
+            console.log("Error: ", data['error']);
+        } else {
+            this.setState({
+                confirmed: true
+            });
+        }
+    };
+
+    private readonly getDomain = async (): Promise<string> => {
+        const response: Response = await fetch("/api/settings/email-domain", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data: unknown = await response.json();
+        if (typeof data !== "string") {
+            throw new Error("Invalid response type: " + typeof data);
+        }
+        return data;
+    };
+
+    private readonly serverResendCode = async(email: string, userID: number, domain: string) => {
+        const response: Response = await fetch("/register/resend", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email.concat('@').concat(domain),
+                userID: userID
+            })
+        });
+        const data = await response.json();
+        return 'success' in data;
     };
 
     /**
      * @override
      */
-    public handleCheck = (checked: boolean) => {
-        if(this.state.tos)
-            this.setState({tos: false});
-        else
-            this.setState({tos: true});
+    private readonly handleChange = (e: any) => {
+        this.setState({
+            [e.target.id]: e.target.value
+        } as any);
     };
-
-    /**
-     * @override
-     */
-    public getTos = () => {
+    
+    private readonly handleCheck = () => {
+        this.setState({
+            tos: !this.state.tos
+        });
+        localStorage.setItem('tos', (!this.state.tos).toString());
+    };
+    
+    private readonly getTOS = () => {
         return this.state.tos;
     };
+        
+    private readonly handleJoin = () => {
+            if (this.state.displayName != null && this.state.email != null && this.state.password != null && this.state.domain != null) {
+                this.registerUser(this.state.displayName, this.state.password, this.state.email, this.state.domain).then();
+            }
+    };
+    
+    private readonly resendCode = () => {
+        if (this.state.email != null && this.state.userID != null && this.state.domain != null) {
+            this.serverResendCode(this.state.email, this.state.userID, this.state.domain).then();
+        }
+    };
+    
+    private readonly confirmCode = () => {
+        if (this.state.userID != null && this.state.confirmationCode != null) {
+            this.verifyUser(this.state.userID, this.state.confirmationCode).then();
+        }
+    };
 
-    /**
-     * @override
-     */
-    public handleInterestChange = (selectedOption: string) => {
-        this.setState({ selectedOption });
+    private readonly resetRegistration = () => {
+        this.clearLocalStorage();
+        this.getDomain().then(domain => {
+            this.setState({
+                step: 1,
+                displayName: "",
+                password: "",
+                email: "",
+                title: "",
+                tos: false,
+                show: false,
+                disabled: false,
+                confirmed: false,
+                confirmationCode: "",
+                userID: undefined,
+                domain: domain,
+                passwordDisabled: false
+            });
+        });
+    };
+
+    public clearLocalStorage()
+    {
+        localStorage.removeItem('displayName');
+        localStorage.removeItem('email');
+        localStorage.removeItem('disabled');
+        localStorage.removeItem('userID');
+        localStorage.removeItem('tos');
     }
-
-        /**
-     * @override
-     */
-    public handleJoin = () => {
-        this.props.history.push("/login");
-    }
-
+    
     /**
      * @override
      */
     public componentDidMount() {
+        this.getDomain().then(domain => {
+            let disabled = localStorage.getItem('disabled') ? localStorage.getItem('disabled') === 'true' : false;
+            let userID = localStorage.getItem('userID') ? Number(localStorage.getItem('userID')) : undefined;
+            let tos = localStorage.getItem('tos') ? localStorage.getItem('tos') === 'true': false;
+            let email = localStorage.getItem('email') === null ? "" : localStorage.getItem('email');
+            let displayName = localStorage.getItem('displayName') === null ? "" : localStorage.getItem('displayName');
+
+            this.setState({
+                domain: domain,
+                disabled: disabled,
+                userID: userID,
+                tos: tos,
+                email: email,
+                displayName: displayName
+            });
+        });
+
         document.addEventListener('keydown', this.enterKeyPressed);
     }
     
@@ -148,70 +278,80 @@ export class Register extends Component<Props, State> {
         document.removeEventListener('keydown', this.enterKeyPressed);
     }
 
+    /**
+     * @override
+     */
     public render(): ReactNode {
 
         const content: { [key: number]: any } = {
-                1: BasicInfo,
-                2: EmailConfirmation,
-                3: Interests,
-                4: Personalization,
-                5: Agreement
-            };
-
-        let CurrentContent = content[this.state.step];
-
-        const title: { [key: number]: string } = {
-            1: "register",
-            2: "confirmation",
-            3: "interests",
-            4: "personalization",
-            5: "agreement"
+            1: BasicInfo,
+            2: EmailConfirmation
         };
 
-    return (
-        <Container fluid className="registerPage">
-            <Row className="title">
-                <Col sm={2}></Col>
-                <Col sm={8}><h1>pdx connect</h1></Col>
-                <Col sm={2}></Col>
-            </Row>
+        const CurrentContent = content[this.state.step];
+        
+        const title: { [key: number]: string } = {
+            1: "register",
+            2: "confirmation"
+        };
 
-            <Row className="subTitle">
-                <Col sm={4}></Col>
-                <Col sm={4}><h3>{title[this.state.step]}</h3></Col>
-                <Col sm={4}></Col>
-            </Row>
-            <Row>
-                <Col sm={3}></Col>
-                <Col sm={6} className="registrationContent">
-                    <CurrentContent
-                        step={this.state.step}
-                        prev={this.prev}
-                        next={this.next} 
-                        handleChange={this.handleChange}
-                        handleInterestChange={this.handleInterestChange}
-                        handlePersonalizationCheck={this.handlePersonalizationCheck}
-                        handleCheck={this.handleCheck}
-                        handleJoin={this.handleJoin}
-                        getTos={this.getTos}
-                        getEmail={this.getEmail}
-                        selectedOption={this.state.selectedOption}
-                        personalizations={this.state.personalizations}
+        return (
+            <Container fluid className="registerPage">
+                <Row className="title">
+                    <Col sm={2}/>
+                    <Col sm={8}><h1>pdx connect</h1></Col>
+                    <Col sm={2}/>
+                </Row>
+
+                <Row className="subTitle">
+                    <Col sm={4}/>
+                    <Col sm={4}><h3>{title[this.state.step]}</h3></Col>
+                    <Col sm={4}/>
+                </Row>
+                <Row>
+                    <Col sm={3} className="directionalButtons">
+                        {this.state.step != 1 ?
+                            <FaArrowAltCircleLeft className="leftButton" size="4vw" onClick={this.prev}/>
+                            : <FaArrowAltCircleLeft className="leftButton" size="4vw" onClick={() => {this.props.history.push('/login')}}/>}
+                    </Col>
+                    <Col sm={6}>
+                        <CurrentContent
+                            step={this.state.step}
+                            prev={this.prev}
+                            next={this.next}
+                            handleChange={this.handleChange}
+                            email={this.state.email}
+                            displayName={this.state.displayName}
+                            password={this.state.password}
+                            disabled={this.state.disabled}
+                            resendCode={this.resendCode}
+                            confirmCode={this.confirmCode}
+                            confirmed={this.state.confirmed}
+                            domain={this.state.domain}
+                            resetRegistration={this.resetRegistration}
+                            passwordDisabled={this.state.passwordDisabled}
                         />
-                </Col>
-                <Col sm={3}></Col>
-            </Row>
-
-            <Row className="directionalButtons">
-                <Col sm={4}>{this.state.step != 1? <Button className="arrowButton" onClick={this.prev} ><FaArrowAltCircleLeft className="leftButton" size="4vw" /></Button>: null}
-                {this.state.step == 1? <Button className="arrowButton" onClick={() => {this.props.history.push('/login')} } ><FaArrowAltCircleLeft className="leftButton" size="4vw" /></Button>: null}</Col>
-                <Col sm={4}></Col>
-                <Col sm={4}>{this.state.step != 5? <Button className="arrowButton" onClick={this.next} disabled={this.state.nextDisabled}><FaArrowAltCircleRight className="rightButton" size="4vw" /></Button>:null}</Col>
-            </Row>
-        </Container>
-    );
-
-
+                    </Col>
+                    <Col sm={3} className="directionalButtons">
+                        {this.state.disabled && this.state.confirmed && this.state.step === 1?
+                            <FaArrowAltCircleRight className="rightButton" size="4vw" onClick={this.next}/> : null}
+                        {this.state.confirmed && this.state.step === 2?
+                            <FaArrowAltCircleRight className="rightButton" size="4vw" onClick={this.next}/> : null}
+                    </Col>
+                </Row>
+                {this.state.passwordDisabled ?
+                    null :
+                    <Modal show={this.state.show} onHide={this.closeTos} className="tos">
+                        <Modal.Header closeButton />
+                        <Agreement
+                            handleCheck={this.handleCheck}
+                            handleJoin={this.handleJoin}
+                            getTOS={this.getTOS}
+                        />
+                    </Modal>
+                }
+            </Container>
+        );
     }
 
 }

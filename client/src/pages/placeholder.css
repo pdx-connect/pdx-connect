@@ -1,0 +1,64 @@
+/**************   Place Holder Styleing   **************/
+input.generic.form-control::-webkit-input-placeholder
+{
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* WebKit, Blink, Edge */
+
+input.generic.form-control::-webkit-input-placeholder
+{
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* WebKit, Blink, Edge */
+
+input.generic.form-control:-moz-placeholder
+{
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+input.generic.form-control:-moz-placeholder
+{
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 4 to 18 */
+
+input.generic.form-control::-moz-placeholder
+{
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 19+ */
+
+input.generic.form-control::-moz-placeholder
+{
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Mozilla Firefox 19+ */
+
+input.generic.form-control:-ms-input-placeholder
+{
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */
+
+input.generic.form-control:-ms-input-placeholder
+{
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}  /* Internet Explorer 10-11 */

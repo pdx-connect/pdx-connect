@@ -47,18 +47,21 @@ export class User extends BaseEntity {
         collation: "utf8mb4_bin",
         comment: "About me"
     })
-    description?: string;
+    description: string|null = null;
 
     @JoinColumn({
         name: "major"
     })
     @ManyToOne(type => Tag)
-    major?: Promise<Tag>;
+    major: Promise<Tag>|null = null;
     
     @Column({
-        name: "on_campus"
+        name: "on_campus",
+        type: "tinyint",
+        width: 1,
+        unsigned: true
     })
-    isOnCampus?: boolean;
+    isOnCampus: boolean|null = null;
     
     @Column({
         name: "deactivated",
@@ -70,14 +73,21 @@ export class User extends BaseEntity {
      * Create a new user.
      * @param displayName
      * @param password
-     * @param creationDate
      */
-    constructor(displayName: string, password: string, creationDate: Date) {
+    constructor(displayName: string, password: string) {
         super();
         this.displayName = displayName;
         this.password = password;
-        this.creationDate = creationDate;
+        this.creationDate = new Date();
         this.deactivated = false;
+    }
+
+    /**
+     * Deactivates this user and saves to the database.
+     */
+    public async deactivate(): Promise<this> {
+        this.deactivated = true;
+        return this.save();
     }
     
     /**

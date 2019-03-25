@@ -1,6 +1,8 @@
+@import "placeholder.css";
+
 .reset
 {
-    margin-top: 25%;
+    margin-top: 10%;
     color: #565656;
     font-family: 'Montserrat', sans-serif;
     background-color: #f6f9fb;
@@ -55,111 +57,3 @@
     font-family: 'Varela Round', sans-serif;
     margin-top: 1%;
 }
-
-/**************   Place Holder Styleing   **************/
-input#formBasicPassword.password.form-control::-webkit-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* WebKit, Blink, Edge */
-
-input#formBasicEmail.email.form-control::-webkit-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* WebKit, Blink, Edge */
-
-input#formBasicPassword.password.form-control:-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 4 to 18 */
-
-input#formBasicEmail.email.form-control:-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 4 to 18 */
-
-input#formBasicPassword.password.form-control::-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 19+ */
-
-input#formBasicEmail.email.form-control::-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 19+ */
-
-input#formBasicPassword.password.form-control:-ms-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Internet Explorer 10-11 */
-
-input#formBasicEmail.email.form-control:-ms-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Internet Explorer 10-11 */
-
-/**************   Place Holder Styleing   **************/
-input#formBasic.myFormControl.form-control::-webkit-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* WebKit, Blink, Edge */
-
-input#formBasic.myFormControl.form-control:-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 4 to 18 */
-
-input#formBasic.myFormControl.form-control::-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 19+ */
-
-input#formBasic.myFormControl.form-control:-ms-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Internet Explorer 10-11 */
-
-input#formBasic.myFormControl.form-control::-ms-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Microsoft Edge */
-
-/******************************************************************/

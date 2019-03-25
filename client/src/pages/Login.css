@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i");
 @import url("https://fonts.googleapis.com/css?family=Varela+Round");
+@import "placeholder.css";
 
 html{
     height: 100%;
@@ -61,86 +62,3 @@ html{
     padding-bottom: 1%;
     font-family: 'Varela Round', sans-serif;
 }
-
-/**************   Place Holder Styleing   **************/
-input#formBasicPassword.password.form-control::-webkit-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* WebKit, Blink, Edge */
-
-input#formBasicEmail.email.form-control::-webkit-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* WebKit, Blink, Edge */
-
-input#formBasicPassword.password.form-control:-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 4 to 18 */
-
-input#formBasicEmail.email.form-control:-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 4 to 18 */
-
-input#formBasicPassword.password.form-control::-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 19+ */
-
-input#formBasicEmail.email.form-control::-moz-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Mozilla Firefox 19+ */
-
-input#formBasicPassword.password.form-control:-ms-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Internet Explorer 10-11 */
-
-input#formBasicEmail.email.form-control:-ms-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Internet Explorer 10-11 */
-
-input#formBasicPassword.password.form-control::-ms-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Microsoft Edge */
-
-input#formBasicEmail.email.form-control::-ms-input-placeholder
-{
-    color: #eeeeee;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}  /* Microsoft Edge */
-
-/******************************************************************/

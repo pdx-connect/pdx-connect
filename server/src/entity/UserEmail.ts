@@ -1,4 +1,5 @@
 import {BaseEntity, Column, Entity, PrimaryColumn} from "typeorm";
+import {User} from "./User";
 
 @Entity("user_emails")
 export class UserEmail extends BaseEntity {
@@ -32,7 +33,7 @@ export class UserEmail extends BaseEntity {
         unsigned: true,
         comment: "NULL is inactive, 1 is primary, 2 is secondary, etc"
     })
-    activePriority?: number;
+    activePriority: number|null;
     
     @Column({
         name: "verification_code",
@@ -41,28 +42,54 @@ export class UserEmail extends BaseEntity {
         collation: "ascii_bin",
         comment: "Bcrypt'd verification code. If this is NULL, the user is verified."
     })
-    verificationCode?: string;
+    verificationCode: string|null;
     
     @Column({
         name: "verification_time",
         type: "datetime",
         comment: "The time when the verification code was generated"
     })
-    verificationTime?: Date;
+    verificationTime: Date|null;
 
     /**
      * Creates a new unverified email for the given user.
      * @param userID
      * @param email
      * @param verificationCode
-     * @param verificationTime
      */
-    constructor(userID: number, email: string, verificationCode: string, verificationTime: Date) {
+    constructor(userID: number, email: string, verificationCode: string) {
         super();
         this.userID = userID;
         this.email = email;
+        this.activePriority = null;
         this.verificationCode = verificationCode;
-        this.verificationTime = verificationTime;
+        this.verificationTime = new Date();
+    }
+
+    /**
+     * Deletes the email entry and the user if no more emails left.
+     */
+    public async prune(): Promise<this> {
+        const userID: number = this.userID;
+        const thisEmail: this = await this.remove();
+        // Check if user has no more emails
+        const count: number = await UserEmail.count({
+            where: {
+                userID: userID
+            }
+        });
+        if (count <= 0) {
+            const user: User|undefined = await User.findOne(userID);
+            if (user) {
+                try {
+                    await user.remove();
+                } catch (err) {
+                    console.error("Failed to prune user after removing all emails.");
+                    await user.deactivate();
+                }
+            }
+        }
+        return thisEmail;
     }
     
 }
