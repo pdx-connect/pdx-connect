@@ -16,7 +16,7 @@ import * as bodyParser from "body-parser";
 import * as passport from "passport";
 import {Strategy as LocalStrategy} from "passport-local";
 import {User} from "./entity/User";
-import opn = require("opn");
+import opn = require("open");
 import {init as initMail} from "./mail";
 import {compare} from "bcrypt";
 

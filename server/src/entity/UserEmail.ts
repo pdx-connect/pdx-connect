@@ -1,22 +1,24 @@
-import {BaseEntity, Column, Entity, PrimaryColumn} from "typeorm";
+import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn} from "typeorm";
 import {User} from "./User";
 
 @Entity("user_emails")
 export class UserEmail extends BaseEntity {
-    
-    // TODO Having trouble getting many-to-one relation working with composite primary keys
     
     @PrimaryColumn({
         name: "user_id",
         type: "int",
         unsigned: true
     })
-    // @JoinColumn({
-    //     name: "user_id"
-    // })
-    // @ManyToOne(type => User, user => user.emails)
-    // user!: User;
-    userID: number;
+    readonly userID!: number;
+
+    @JoinColumn({
+        name: "user_id"
+    })
+    @ManyToOne(type => User, user => user.emails, {
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE"
+    })
+    readonly user!: Promise<User>;
     
     @PrimaryColumn({
         name: "email",
@@ -24,7 +26,7 @@ export class UserEmail extends BaseEntity {
         length: 255,
         collation: "utf8_unicode_ci"
     })
-    email: string;
+    readonly email!: string;
     
     @Column({
         name: "active_priority",
@@ -33,7 +35,7 @@ export class UserEmail extends BaseEntity {
         unsigned: true,
         comment: "NULL is inactive, 1 is primary, 2 is secondary, etc"
     })
-    activePriority: number|null;
+    activePriority!: number|null;
     
     @Column({
         name: "verification_code",
@@ -42,30 +44,40 @@ export class UserEmail extends BaseEntity {
         collation: "ascii_bin",
         comment: "Bcrypt'd verification code. If this is NULL, the user is verified."
     })
-    verificationCode: string|null;
+    verificationCode!: string|null;
     
     @Column({
         name: "verification_time",
         type: "datetime",
         comment: "The time when the verification code was generated"
     })
-    verificationTime: Date|null;
+    verificationTime!: Date|null;
+
+    /**
+     * Internal constructor.
+     */
+    constructor();
 
     /**
      * Creates a new unverified email for the given user.
-     * @param userID
+     * @param user
      * @param email
      * @param verificationCode
      */
-    constructor(userID: number, email: string, verificationCode: string) {
+    constructor(user: User, email: string, verificationCode: string);
+    
+    constructor(user?: User, email?: string, verificationCode?: string) {
         super();
-        this.userID = userID;
-        this.email = email;
-        this.activePriority = null;
-        this.verificationCode = verificationCode;
-        this.verificationTime = new Date();
+        if (user != null && email != null && verificationCode != null) {
+            this.userID = user.id;
+            this.user = Promise.resolve(user);
+            this.email = email;
+            this.activePriority = null;
+            this.verificationCode = verificationCode;
+            this.verificationTime = new Date();
+        }
     }
-
+    
     /**
      * Deletes the email entry and the user if no more emails left.
      */

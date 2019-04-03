@@ -2,47 +2,51 @@ import * as React from "react";
 import {Component} from "react";
 import {Container, Row, Col, Modal} from "react-bootstrap";
 import Switch from 'react-switch';
-import "../Register.css";
+import "./Profile.css";
 import { FaInfo } from "react-icons/fa";
 
-// TODO: moved out of register, put this back together
-/*
-handleInterestChange={this.handleInterestChange}
-handlePersonalizationCheck={this.handlePersonalizationCheck}
-selectedOption={this.state.selectedOption}
-personalizations={this.state.personalizations}
-            selectedOption: null,
-            personalizations: {
-                "profile": true,
-                "tags": true,
-                "notifications": true,
-                "messages": true,
-                "comments": true
-            },
-private readonly handleInterestChange = (selectedOption: string) => {
-this.setState({selectedOption});
+import {Tags} from "./preferences/Tags";
+import {Profile} from "./preferences/Profile";
+import {Miscellaneous} from "./preferences/Miscellaneous";
+import {Messages} from "./preferences/Messages";
+import {Comments} from "./preferences/Comments";
+
+const modalContent: { [key: string]: typeof Component } = {
+    "profile": Profile,
+    "tags": Tags,
+    "miscellaneous": Miscellaneous,
+    "messages": Messages,
+    "comments": Comments
 };
 
-private readonly handlePersonalizationCheck = (checked: boolean, event: object, id: any) => {
-    let personalizations = this.state.personalizations;
-    personalizations[id] = checked;
-    this.setState({
-        personalizations: personalizations
-    });
+const modalTitle: { [key: string]: keyof Personalizations } = {
+    "profile": 'profile',
+    "tags": 'tags',
+    "miscellaneous": 'miscellaneous',
+    "messages": 'messages',
+    "comments": 'comments'
 };
-*/
+
+export interface Personalizations {
+    profile: boolean;
+    tags: boolean;
+    miscellaneous: boolean;
+    messages: boolean;
+    comments: boolean;
+}
 
 interface Props {
     handlePersonalizationCheck: (
         checked: boolean,
         event: React.SyntheticEvent<MouseEvent | KeyboardEvent> | MouseEvent,
-        id: string
+        id: keyof Personalizations
     ) => void;
-    personalizations: { [id: string]: boolean };
+    personalizations: Personalizations;
 }
 
 interface State {
     show: boolean;
+    modal: keyof Personalizations;
 }
 
 export class Personalization extends Component<Props, State> {
@@ -50,7 +54,8 @@ export class Personalization extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            show: false
+            show: false,
+            modal: "profile"
         };
     }
     
@@ -66,61 +71,83 @@ export class Personalization extends Component<Props, State> {
         })
     };
 
+    private readonly setInformation = (e: keyof Personalizations) => {
+        this.setState({
+            show: true,
+            modal: e
+        })
+    };
+
     /**
      * @override
      */
     public render() {
-        const {handlePersonalizationCheck, personalizations} = this.props;
+        const {personalizations} = this.props;
+
+        const handlePersonalizationCheck = (checked: boolean,
+                                            event: React.SyntheticEvent<MouseEvent | KeyboardEvent> | MouseEvent,
+                                            id: string) => {
+            if (modalTitle[id] != null) {
+                this.props.handlePersonalizationCheck(checked, event, modalTitle[id]);
+            }
+        };
+
+        const CurrentContent = modalContent[this.state.modal];
+        const title = modalTitle[this.state.modal];
 
         return (
             <Container fluid className="personalization">
                 <Row className="personalizationRowTitle">
-                    <Col md={2} className="personalizationTitle">privacy</Col>
-                    <Col md={4}></Col>
-                    <Col md={2} className="personalizationTitle">notifications</Col>
-                    <Col md={4}></Col>
-                </Row>
-                <Row className="personalizationRow">
-                    <Col md={2} className="switch"><Switch id="profile" onChange={handlePersonalizationCheck}
-                                                           checked={personalizations["profile"]}/></Col>
-                    <Col md={4} className="switchTitle">Profile<FaInfo className="information"
-                                                                       onClick={this.handleShow}/></Col>
-                    <Col md={2} className="switch"><Switch id="tags" onChange={handlePersonalizationCheck}
-                                                           checked={personalizations["tags"]}/></Col>
-                    <Col md={4} className="switchTitle">Tags<FaInfo className="information" onClick={this.handleShow}/></Col>
-                </Row>
-                <Row className="personalizationRow">
-                    <Col md={2}></Col>
-                    <Col md={4}></Col>
-                    <Col md={2} className="switch"><Switch id="notifications" onChange={handlePersonalizationCheck}
-                                                           checked={personalizations["notifications"]}/></Col>
-                    <Col md={4} className="switchTitle">Notifications<FaInfo className="information"
-                                                                             onClick={this.handleShow}/></Col>
-                </Row>
-                <Row className="personalizationRow">
-                    <Col md={2}></Col>
-                    <Col md={4}></Col>
-                    <Col md={2} className="switch"><Switch id="messages" onChange={handlePersonalizationCheck}
-                                                           checked={personalizations["messages"]}/></Col>
-                    <Col md={4} className="switchTitle">Messages<FaInfo className="information"
-                                                                        onClick={this.handleShow}/></Col>
-                </Row>
-                <Row className="personalizationRow">
-                    <Col md={2}></Col>
-                    <Col md={4}></Col>
-                    <Col md={2} className="switch"><Switch id="comments" onChange={handlePersonalizationCheck}
-                                                           checked={personalizations["comments"]}/></Col>
-                    <Col md={4} className="switchTitle">Comments<FaInfo className="information"
-                                                                        onClick={this.handleShow}/></Col>
+                    <Col md={4} className="personalizationTitle">privacy</Col>
+                    <Col md={8}></Col>
                 </Row>
 
-                <Modal show={this.state.show} onHide={this.handleClose}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Personalization Information</Modal.Title>
+                <Row className="personalizationRow">
+                    <Col md={4} className="switch"><Switch id="profile" onChange={handlePersonalizationCheck}
+                                                           checked={personalizations.profile}/></Col>
+                    <Col md={6} className="switchTitle">profile</Col>
+                    <Col md={2}><FaInfo className="information" onClick={()=>this.setInformation("profile")}/></Col>
+                </Row>
+
+                <Row className="personalizationRowTitle">
+                    <Col md={4} className="personalizationTitle">email forwarding</Col>
+                    <Col md={8}></Col>
+                </Row>
+
+                <Row className="personalizationRow">
+                    <Col md={4} className="switch"><Switch id="tags" onChange={handlePersonalizationCheck}
+                                                           checked={personalizations.tags}/></Col>
+                    <Col md={6} className="switchTitle">tags</Col>
+                    <Col md={2}><FaInfo className="information" onClick={()=>this.setInformation("tags")}/></Col>
+                </Row>
+
+                <Row className="personalizationRow">
+                    <Col md={4} className="switch"><Switch id="miscellaneous" onChange={handlePersonalizationCheck}
+                                                           checked={personalizations.miscellaneous}/></Col>
+                    <Col md={6} className="switchTitle">miscellaneous</Col>
+                    <Col md={2}><FaInfo className="information" onClick={()=>this.setInformation("miscellaneous")}/></Col>
+                </Row>
+
+                <Row className="personalizationRow">
+                    <Col md={4} className="switch"><Switch id="messages" onChange={handlePersonalizationCheck}
+                                                           checked={personalizations.messages}/></Col>
+                    <Col md={6} className="switchTitle">messages</Col>
+                    <Col md={2}><FaInfo className="information" onClick={()=>this.setInformation("messages")}/></Col>
+                </Row>
+
+                <Row className="personalizationRow">
+                    <Col md={4} className="switch"><Switch id="comments" onChange={handlePersonalizationCheck}
+                                                           checked={personalizations.comments}/></Col>
+                    <Col md={6} className="switchTitle">comments</Col>
+                    <Col md={2}><FaInfo className="information" onClick={()=>this.setInformation("comments")}/></Col>
+                </Row>
+
+                <Modal show={this.state.show} onHide={this.handleClose} className="info-modal" size="lg">
+                    <Modal.Header>
+                        <Modal.Title>{title}</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body>Display information about this personalization setting</Modal.Body>
-                    <Modal.Footer>
-                    </Modal.Footer>
+                    <Modal.Body><CurrentContent/></Modal.Body>
+                    <Modal.Footer></Modal.Footer>
                 </Modal>
             </Container>
         );

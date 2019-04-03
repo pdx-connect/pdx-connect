@@ -1,13 +1,13 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Redirect, Route, Switch} from "react-router";
+import {Route, Switch} from "react-router";
 import {Home} from "./pages/Home";
 import {Login} from "./pages/Login";
 import {Register} from "./pages/Register";
 import {Reset} from "./pages/Reset";
 
 /**
- * The main application class.
+ * Top-level routes for the application.
  */
 export class Routes extends Component {
 
@@ -17,11 +17,10 @@ export class Routes extends Component {
     public render(): ReactNode {
         return (
             <Switch>
-                <Route exact path="/" component={Home} />
                 <Route path="/login" component={Login} />
                 <Route path="/register" component={Register} />
                 <Route path="/reset" component={Reset} />
-                <Redirect to="/" />
+                <Route component={Home} />
             </Switch>
         );
     }

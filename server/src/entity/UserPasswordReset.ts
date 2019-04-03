@@ -13,7 +13,7 @@ export class UserPasswordReset extends BaseEntity {
         type: "int",
         unsigned: true
     })
-    userID: number;
+    readonly userID!: number;
 
     @Column({
         name: "reset_code",
@@ -22,14 +22,19 @@ export class UserPasswordReset extends BaseEntity {
         collation: "ascii_bin",
         comment: "Bcrypt'd reset code."
     })
-    resetCode: string;
+    resetCode!: string;
 
     @Column({
         name: "reset_time",
         type: "datetime",
         comment: "The time when the reset code was generated."
-    })
-    resetTime: Date;
+    }) 
+    resetTime!: Date;
+    
+    /**
+     * Internal constructor.
+     */
+    constructor();
 
     /**
      * Creates a new password reset entry for the given user (by ID).
@@ -37,11 +42,15 @@ export class UserPasswordReset extends BaseEntity {
      * @param resetCode
      * @param resetTime
      */
-    constructor(userID: number, resetCode: string, resetTime: Date) {
+    constructor(userID: number, resetCode: string, resetTime: Date);
+    
+    constructor(userID?: number, resetCode?: string, resetTime?: Date) {
         super();
-        this.userID = userID;
-        this.resetCode = resetCode;
-        this.resetTime = resetTime;
+        if (userID != null && resetCode != null && resetTime != null) {
+            this.userID = userID;
+            this.resetCode = resetCode;
+            this.resetTime = resetTime;
+        }
     }
     
 }

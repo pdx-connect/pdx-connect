@@ -1,8 +1,8 @@
-import {BaseEntity, Column, Entity, IsNull, JoinColumn, ManyToOne, Not, PrimaryGeneratedColumn} from "typeorm";
-import {Tag} from "./Tag";
+import {BaseEntity, Column, Entity, IsNull, Not, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {UserEmail} from "./UserEmail";
 import {randomBytes} from "crypto";
 import {hash} from "bcrypt";
+import {UserProfile} from "./UserProfile";
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -13,14 +13,17 @@ export class User extends BaseEntity {
         comment: "The primary user ID",
         unsigned: true
     })
-    id!: number;
+    readonly id!: number;
 
     @Column({
         name: "display_name",
         type: "text",
         collation: "utf8mb4_unicode_520_ci"
     })
-    displayName: string;
+    displayName!: string;
+
+    @OneToMany(type => UserEmail, userEmail => userEmail.user)
+    readonly emails!: Promise<UserEmail[]>;
     
     @Column({
         name: "password",
@@ -29,59 +32,47 @@ export class User extends BaseEntity {
         collation: "ascii_bin",
         comment: "Bcrypt'd password"
     })
-    password: string;
-
-    // TODO See UserEmail entity
-    // @OneToMany(type => UserEmail, userEmail => userEmail.userID)
-    // emails!: Promise<UserEmail[]>;
+    password!: string;
     
     @Column({
         name: "creation_date",
         type: "datetime"
     })
-    creationDate: Date;
+    readonly creationDate!: Date;
     
-    @Column({
-        name: "description",
-        type: "text",
-        collation: "utf8mb4_bin",
-        comment: "About me"
-    })
-    description: string|null = null;
-
-    @JoinColumn({
-        name: "major"
-    })
-    @ManyToOne(type => Tag)
-    major: Promise<Tag>|null = null;
-    
-    @Column({
-        name: "on_campus",
-        type: "tinyint",
-        width: 1,
-        unsigned: true
-    })
-    isOnCampus: boolean|null = null;
+    @OneToOne(type => UserProfile, profile => profile.user)
+    readonly profile!: Promise<UserProfile|undefined>;
     
     @Column({
         name: "deactivated",
         comment: "Users should never be deleted, only deactivated"
     })
-    deactivated: boolean;
+    deactivated!: boolean;
+
+    /**
+     * Internal constructor.
+     */
+    constructor();
 
     /**
      * Create a new user.
      * @param displayName
      * @param password
      */
-    constructor(displayName: string, password: string) {
+    constructor(displayName: string, password: string);
+    
+    constructor(displayName?: string, password?: string) {
         super();
-        this.displayName = displayName;
-        this.password = password;
-        this.creationDate = new Date();
-        this.deactivated = false;
+        if (displayName != null && password != null) {
+            this.displayName = displayName;
+            this.emails = Promise.resolve([]);
+            this.password = password;
+            this.creationDate = new Date();
+            this.deactivated = false;
+            this.profile = Promise.resolve(void 0);
+        }
     }
-
+    
     /**
      * Deactivates this user and saves to the database.
      */
@@ -95,7 +86,7 @@ export class User extends BaseEntity {
      * @param email
      */
     public static async findActiveByEmail(email: string): Promise<User|string> {
-        const userEmail: UserEmail|undefined = await UserEmail.findOne({
+        const userEmail: UserEmail | undefined = await UserEmail.findOne({
             where: {
                 email: email,
                 activePriority: Not(IsNull())
@@ -107,7 +98,7 @@ export class User extends BaseEntity {
         if (userEmail.verificationCode != null) {
             return "Email has not been verified yet.";
         }
-        return User.findOneOrFail(userEmail.userID);
+        return userEmail.user;
     }
 
     /**

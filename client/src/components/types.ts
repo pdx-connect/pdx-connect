@@ -16,3 +16,8 @@ export interface FormControlProps {
     isValid?: boolean;
     isInvalid?: boolean;
 }
+
+export interface OptionType {
+    label: string;
+    value: string;
+}

@@ -9,7 +9,7 @@ export class Tag extends BaseEntity {
         comment: "The unique ID of a tag",
         unsigned: true
     })
-    id!: number;
+    readonly id!: number;
     
     @Column({
         name: "name",

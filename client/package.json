@@ -6,12 +6,14 @@
   "private": true,
   "dependencies": {
     "@types/react": "^16.8.8",
+    "@types/react-burger-menu": "^2.2.2",
     "@types/react-dom": "^16.8.2",
     "@types/react-router-dom": "^4.3.1",
     "@types/react-select": "^2.0.15",
     "bootstrap": "^4.3.1",
     "react": "^16.8.4",
     "react-bootstrap": "^1.0.0-beta.5",
+    "react-burger-menu": "^2.6.5",
     "react-dom": "^16.8.4",
     "react-fa": "^5.0.0",
     "react-hot-loader": "^4.8.0",
@@ -39,9 +41,8 @@
   },
   "scripts": {
     "clean": "run-p -cs clean:*",
-    "compile": "run-s -cs clean tsc",
-    "bundle": "run-s -cs compile webpack",
-    "clean:js": "shx rm -rf ./.build ./src/**/*.js ./src/**/*.js.map ./src/**/*.d.ts ./*.js ./*.js.map ./*.d.ts",
+    "bundle": "run-s -cs clean tsc webpack",
+    "clean:js": "shx rm -rf ./.build ./src/**/*.js ./src/**/*.js.map ./src/**/*.d.ts ./*.js ./*.js.map ./*.d.ts ./*.tsbuildinfo",
     "clean:dist": "shx rm -rf ./dist",
     "tsc": "tsc -b .",
     "webpack": "webpack --mode production"

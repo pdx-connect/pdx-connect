@@ -1,0 +1,155 @@
+.space {
+  min-height: 48px;
+}
+
+.sidebarProfileImg {
+  background-color: #d6d6d6;
+  text-align: center;
+}
+
+.userImage {
+  margin-bottom: 10%;
+  width: 100%;
+  height: auto;
+}
+
+.greeting {
+  text-align: center;
+  color: white;
+  text-transform: uppercase;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: .5vw;
+  font-size: 3vw
+}
+
+.hi {
+  text-transform: lowercase;
+  font-weight: bold;
+}
+
+.icon {
+  color: #ffffff;
+  background-color: #9fc1c0;
+  border-radius: 15%;
+  margin-top: 5%;
+  margin-bottom: 5%;
+  margin-right: 5%;
+  margin-left: 5%;
+  padding: 3%;
+  min-width: 4vw;
+  min-height: 4vw
+}
+
+.sidebarMenuItem {
+  color: white;
+  text-transform: uppercase;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: .1vw;
+  cursor: pointer;
+}
+
+.sidebarMenuItem:hover
+{
+  color: #f15a24;
+  font-weight: bold;
+  background-color: #d6d6d6;
+  width: 100%;
+}
+
+.sidebarMenuItem:focus {
+  outline: 0;
+}
+
+.sidebarProfileImg:focus {
+  outline: 0;
+}
+
+.space:focus {
+  outline: 0;
+}
+
+@media only screen and (max-width: 600px) {
+  
+  .sidebarMenuItemTitle {
+    display: none;
+    visibility: hidden;
+  }
+
+  .icon
+  {
+    min-width: 20vw;
+    min-height: 20vw;
+    padding: 8%;
+  }
+
+  .bm-menu {
+    text-align: center;
+  }
+}
+
+/* Position and sizing of burger button */
+.bm-burger-button {
+  position: fixed;
+  width: 36px;
+  height: 30px;
+  left: 15px;
+  top: 15px;
+}
+
+/* Color/shape of burger icon bars */
+.bm-burger-bars {
+  background: #565656;
+}
+
+/* Color/shape of burger icon bars on hover*/
+.bm-burger-bars-hover {
+  background: #297d7d;
+}
+
+/* Position and sizing of clickable cross button */
+.bm-cross-button {
+  height: 24px;
+  width: 24px;
+}
+
+/* Color/shape of close button cross */
+.bm-cross {
+  background: #bdc3c7;
+}
+
+/*
+Sidebar wrapper styles
+Note: Beware of modifying this element as it can break the animations - you should not need to touch it in most cases
+*/
+.bm-menu-wrap {
+  position: fixed;
+  height: 100%;
+}
+
+/* General sidebar styles */
+.bm-menu {
+  background: #373a47;
+  /*padding: 2.5em 1.5em 0;*/
+  font-size: 1.15em;
+}
+
+/* Morph shape necessary with bubble or elastic */
+.bm-morph-shape {
+  fill: #373a47;
+}
+
+/* Wrapper for item list */
+.bm-item-list {
+  color: #b8b7ad;
+  /*padding: 0.8em;*/
+}
+
+/* Individual item */
+.bm-item {
+  display: inline-block;
+}
+
+/* Styling of overlay */
+.bm-overlay {
+  background: rgba(0, 0, 0, 0.3);
+}

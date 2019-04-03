@@ -6,9 +6,6 @@
     "module": "commonjs",
     "allowSyntheticDefaultImports": true,
     "target": "es2018",
-    "lib": [
-      "es2018"
-    ],
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "strict": true,

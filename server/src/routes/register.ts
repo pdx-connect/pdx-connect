@@ -109,7 +109,7 @@ export function route(app: Express, db: Connection) {
         
         // Generate new email and verification code and save to database
         await generateVerificationCode((verificationCode: string) => {
-            return new UserEmail(newUser.id, email, verificationCode);
+            return new UserEmail(newUser, email, verificationCode);
         });
         
         // Respond with success and user ID (needed for verification route)
