@@ -41,7 +41,8 @@ const serverDirectory: string = path.join(__dirname, "..");
 const configDirectory: string = path.join(serverDirectory, "config");
 const rootDirectory: string = path.join(serverDirectory, "..");
 const clientDirectory: string = path.join(rootDirectory, "client");
-const publicDirectory: string = path.join(clientDirectory, "dist");
+const distDirectory: string = path.join(clientDirectory, "dist");
+const publicDirectory: string = path.join(distDirectory, "public");
 
 /**
  * Generates a random key for the session management.
@@ -53,7 +54,7 @@ function generateSessionKey(): string {
 // Create async context
 (async () => {
     // Ensure that client code has been built
-    if (!args.dev && !fs.existsSync(publicDirectory)) {
+    if (!args.dev && !fs.existsSync(distDirectory)) {
         console.error("Client does not appear to be compiled.");
         console.error("Run 'npm run client' to build the client package.");
         return;
@@ -218,7 +219,7 @@ function generateSessionKey(): string {
     } else {
         // Configure Express to route everything else to React app
         app.get("*", (request: Request, response: Response) => {
-            response.sendFile(path.join(publicDirectory, "index.html"));
+            response.sendFile(path.join(distDirectory, "index.html"));
         });
     }
 

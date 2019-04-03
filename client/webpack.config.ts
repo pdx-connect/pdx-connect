@@ -8,8 +8,11 @@ import * as HtmlWebpackPlugin from "html-webpack-plugin";
 export = (env: unknown, argv: { mode: string }): webpack.Configuration => {
     const dev: boolean = argv.mode == null || argv.mode === "development";
     
-    const inputPath: string = path.resolve(__dirname + "/src");
-    const outputPath: string = path.resolve(__dirname + "/dist");
+    const inputPath: string = path.resolve(__dirname, "src");
+    const outputPath: string = path.resolve(__dirname, "dist");
+    
+    const template: string = "index.html";
+    const publicPrefix: string = dev ? "" : "public";
     
     const entries: string[] = [
         "./index.tsx"
@@ -22,19 +25,20 @@ export = (env: unknown, argv: { mode: string }): webpack.Configuration => {
         { from: "resources", to: "resources" }
     ]));
     plugins.push(new HtmlWebpackPlugin({
-        template: "index.html",
+        filename: path.resolve(outputPath, template),
+        template: template,
         inject: "body"
     }));
     
     const output: webpack.Output = {
-        path: outputPath
+        path: path.resolve(outputPath, publicPrefix),
+        publicPath: ""
     };
     
     if (dev) {
         entries.push("webpack-hot-middleware/client");
         plugins.push(new webpack.HotModuleReplacementPlugin());
         output.filename = "bundle.js?[hash]";
-        output.publicPath = "/";
     } else {
         output.filename = "bundle.js?[chunkhash]";
     }
