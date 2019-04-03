@@ -58,7 +58,8 @@
     "client": "cd client && npm run bundle",
     "start": "cd server && npm start",
     "test": "cd server && npm test",
-    "deploy": "npm run clean && npm run build && npm run client && npm start"
+    "deploy": "run-s -cs clean _deploy",
+    "_deploy": "npm run build && npm run client && npm start"
   },
   "engines": {
     "node": ">=11.0.0",
