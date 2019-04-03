@@ -1,3 +1,4 @@
+import * as os from "os";
 import * as path from "path";
 import * as webpack from "webpack";
 import CleanWebpackPlugin from "clean-webpack-plugin";
@@ -58,7 +59,7 @@ export = (env: unknown, argv: { mode: string }): webpack.Configuration => {
         },
         plugins: plugins,
         target: "web",
-        parallelism: 8,
+        parallelism: os.cpus().length,
         node: {
             __dirname: false,
             __filename: false,
