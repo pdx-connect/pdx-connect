@@ -2,6 +2,7 @@
   "compileOnSave": true,
   "compilerOptions": {
     "composite": true,
+    "declaration": true,
     "baseUrl": "node_modules",
     "module": "commonjs",
     "allowSyntheticDefaultImports": true,

@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import * as path from "path";
 import * as fs from "fs";
+import minimist = require("minimist");
 import * as express from "express";
 import {Express, Request, Response} from "express";
 import session = require("express-session");
@@ -20,8 +21,21 @@ import opn = require("open");
 import {init as initMail} from "./mail";
 import {compare} from "bcrypt";
 
-// TODO Dynamically calculate this value from the program arguments
-const developmentMode: boolean = true;
+interface Args extends minimist.ParsedArgs {
+    dev: boolean;
+}
+
+const args: Args = minimist<Args>(process.argv.slice(2), {
+    boolean: [
+        "dev"
+    ],
+    alias: {
+        "d": "dev"
+    },
+    default: {
+        dev: false
+    }
+});
 
 const serverDirectory: string = path.join(__dirname, "..");
 const configDirectory: string = path.join(serverDirectory, "config");
@@ -39,7 +53,7 @@ function generateSessionKey(): string {
 // Create async context
 (async () => {
     // Ensure that client code has been built
-    if (!developmentMode && !fs.existsSync(publicDirectory)) {
+    if (!args.dev && !fs.existsSync(publicDirectory)) {
         console.error("Client does not appear to be compiled.");
         console.error("Run 'npm run client' to build the client package.");
         return;
@@ -55,7 +69,7 @@ function generateSessionKey(): string {
             console.error("See the README.md file for the correct JSON format.");
             return;
         }
-    } else if (developmentMode) {
+    } else if (args.dev) {
         serverConfig = {
             host: "localhost"
         };
@@ -110,7 +124,7 @@ function generateSessionKey(): string {
             default:
                 throw new Error("Invalid mail service: " + mailConfig!.service);
         }
-    } else if (developmentMode) {
+    } else if (args.dev) {
         await initMail(serverConfig.host);
     } else {
         console.error("No mail configuration file: " + mailConfigFile);
@@ -198,7 +212,7 @@ function generateSessionKey(): string {
     // Configure API routes
     routes.configure(app, db);
 
-    if (developmentMode) {
+    if (args.dev) {
         // Lazy load development module
         require("./dev").init(app);
     } else {
@@ -211,7 +225,7 @@ function generateSessionKey(): string {
     // Start Express server
     app.listen(port, async () => {
         console.log("Server has started on port: " + port);
-        if (developmentMode) {
+        if (args.dev) {
             // Open default browser
             await opn("http://localhost:" + port);
         }

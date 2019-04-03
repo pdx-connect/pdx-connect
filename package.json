@@ -48,7 +48,7 @@
     "update": "yarn upgrade",
     "reinstall": "run-s -cs clean-all setup",
     "build": "tsc -b .",
-    "dev": "npm run build && npm start",
+    "dev": "npm run build && cd server && npm run dev",
     "clean": "run-p -cs clean:*",
     "clean:client": "cd client && npm run clean",
     "clean:server": "cd server && npm run clean",
