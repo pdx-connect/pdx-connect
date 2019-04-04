@@ -214,7 +214,11 @@ export class Home extends Page<Props, State> {
                         <Col sm={10} md={11} className="pageTitle"> {title[this.props.history.location.pathname]} </Col>
                     </Row>
                     <Row>
-                        <Col sm={10} md={11} className="component"> <CurrentContent/> </Col>
+                        <Col sm={10} md={11} className="component"> 
+                            <CurrentContent
+                                searchField={this.state.searchField}
+                            /> 
+                        </Col>
                     </Row>
                 </Col>
                 <Col sm={2} md={2} className="rightSidebar">Ad Space</Col>

@@ -36,7 +36,13 @@
     "server",
     "shared"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@types/open": "^6.0.0",
+    "@types/react-table": "^6.8.0",
+    "minimist": "^1.2.0",
+    "open": "^6.0.0",
+    "react-table": "^6.9.2"
+  },
   "devDependencies": {
     "npm-run-all": "^4.1.5",
     "shx": "^0.3.2",
