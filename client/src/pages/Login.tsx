@@ -6,6 +6,7 @@ import {RouteComponentProps, withRouter} from "react-router-dom";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 
 import "./Login.css";
+import { classNames } from "react-select/lib/utils";
 
 
 interface Props extends RouteComponentProps {
@@ -16,6 +17,7 @@ interface State {
     email?: string;
     password?: string;
     notAuthorized: boolean;
+    emptyFields: boolean
 }
 
 /**
@@ -28,7 +30,8 @@ export class Login extends Page<Props, State> {
         this.state = {
             email: "",
             password: "",
-            notAuthorized: false
+            notAuthorized: false,
+            emptyFields: false
         };
     }
 
@@ -44,12 +47,14 @@ export class Login extends Page<Props, State> {
     // Similar to enterKeyPressed - Authenticate user and move to the home page
     // But this is for when the arrow is used instead of the enter key
     private readonly nextArrowPressed = (e: any) => {
-        this.processCredentials();
+        if( !this.checkNull() )     // Make sure fields entered before going to authenticate
+            this.processCredentials();
     };
     
     private readonly enterKeyPressed = (e: any) => {
         if (e.keyCode === 13) {
-            this.processCredentials();
+            if( !this.checkNull() )     // Make sure fields entered before going to authenticate
+                this.processCredentials();
         }
     };
 
@@ -76,8 +81,24 @@ export class Login extends Page<Props, State> {
         }
     };
 
+    // Check if email and password are entered
+    private readonly checkNull = () => {
+        if (this.state.email === "" || this.state.password === "") {
+            this.setState({
+                emptyFields: true,
+                notAuthorized: false
+            })
+            return true;
+        }
+        return false;
+    };
+
+
     private readonly processCredentials = () => {
-        if (this.state.email != null && this.state.password != null) {
+       if (this.state.email != null && this.state.password != null) {
+            this.setState({
+                emptyFields: false
+            })
             this.authenticate(this.state.email, this.state.password).then();
         }
     };
@@ -116,6 +137,10 @@ export class Login extends Page<Props, State> {
         const password =
             <Button size="sm" variant="light" onClick={() => {this.clearLocalStorage(); this.props.history.push('/reset')} } className="password-forgot">password?</Button>;
 
+        const loginButton =
+            <Button size="sm" variant="light" onClick={this.nextArrowPressed} className="login-button">Login</Button>;
+
+
         return (
             <Container fluid className="login">
                 <Row className="title">
@@ -128,6 +153,7 @@ export class Login extends Page<Props, State> {
                     <Col sm={4}></Col>
                     <Col sm={4} className="notAuthorized">
                         {this.state.notAuthorized? <span>Credentials Incorrect</span> : null}
+                        {this.state.emptyFields? <span> Please enter in your credentials </span> : null}
                     </Col>
                     <Col sm={4}></Col>
                 </Row>
@@ -144,9 +170,7 @@ export class Login extends Page<Props, State> {
                             </Form.Group>
                         </Form>
                     </Col>
-                    <Col sm={4} className="directionalButtons">
-                        <FaArrowAltCircleRight className="rightButton" size="4vw" onClick={this.nextArrowPressed}/>
-                    </Col>
+                    <Col sm={4}></Col>
                 </Row>
 
                 <Row>
@@ -156,6 +180,14 @@ export class Login extends Page<Props, State> {
                         { password }
                     </Col>
                     <Col sm={4}></Col>
+                </Row>
+
+                <Row>
+                    <Col sm={5}></Col>
+                    <Col sm={2}>
+                        { loginButton }
+                    </Col>
+                    <Col sm={5}></Col>
                 </Row>
             </Container>
         );

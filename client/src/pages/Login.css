@@ -53,6 +53,22 @@ html{
     text-decoration: none;
 }
 
+.login-button
+{
+    color: green;
+    text-transform: uppercase;
+    letter-spacing: .4vw;
+    font-weight: bold;
+    font-size: 2vw;
+    margin-top: 20px;
+}
+
+.login-button:hover
+{
+    color: green;
+    text-decoration: none;
+}
+
 .notAuthorized
 {
     color: red;
