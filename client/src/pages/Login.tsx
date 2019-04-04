@@ -3,6 +3,7 @@ import {ReactNode} from "react";
 import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Page} from "../Page";
 import {RouteComponentProps, withRouter} from "react-router-dom";
+import { FaArrowAltCircleRight } from "react-icons/fa";
 
 import "./Login.css";
 
@@ -37,6 +38,13 @@ export class Login extends Page<Props, State> {
 
     private readonly setPassword = (e: any) => {
         this.setState({password: e.target.value});
+    };
+
+
+    // Similar to enterKeyPressed - Authenticate user and move to the home page
+    // But this is for when the arrow is used instead of the enter key
+    private readonly nextArrowPressed = (e: any) => {
+        this.processCredentials();
     };
     
     private readonly enterKeyPressed = (e: any) => {
@@ -136,7 +144,9 @@ export class Login extends Page<Props, State> {
                             </Form.Group>
                         </Form>
                     </Col>
-                    <Col sm={4}></Col>
+                    <Col sm={4} className="directionalButtons">
+                        <FaArrowAltCircleRight className="rightButton" size="4vw" onClick={this.nextArrowPressed}/>
+                    </Col>
                 </Row>
 
                 <Row>
