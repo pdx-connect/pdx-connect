@@ -1,5 +1,6 @@
 import {Express, Request, Response} from "express";
 import {Connection, IsNull, Not} from "typeorm";
+import * as IsEmail from "isemail";
 import {registerPublicPath} from "./authentication";
 import {sendMail} from "../mail";
 import {compare, hash} from "bcrypt";
@@ -79,6 +80,12 @@ export function route(app: Express, db: Connection) {
             }));
             return;
         }
+        if (email.length <= 0 || !IsEmail.validate(email, { allowUnicode: true })) {
+            response.send(JSON.stringify({
+                error: "Invalid email format."
+            }));
+            return;
+        }
         const settings: Settings = await Settings.findOneOrFail();
         if (settings.emailDomain != null && !email.endsWith("@" + settings.emailDomain.toLowerCase())) {
             response.send(JSON.stringify({
@@ -132,7 +139,7 @@ export function route(app: Express, db: Connection) {
         }
         const userID: number = body.userID;
         const email: string = body.email;
-        
+
         // Lookup single email for user
         const singleEmail: UserEmail|string = await lookupSingleEmail(userID);
         if (typeof singleEmail === "string") {
