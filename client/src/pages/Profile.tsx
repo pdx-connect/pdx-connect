@@ -1,11 +1,10 @@
 import * as React from "react";
 import {Component, ReactNode, Fragment} from "react";
 import {Container, Row, Col, Modal, Button, ModalTitle} from "react-bootstrap";
-import {FormControlProps} from "../components/types";
 
 interface Props {
-    handleChange: React.FormEventHandler<FormControlProps>;
     displayName: string | undefined;
+    updateHistory: (value: string) => void,
 }
 
 interface State {
@@ -76,11 +75,12 @@ export class Profile extends Component<Props, State> {
 
     /* Set the input based on the option to edit. */
     private readonly setInput = () => {
-        //console.log(this.state.modal);
+        // Editing a profile picture
         if(this.state.modal === "editPicture") {
             return(
                 <input type="file"></input>
             );
+        // Editing commuter status
         } else if (this.state.modal === "editCS"){
             return(
                 <Fragment>
@@ -89,6 +89,7 @@ export class Profile extends Component<Props, State> {
                 </Fragment>
             );
         }
+        // Editing major, tags, name, or bio.
         else {
             return(
                 <input type="text"></input>
@@ -107,8 +108,6 @@ export class Profile extends Component<Props, State> {
         const body = modalContent[this.state.modal];
         
         let displayName = this.props.displayName;
-        console.log(displayName)
-
         if(displayName === undefined)
             displayName = "";
 
