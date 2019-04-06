@@ -30,6 +30,9 @@ html{
     text-transform: uppercase;
     letter-spacing: .4vw;
     font-weight: bold;
+    width: 50%;
+    font-size: 1em;
+    height: 100%;
 }
 
 .register:hover
@@ -45,11 +48,34 @@ html{
     text-transform: uppercase;
     letter-spacing: .4vw;
     font-weight: bold;
+    width: 50%;
+    font-size: 1em;
+    height: 100%;
 }
 
 .password-forgot:hover
 {
     color: #9fc1c0;
+    text-decoration: none;
+}
+
+.login-button
+{
+    background-color: #9fc1c0;
+    font-weight: bold;
+    width: 100%;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: .4vw;
+    font-weight: bold;
+    font-size: 1em;
+    height: 100%;
+    font-family: 'Varela Round', sans-serif;
+}
+
+.login-button:hover
+{
+    color: #565656;
     text-decoration: none;
 }
 
@@ -61,4 +87,17 @@ html{
     text-align: center;
     padding-bottom: 1%;
     font-family: 'Varela Round', sans-serif;
+}
+
+
+.directionalButtons {
+    text-align: center;
+}
+
+
+.leftButton, .rightButton {
+    color: #297d7d;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    cursor: pointer;
 }

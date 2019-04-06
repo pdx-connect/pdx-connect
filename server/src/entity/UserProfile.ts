@@ -47,7 +47,7 @@ export class UserProfile extends BaseEntity {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE"
     })
-    major!: Promise<Tag>|null;
+    major!: Promise<Tag|null>;
     
     @JoinTable({
         name: "user_tags",
@@ -109,9 +109,6 @@ export class UserProfile extends BaseEntity {
     })
     isProfileComment!: boolean;
     
-
-    
-    
     /**
      * Internal constructor.
      */
@@ -133,7 +130,7 @@ export class UserProfile extends BaseEntity {
             this.userID = user.id;
             this.user = Promise.resolve(user);
             this.description = null;
-            this.major = null;
+            this.major = Promise.resolve(null);
             this.interests = Promise.resolve([]);
             this.isOnCampus = null;
             this.isPrivate = false;
