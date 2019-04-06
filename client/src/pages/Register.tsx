@@ -28,6 +28,8 @@ interface State {
     userID?: number;
     domain?: string;
     passwordDisabled?: boolean;
+    authorized?: boolean | null;
+    authorizationMsg?: string;
 }
 
 /**
@@ -53,7 +55,9 @@ export class Register extends Page<Props, State> {
             confirmationCode: "",
             userID: undefined,
             domain: "",
-            passwordDisabled: false
+            passwordDisabled: false,
+            authorized: null,
+            authorizationMsg: ""
         };
     }
 
@@ -87,7 +91,10 @@ export class Register extends Page<Props, State> {
     // But this is for when the arrow is used instead of the enter key
     private readonly nextArrowPressed = (e: any) => {
         if (!(this.state.email === "" || this.state.displayName === "" || this.state.password === "")) {
-            this.setState({show: true});
+            this.setState({show: true, authorized: true, authorizationMsg: ""});
+        }
+        else {
+            this.setState({authorized: false, authorizationMsg: "Please enter your credentials"});
         }
     };
 
@@ -118,6 +125,11 @@ export class Register extends Page<Props, State> {
         
         if ('error' in data) {
             console.log("Error: ", data['error']);
+            this.setState({
+                authorized: false,
+                authorizationMsg: data['error'],
+                show: false,
+            });
         } else {            
             this.setState({
                 show: false,
@@ -206,16 +218,28 @@ export class Register extends Page<Props, State> {
     private readonly getTOS = () => {
         return this.state.tos;
     };
+
+    private readonly removeDomain = () => {
+
+        if(this.state.email != null && this.state.email.includes('@')) {
+            const email = this.state.email.split('@');
+            return email[0];
+        }
+
+        return this.state.email;
+    };
         
     private readonly handleJoin = () => {
-            if (this.state.displayName != null && this.state.email != null && this.state.password != null && this.state.domain != null) {
-                this.registerUser(this.state.displayName, this.state.password, this.state.email, this.state.domain).then();
+            const email = this.removeDomain();
+            if (this.state.displayName != null && email != null && this.state.password != null && this.state.domain != null) {
+                this.registerUser(this.state.displayName, this.state.password, email, this.state.domain).then();
             }
     };
     
     private readonly resendCode = () => {
-        if (this.state.email != null && this.state.userID != null && this.state.domain != null) {
-            this.serverResendCode(this.state.email, this.state.userID, this.state.domain).then();
+        const email = this.removeDomain();
+        if (email != null && this.state.userID != null && this.state.domain != null) {
+            this.serverResendCode(email, this.state.userID, this.state.domain).then();
         }
     };
     
@@ -315,6 +339,13 @@ export class Register extends Page<Props, State> {
                     <Col sm={4}/>
                     <Col sm={4}><h3>{title[this.state.step]}</h3></Col>
                     <Col sm={4}/>
+                </Row>
+                <Row>
+                    <Col sm={3}></Col>
+                    <Col sm={6} className="notAuthorized">
+                        {!this.state.authorized? <span>{this.state.authorizationMsg}</span> : null}
+                    </Col>
+                    <Col sm={3}></Col>
                 </Row>
                 <Row>
                     <Col sm={3} className="directionalButtons">

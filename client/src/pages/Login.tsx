@@ -3,7 +3,7 @@ import {ReactNode} from "react";
 import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Page} from "../Page";
 import {RouteComponentProps, withRouter} from "react-router-dom";
-import { FaArrowAltCircleRight } from "react-icons/fa";
+import { FaAngleRight } from "react-icons/fa";
 
 import "./Login.css";
 import { classNames } from "react-select/lib/utils";
@@ -138,28 +138,26 @@ export class Login extends Page<Props, State> {
             <Button size="sm" variant="light" onClick={() => {this.clearLocalStorage(); this.props.history.push('/reset')} } className="password-forgot">password?</Button>;
 
         const loginButton =
-            <Button size="sm" variant="light" onClick={this.nextArrowPressed} className="login-button">Login</Button>;
+            <Button size="sm" variant="light" onClick={this.nextArrowPressed} className="login-button">login</Button>;
 
 
         return (
             <Container fluid className="login">
                 <Row className="title">
-                    <Col sm={2}></Col>
-                    <Col sm={8}><h1>pdx connect</h1></Col>
-                    <Col sm={2}></Col>
+                    <Col sm={12}><h1>pdx connect</h1></Col>
                 </Row>
 
                 <Row>
-                    <Col sm={4}></Col>
-                    <Col sm={4} className="notAuthorized">
+                    <Col sm={3}></Col>
+                    <Col sm={6} className="notAuthorized">
                         {this.state.notAuthorized? <span>Credentials Incorrect</span> : null}
-                        {this.state.emptyFields? <span> Please enter in your credentials </span> : null}
+                        {this.state.emptyFields? <span> Please enter your credentials </span> : null}
                     </Col>
-                    <Col sm={4}></Col>
+                    <Col sm={3}></Col>
                 </Row>
                 <Row>
-                    <Col sm={4}></Col>
-                    <Col sm={4}>
+                    <Col sm={3}></Col>
+                    <Col sm={6}>
                         <Form>
                             <Form.Group className="formBasic">
                                 <Form.Control type="email" placeholder="email" className="generic" onChange={this.setEmail}/>
@@ -170,24 +168,17 @@ export class Login extends Page<Props, State> {
                             </Form.Group>
                         </Form>
                     </Col>
-                    <Col sm={4}></Col>
+                    <Col sm={3}></Col>
                 </Row>
 
                 <Row>
-                    <Col sm={4}></Col>
-                    <Col sm={4}>
+                    <Col sm={3}></Col>
+                    <Col sm={6} className="regPass">
+                        { loginButton }
                         { register }
                         { password }
                     </Col>
-                    <Col sm={4}></Col>
-                </Row>
-
-                <Row>
-                    <Col sm={5}></Col>
-                    <Col sm={2}>
-                        { loginButton }
-                    </Col>
-                    <Col sm={5}></Col>
+                    <Col sm={3}></Col>
                 </Row>
             </Container>
         );
