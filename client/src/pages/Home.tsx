@@ -5,6 +5,7 @@ import {RouteComponentProps} from "react-router";
 import { Sidebar } from "./Sidebar";
 import { Container, Row, Col, Form, Button, Modal} from "react-bootstrap";
 import { FaStar, FaComment, FaSignOutAlt } from "react-icons/fa";
+import * as ws from "ws"
 
 import "./Home.css";
 
@@ -15,6 +16,7 @@ import { Listings } from "./Listings";
 import { Inbox } from "./Inbox";
 import { Settings } from "./Settings";
 import { SearchResults } from "./SearchResults";
+import { MessageNotification } from "./MessageNot";
 
 import { Oobe } from "./profile/Oobe";
 
@@ -30,6 +32,8 @@ interface State {
     showNotifications?: boolean;
     displayName?: string | undefined;
     showOobe: boolean;
+    socket: WebSocket;
+    msg: String;
 }
 
 /**
@@ -40,13 +44,17 @@ export class Home extends Page<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            messages: {},
+            messages: {
+                one: "not received"
+            },
             alerts: {},
             searchField: "",
             showMessages: false,
             showNotifications: false,
             displayName: "",
             showOobe: false,
+            socket: new WebSocket("ws://localhost:9999"),
+            msg: "not received",
         };
     }
     
@@ -128,6 +136,18 @@ export class Home extends Page<Props, State> {
         document.addEventListener('keydown', this.enterKeyPressed);
         this.getUserOOBE().then();
         this.getUserName().then();
+        console.log("Bug???");
+
+        this.state.socket.onopen = () => {
+            this.state.socket.send("Hello, server!");
+        }
+        this.state.socket.onmessage = (msg) => {
+            this.setState({msg:"received"});
+        }
+        /*
+        this.state.socket.onmessage = (msg) => {
+            this.setState({messages:{one:msg.data}});
+        }*/
     }
     
     /**
@@ -141,13 +161,14 @@ export class Home extends Page<Props, State> {
         this.props.history.push(v);
     }
 
-    /**
+    /***
      * @override
      */
     public render(): ReactNode {
 
         let messages = Object.keys(this.state.messages);
         let notifications = Object.keys(this.state.alerts);
+
 
         const content: { [key: string]: any } = {
             "/": HomeContent,
@@ -201,7 +222,8 @@ export class Home extends Page<Props, State> {
                             <Modal.Header closeButton>
                             <Modal.Title>Messages</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>TODO: Put messages here</Modal.Body>
+                            {//<Modal.Body>TODO: Put messages here<MessageNotification Message={this.state.messages.one}/> after </Modal.Body>}
+                            <Modal.Body>TODO: Put messages here<MessageNotification Message={this.state.msg}/> after </Modal.Body>
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
