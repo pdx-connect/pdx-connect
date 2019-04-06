@@ -37,18 +37,6 @@ export class BasicInfo extends Component<Props, any> {
                 </Form.Group>
 
                 <Form.Group className="formBasic">
-                    <Form.Control
-                        type="password"
-                        placeholder="password"
-                        onChange={handleChange}
-                        id="password"
-                        className="generic"
-                        value={password === "" ? "" : password}
-                        disabled={passwordDisabled}
-                    />
-                </Form.Group>
-
-                <Form.Group className="formBasic">
                     <InputGroup>
                         <Form.Control
                             type="email"
@@ -64,6 +52,19 @@ export class BasicInfo extends Component<Props, any> {
                         </InputGroup.Append>
                     </InputGroup>
                 </Form.Group>
+
+                <Form.Group className="formBasic">
+                    <Form.Control
+                        type="password"
+                        placeholder="password"
+                        onChange={handleChange}
+                        id="password"
+                        className="generic"
+                        value={password === "" ? "" : password}
+                        disabled={passwordDisabled}
+                    />
+                </Form.Group>
+                
                 {disabled?<div className="alignCenter"><Button variant="light" className="resetButton" onClick={resetRegistration}>reset</Button></div>:null}
             </Form>
         );
