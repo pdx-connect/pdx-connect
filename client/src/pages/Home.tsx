@@ -111,9 +111,10 @@ export class Home extends Page<Props, State> {
     };
 
     private readonly enterKeyPressed = (e: any) => {
-        if (e.keyCode === 13) {
+        if (e.keyCode === 13 && this.state.searchField != "") {
             e.preventDefault();
             this.props.history.push('search-results')
+            
         }
     };
     

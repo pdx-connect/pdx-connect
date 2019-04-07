@@ -1,44 +1,30 @@
 import * as React from "react";
-import {Component, ReactNode, Fragment} from "react";
-import {Container, Row, Col, Modal, Button, ModalTitle} from "react-bootstrap";
+import {Component, ReactNode} from "react";
+import {Container, Row, Col, Form} from "react-bootstrap";
+import { FaPencilAlt, FaSave, FaUndoAlt } from "react-icons/fa";
+import Select from 'react-select';
+import "./Profile.css";
+
+interface Disabled {
+    displayName: boolean;
+    major: boolean;
+}
 
 interface Props {
-    displayName: string | undefined;
-    updateHistory: (value: string) => void,
 }
 
 interface State {
-    showEdit?:boolean, // Determine whether or not to show the window.
-    modal: keyof profileEdit;
+    displayName: string;
+    major: string;
+    commuter: string;
+    interests: [];
+    optInEmail: string;
+    picture: string;
+    description: string;
+    disabled: { [key: string]: boolean };
 }
 
-/* Customize the content of each modal window */
-const modalTitle: { [key: string]: string } = {
-    "editPicture": 'Edit your Profile Picture',
-    "editName": 'Edit your Name',
-    "editMajor": 'Edit your Major',
-    "editTags": 'Edit your Tags',
-    "editCS": 'Update your Commuter Status',
-    "editBio": "Update your Bio: "
-};
 
-const modalContent: { [key: string]: string } = {
-    "editPicture": "To edit your picture, click \"Choose File\" and browse for an image on your computer.",
-    "editName": "Type your new username in the box below: ",
-    "editMajor": 'Type in your new major in the box below: ',
-    "editTags": "Select your new tags: ",
-    "editCS": 'Select your choice below: ',
-    "editBio": "Update your bio below: "
-};
-
-export interface profileEdit {
-    editPicture: string;
-    editName: string;
-    editMajor: string;
-    editTags: string;
-    editCS: string;
-    editBio: string;
-}
 
 
 /**
@@ -49,124 +35,150 @@ export class Profile extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            showEdit: false,
-            modal: "editPicture"
+            displayName: "",
+            major: "",
+            commuter: "",
+            interests: [],
+            optInEmail: "",
+            picture: "",
+            description: "",
+            disabled: {
+                'displayName': true,
+                'major': true,
+                'commuter': true,
+                'interests': true,
+                'optInEmail': true,
+                'picture': true,
+                'description': true,
+            }
         };
     }
 
-    private readonly showEdit = () => {
-        this.setState({
-            showEdit: true
-        })
-    }
+    private readonly enable = (e: any) => {
+        let updatedDisabled = this.state.disabled;
+        updatedDisabled[e]= !updatedDisabled[e];
 
-    private readonly closeEdit = () => {
         this.setState({
-            showEdit: false
-        })
-    }
-
-    private readonly setModalInfo = (e: keyof profileEdit) => {
-        this.setState({
-            showEdit: true,
-            modal: e
-        })
+           disabled: updatedDisabled
+        });
     };
 
-    /* Set the input based on the option to edit. */
-    private readonly setInput = () => {
-        // Editing a profile picture
-        if(this.state.modal === "editPicture") {
-            return(
-                <input type="file"></input>
-            );
-        // Editing commuter status
-        } else if (this.state.modal === "editCS"){
-            return(
-                <Fragment>
-                    <input type="checkbox" id="comm" name="comm"></input>
-                    <label htmlFor="comm" defaultChecked> Commuter?</label>
-                </Fragment>
-            );
-        }
-        // Editing major, tags, name, or bio.
-        else {
-            return(
-                <input type="text"></input>
-            );
-        }
+    private readonly handleChange = (e: any) => {
+        this.setState({
+            [e.target.id]: e.target.value
+        } as any);
     };
 
-  
-    
+    private readonly update = (e: any) => {
+        console.log('TODO: user wants to update profile setting: ', e);
+    };
+
     /**
      * @override
      */
     public render(): ReactNode {
 
-        const title = modalTitle[this.state.modal];
-        const body = modalContent[this.state.modal];
-        
-        let displayName = this.props.displayName;
-        if(displayName === undefined)
-            displayName = "";
+        const currentDisplayName = "matilda";
+        const currentMajor = "english";
 
+        const commuterOptions = [
+            { value: 'on campus', label: 'campus' },
+            { value: 'remote', label: 'remote' }
+          ]
+
+        const interests = [
+            { value: 'on campus', label: 'campus' },
+            { value: 'remote', label: 'remote' }
+        ]
+
+        
         return (
                 <Container fluid className="profile">
-                    <Row className="editPicture">
-                        <h3>Profile Picture - <Button onClick={()=>this.setModalInfo("editPicture")}>Edit</Button></h3>
-                        <Col sm={3}><img className="userImage" src="../resources/matilda.png"></img></Col>
-                    </Row>
+                   <Row>
+                       <Col sm={4} className="label">display name</Col>
 
-                    <br></br>
+                       <Col sm={4}>
+                            <Form.Group className="formBasic">
+                                <Form.Control
+                                    type="text"
+                                    placeholder={currentDisplayName}
+                                    onChange={this.handleChange}
+                                    id="displayName"
+                                    className="generic"
+                                    value={this.state.displayName}
+                                    disabled={this.state.disabled['displayName']}
+                                />
+                            </Form.Group>
+                       </Col>
 
-                    {/**/}
-                    <Row className="editName">
-                        <h3>Current Name: {displayName} - <Button onClick={()=>this.setModalInfo("editName")}>Edit</Button></h3>
-                    </Row>
+                       <Col sm={4} className="edit">
+                            {this.state.disabled['displayName']?
+                            <div>
+                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.enable('displayName')}/>
+                            </div>
+                                :
+                            <div>
+                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('displayName')}></FaSave>
+                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.enable('displayName')}></FaUndoAlt>
+                            </div>
+                            }
+                       </Col>
+                   </Row>
 
-                    <br></br>
+                   <Row>
+                       <Col sm={4} className="label">major</Col>
 
-                    <Row className="editName">
-                        <h3>Current Major: TODO - <Button onClick={()=>this.setModalInfo("editMajor")}>Edit</Button></h3>
-                    </Row>
+                       <Col sm={4}>
+                            <Form.Group className="formBasic">
+                                <Form.Control
+                                    type="text"
+                                    placeholder={currentMajor}
+                                    onChange={this.handleChange}
+                                    id="major"
+                                    className="generic"
+                                    value={this.state.major}
+                                    disabled={this.state.disabled['major']}
+                                />
+                            </Form.Group>
+                       </Col>
+                       
+                       <Col sm={4} className="edit">
+                            {this.state.disabled['major']?
+                            <div>
+                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.enable('major')}/>
+                            </div>
+                                :
+                            <div>
+                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('major')}></FaSave>
+                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.enable('major')}></FaUndoAlt>
+                            </div>
+                            }
+                       </Col>
+                   </Row>
 
-                    <br></br>
+                   <Row className="bottomMargin">
+                       <Col sm={4} className="label">commuter</Col>
 
-                    <Row className="editTags">
-                        <h3>Current Tags: TODO - <Button onClick={()=>this.setModalInfo("editTags")}>Edit</Button></h3>
-                    </Row>
-
-                    <br></br>
-
-
-                    <Row className="editCS">
-                        <h3>Commuter Status: TODO - <Button onClick={()=>this.setModalInfo("editCS")}>Edit</Button></h3>
-                    </Row>
-
-                    <br></br>
+                       <Col sm={4}>
+                            <Select options={commuterOptions} />
+                       </Col>
+                       
+                       <Col sm={4} className="edit"></Col>
+                   </Row>
 
 
-                    <Row className="editBio">
-                        <h3>Current Bio: TODO - <Button onClick={()=>this.setModalInfo("editBio")}>Edit</Button></h3>
-                    </Row>
-                    
-                    <Modal show={this.state.showEdit} onHide={this.closeEdit} className="edit-modal">
-                        <Modal.Header closeButton>
-                            <Modal.Title>{title}</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            {body}
-                            {<br></br>}
-                            {<br></br>}
-                            {this.setInput()}
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button onClick={this.closeEdit} disabled>Accept</Button>
-                            <Button onClick={this.closeEdit} variant="secondary">Cancel</Button>
-                        </Modal.Footer>
-                    </Modal>
-
+                   <Row>
+                       <Col sm={4} className="label">interests</Col>
+                       <Col sm={4}>
+                            <Select
+                                options={interests}
+                                //value={selectedOptions}
+                                //onChange={handleInterestChange}
+                                isMulti={true}
+                            />
+                       </Col>
+                       <Col sm={4} className="edit"></Col>
+                   </Row>
                 </Container>
 
         );
