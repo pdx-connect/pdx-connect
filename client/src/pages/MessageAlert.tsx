@@ -1,25 +1,23 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
+import {Message, UserEntry} from "./Home";
 
 
 interface Props {
-    Message: String;
+    messages: UserEntry[];
 }
 
 interface State {
-    Message: String;
+    messages: UserEntry[];
 }
 
 /**
  * 
  */
-export class MessageNotification extends Component<Props, State> {
+export class MessageAlert extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);
-        this.state = {
-            Message: props.Message
-        };
     }
 
   
@@ -30,8 +28,7 @@ export class MessageNotification extends Component<Props, State> {
     public render(): ReactNode {
 
         return (
-                <h1>{this.state.Message}</h1>
+            <pre>Welcome to Message Alerts {this.props.messages}</pre>
         );
     }
-
 }

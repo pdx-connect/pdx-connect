@@ -16,7 +16,7 @@ import { Listings } from "./Listings";
 import { Inbox } from "./Inbox";
 import { Settings } from "./Settings";
 import { SearchResults } from "./SearchResults";
-import { MessageNotification } from "./MessageNot";
+import { MessageAlert } from "./MessageAlert";
 
 import { Oobe } from "./profile/Oobe";
 
@@ -24,8 +24,19 @@ interface Props extends RouteComponentProps {
     
 }
 
+export interface Message {
+    timeStamp: Number;
+    text: String;
+    seen: boolean;
+}
+
+export interface UserEntry {
+    userID: Number;
+    entries: Message[];
+}
+
 interface State {
-    messages: object;
+    messages: UserEntry[];
     alerts: object;
     searchField?: string;
     showMessages?: boolean;
@@ -33,7 +44,6 @@ interface State {
     displayName?: string | undefined;
     showOobe: boolean;
     socket: WebSocket;
-    msg: String;
 }
 
 /**
@@ -44,9 +54,7 @@ export class Home extends Page<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            messages: {
-                one: "not received"
-            },
+            messages: [],
             alerts: {},
             searchField: "",
             showMessages: false,
@@ -54,7 +62,6 @@ export class Home extends Page<Props, State> {
             displayName: "",
             showOobe: false,
             socket: new WebSocket("ws://localhost:9999"),
-            msg: "not received",
         };
     }
     
@@ -70,6 +77,8 @@ export class Home extends Page<Props, State> {
         const name: string|undefined = data.name;
         this.setState({displayName: name});
     };
+
+    private readonly DefaultID: Number = 0;
 
     private readonly getUserOOBE = async () => {
         const response: Response = await fetch("/api/user/oobe", {
@@ -128,6 +137,52 @@ export class Home extends Page<Props, State> {
     private readonly logout = () => {
         this.logUserOut().then();
     };
+
+    private readonly parseMessage = (msg: MessageEvent) => {
+        let result: UserEntry = JSON.parse(msg.data);
+        let everythingIsNotGood = true;
+        // TODO: Add any important checks
+        if (everythingIsNotGood) {
+            result.userID = this.DefaultID;
+        }
+        return result;
+    };
+
+    private readonly getUnreadMessages = () => {
+        // TODO: Add post request to server for old messages
+    };
+
+    private readonly getMoreMessages = (userID: Number, alreadyHave: Number) => {
+        // TODO: Add post request asking for older messages
+    };
+
+    private readonly addNewMessages = (newMessages: UserEntry) => {
+        let tempMessages: UserEntry[] = this.state.messages;
+        let length = tempMessages.length;
+        let foundAt = -1;
+
+        // See whether an entry for the user exists
+        for(let i = 0; i < length; ++i) {
+            if (tempMessages[i].userID == newMessages.userID) {
+                foundAt = i;
+                break;
+            }
+        }
+        // If the user entry exists, append messages
+        if (foundAt >= 0) {
+            length = newMessages.entries.length;
+            for(let i = 0; i < length; ++i) {
+                tempMessages[foundAt].entries.push(newMessages.entries[i]);
+            }
+        }
+        // Otherwise just append UserEntry object
+        else {
+            tempMessages.push(newMessages);
+        }
+        // Update the state of the this component
+        this.setState({messages: tempMessages});
+
+    };
     
     /**
      * @override
@@ -136,18 +191,22 @@ export class Home extends Page<Props, State> {
         document.addEventListener('keydown', this.enterKeyPressed);
         this.getUserOOBE().then();
         this.getUserName().then();
-        console.log("Bug???");
+        
+        // Get unread messages from before we were connected
+        this.getUnreadMessages();
 
+        // Establish behavior of connection
         this.state.socket.onopen = () => {
-            this.state.socket.send("Hello, server!");
+            // When a message is received, do...
+            this.state.socket.onmessage = (msg) => {
+                let newMessages: UserEntry = this.parseMessage(msg);
+                this.addNewMessages(newMessages);
+            }
+            this.state.socket.onerror = (error) => {
+            }
+            this.state.socket.onclose = (closed) => {
+            }
         }
-        this.state.socket.onmessage = (msg) => {
-            this.setState({msg:"received"});
-        }
-        /*
-        this.state.socket.onmessage = (msg) => {
-            this.setState({messages:{one:msg.data}});
-        }*/
     }
     
     /**
@@ -155,6 +214,8 @@ export class Home extends Page<Props, State> {
      */
     public componentWillUnmount() {
         document.removeEventListener('keydown', this.enterKeyPressed);
+
+        this.state.socket.close();
     }
 
     public updateHistory = (v: string) => {
@@ -222,8 +283,7 @@ export class Home extends Page<Props, State> {
                             <Modal.Header closeButton>
                             <Modal.Title>Messages</Modal.Title>
                             </Modal.Header>
-                            {//<Modal.Body>TODO: Put messages here<MessageNotification Message={this.state.messages.one}/> after </Modal.Body>}
-                            <Modal.Body>TODO: Put messages here<MessageNotification Message={this.state.msg}/> after </Modal.Body>
+                            <Modal.Body>TODO: Put messages here</Modal.Body>
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
