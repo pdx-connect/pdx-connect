@@ -1,4 +1,6 @@
-import {BaseEntity, Column, Entity, IsNull, Not, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {BaseEntity, Column, Entity, IsNull, Not, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import { ConversationParticipant } from "./ConversationParticipant";
+import { Message } from "./Message";
 
 @Entity("conversation")
 export class Conversation extends BaseEntity {
@@ -11,18 +13,25 @@ export class Conversation extends BaseEntity {
     })
     readonly id!: number;
 
-    /*@Column({
-        name: "most_recent", 
-        time: "int",
-        comment: "Timestamp for most recent message",
-        unsigned: true
-    })
-    timestamp!: number;*/
-
     @Column({
         name: "archived",
-        type: "boolean",
+        type: "tinyint",
+        width: 1,
         comment: "Whether the conversation is archived"
     })
-    archived!: boolean;
+    isArchived!: boolean;
+
+    @Column({
+        name: "deactivated",
+        type: "tinyint",
+        width: 1,
+        comment: "Whether the conversation is archived"
+    })
+    isDeactivated!: boolean;
+
+    @OneToMany(type => ConversationParticipant, participant => participant.conversation)
+    readonly participants!: Promise<ConversationParticipant[]>;
+
+    @OneToMany(type => Message, message => message.conversation)
+    readonly messages!: Promise<Message[]>;
 }
