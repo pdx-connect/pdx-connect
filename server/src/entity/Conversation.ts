@@ -34,4 +34,5 @@ export class Conversation extends BaseEntity {
 
     @OneToMany(type => Message, message => message.conversation)
     readonly messages!: Promise<Message[]>;
+
 }

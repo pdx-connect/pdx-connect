@@ -44,5 +44,28 @@ export class ConversationParticipant extends BaseEntity {
         type: "datetime",
         comment: "Time of the most recent seen message"
     })
-    lastSeen!: Date;
+    lastSeen!: Date | null;
+
+    /**
+     * Internal constructor.
+     */
+    constructor();
+
+    /**
+     * Creates an entry indicating that user is in conversation
+     * @param conversation
+     * @param user
+     */
+    constructor(conversation: Conversation, user: User);
+    
+    constructor(conversation?: Conversation, user?: User) {
+        super();
+        if (conversation != null && user != null) {
+            this.conversationID = conversation.id;
+            this.conversation = Promise.resolve(conversation);
+            this.userID = user.id;
+            this.user = Promise.resolve(user);
+            this.lastSeen = null;
+        }
+    }
 }
