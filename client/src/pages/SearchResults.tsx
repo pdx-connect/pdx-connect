@@ -49,7 +49,17 @@ function getRows(rows: any, filters: any) {
 function ReactGrid({ rows } : { rows : any}) {
     const [filters, setFilters] = useState({});
     const filteredRows = getRows(rows, filters);
-    return ([filters, setFilters, filteredRows]);
+    return (
+        <ReactDataGrid
+            columns={columns}
+            rowGetter={i => filteredRows[i]}
+            rowsCount={10}
+            minHeight={500}
+            toolbar={<Toolbar enableFilter={true} />}
+            onAddFilter={filter => setFilters(handleFilterChange(filter))}
+            onClearFilters={() => setFilters({})}
+        />
+    );
 }
 /**
  * 
@@ -61,7 +71,6 @@ export class SearchResults extends Component<Props, State> {
     }
 
     state = { rows };
-    
 
     /**
      * @override
@@ -72,15 +81,7 @@ export class SearchResults extends Component<Props, State> {
                 <Row className="toprow">
                     <Col sm={8} md={8} className="resultsFor">Search results for: {this.props.searchField}</Col>
                 </Row>
-                <ReactDataGrid
-                    columns={columns}
-                    rowGetter={i => this.state.rows[i]}
-                    rowsCount={10}
-                    minHeight={500}
-                    toolbar={<Toolbar enableFilter={true} />}
-                    //onAddFilter={filter => setFilters(handleFilterChange(filter))}
-                    //onClearFilters={() => setFilters({})}
-                />
+                <ReactGrid rows={rows}></ReactGrid>
             </Container>
         );
     }
