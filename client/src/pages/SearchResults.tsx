@@ -80,7 +80,6 @@ export class SearchResults extends Component<Props, State> {
                     toolbar={<Toolbar enableFilter={true} />}
                     //onAddFilter={filter => setFilters(handleFilterChange(filter))}
                     //onClearFilters={() => setFilters({})}
-                    enableCellSelect={true}
                 />
             </Container>
         );
