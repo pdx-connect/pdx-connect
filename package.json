@@ -39,6 +39,7 @@
   "dependencies": {
     "@types/open": "^6.0.0",
     "@types/react-bootstrap-table": "^4.3.7",
+    "@types/react-data-grid": "^4.0.2",
     "@types/react-table": "^6.8.0",
     "clean-webpack-plugin": "^2.0.1",
     "minimist": "^1.2.0",
