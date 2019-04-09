@@ -3,6 +3,7 @@ import {UserEmail} from "./UserEmail";
 import {randomBytes} from "crypto";
 import {hash} from "bcrypt";
 import {UserProfile} from "./UserProfile";
+import { ConversationParticipant } from "./ConversationParticipant";
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -43,6 +44,12 @@ export class User extends BaseEntity {
     @OneToOne(type => UserProfile, profile => profile.user)
     readonly profile!: Promise<UserProfile|undefined>;
     
+    @OneToMany(type => ConversationParticipant, conversations => conversations.user, {
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE"
+    })
+    readonly conversations!: ConversationParticipant;
+ 
     @Column({
         name: "deactivated",
         comment: "Users should never be deleted, only deactivated"

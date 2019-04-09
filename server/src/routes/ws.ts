@@ -10,7 +10,16 @@ export function route(app: Express, db: Connection) {
     appWS.ws("/", (socket: ws, req: Request, next: NextFunction) => {
         // TODO Handle websocket connection
         socket.onopen = () => {
-            socket.send("Hello");
+            // Define event handlers
+            socket.onmessage = () => {
+                return;
+            };
+            socket.onerror = () => {
+                return;
+            };
+            socket.onclose = () => {
+                return;
+            };
         };
     });
 }

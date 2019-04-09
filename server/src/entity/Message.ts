@@ -1,5 +1,6 @@
-import {BaseEntity, Column, PrimaryColumn, Entity, IsNull, Not, ManyToOne, JoinColumn, PrimaryGeneratedColumn} from "typeorm";
+import {BaseEntity, Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn} from "typeorm";
 import {Conversation} from "./Conversation"
+import {User} from "./User"
 
 
 @Entity("messages")
@@ -38,6 +39,15 @@ export class Message extends BaseEntity {
     })
     readonly userID!: number;
 
+    @JoinColumn({
+        name: "user_id"
+    })
+    @ManyToOne(type => User, {
+        onDelete: "RESTRICT", 
+        onUpdate: "CASCADE",
+    })
+    readonly user!: Promise<User>;
+
     @Column({
         name: "time_sent",
         type: "datetime",
@@ -52,4 +62,28 @@ export class Message extends BaseEntity {
         comment: "The actual message"
     })
     content!: string;
+
+    /**
+     * Internal constructor.
+     */
+    constructor();
+
+    /**
+     * Creates a new message in conversation from user
+     * @param conversation
+     * @param user
+     */
+    constructor(conversation: Conversation, user: User, content: string);
+    
+    constructor(conversation?: Conversation, user?: User, content?: string) {
+        super();
+        if (conversation != null && user != null && content != null) {
+            this.conversationID = conversation.id;
+            this.conversation = Promise.resolve(conversation);
+            this.userID = user.id;
+            this.user = Promise.resolve(user);
+            this.timeSent = new Date();
+            this.content = content;
+        }
+    }
 }
