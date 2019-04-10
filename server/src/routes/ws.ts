@@ -1,4 +1,4 @@
-import {Express, Request, NextFunction} from "express";
+import {Express, Request, NextFunction, response} from "express";
 import {Connection, ReplSet} from "typeorm";
 import * as expressWs from "express-ws";
 import * as ws from "ws";
@@ -20,7 +20,7 @@ export function route(app: Express, db: Connection) {
             return;
         }
         const user: User = req.user;
-        socket.onopen = () => {
+        socket.on("open", async () => {
             // Add the connection
             connections.push({
                 socket: socket,
@@ -28,6 +28,7 @@ export function route(app: Express, db: Connection) {
             })
             // Define event handlers
             socket.on("message", async (msg: ws.Data) => {
+                // Validate message type and structure
                 if (typeof msg != "string" ) {
                     socket.close();
                     return;
@@ -35,7 +36,6 @@ export function route(app: Express, db: Connection) {
                 let message = JSON.parse(msg);
                 let type: string = message.type;
                 let conversationID: number = message.conversationID;
-
                 if ( type == null || conversationID == null ) {
                         // TODO send an error
                         return;
@@ -77,7 +77,7 @@ export function route(app: Express, db: Connection) {
                         // TODO send error
                         return;
                     }
-                    // Look up conversation
+                    // Look up conversation, needed for message constructor
                     let conversation: Conversation|undefined = await Conversation.findOne({
                         where: {
                             id: conversationIn.conversationID
@@ -89,6 +89,7 @@ export function route(app: Express, db: Connection) {
                     }
                     // Make the message and save it to the database
                     let newMessage = new Message(conversation, user, message.content);
+                    newMessage.save();
                     // Find all participants in conversation
                     let participants: ConversationParticipant[] = await ConversationParticipant.find({
                         where: {
@@ -98,8 +99,14 @@ export function route(app: Express, db: Connection) {
                     // Find connections to all logged-on participants
                     for( let i = 0; i < participants.length; ++i ) {
                         for ( let j = 0; j < connections.length; ++j ) {
-                            if ( connections[j].user == participants[i].userID ) {
-
+                            // If this connection matches a participant, and isn't the sender..
+                            if ( connections[j].user == participants[i].userID 
+                                && participants[i].userID != user.id) {
+                                connections[j].socket.send(JSON.stringify({
+                                    from: newMessage.userID,
+                                    timeSent: newMessage.timeSent,
+                                    content: newMessage.content
+                                }))
                             }
                         }
                     }
@@ -112,12 +119,12 @@ export function route(app: Express, db: Connection) {
                 }
                 return;
             });
-            socket.onerror = () => {
-                // TODO Maybe also send error
+            socket.on("error", (error) => {
+                // TODO maybe send error?
                 socket.close();
                 return;
-            };
-            socket.onclose = () => {
+            });
+            socket.on("close", () => {
                 // Remove from list of active connections
                 connections.filter( (value, index, arr) => {
                     return value == {
@@ -126,7 +133,7 @@ export function route(app: Express, db: Connection) {
                     }
                 })
                 return;
-            };
-        };
+            });
+        });
     });
 }

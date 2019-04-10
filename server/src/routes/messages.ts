@@ -4,48 +4,62 @@ import { User } from "../entity/User";
 import { ConversationParticipant } from "../entity/ConversationParticipant";
 import { Message} from "../entity/Message";
 
+
+async function getMessages (conversations: ConversationParticipant[]) {
+    // For every conversation, find the messages, pack them up
+    // and put them in messagesToSend
+    const conversationsToSend: {}[] = [];
+
+    for (let i = 0; i < conversations.length; ++i) {
+        let packed: {}[] = [];
+        let messages: Message[] = await Message.find({
+            where: {
+                conversationID: conversations[i].conversationID
+            }, 
+            order: {
+                timeSent: "DESC"
+            },
+            take: 30
+        });
+        // Process the messages and pack them up for addition to messagesToSend
+        for (let j = 0; j < messages.length; ++i) {
+            packed.push({
+                from: messages[j].userID,
+                timeSent: messages[j].timeSent,
+                content: messages[j].content
+            })
+        }
+        conversationsToSend.push({
+            conversationID: conversations[i].conversationID,
+            lastSeen: conversations[i].lastSeen,
+            message: messages 
+        });
+    }
+    return conversationsToSend;
+}
+
 export function route(app: Express, db: Connection) {
     app.post("/messages/backlog", async (request: Request, response: Response) => {
-        const user: User = request.user;
-        if (user != null) {
-            const messagesToSend: {}[] = [];
-            const conversations: ConversationParticipant[] = await ConversationParticipant.find({
-                where: {
-                    userID: user.id
-                }
-            });
-            // For every conversation, find the unseen messages, pack them up
-            // and put them in messagesToSend
-            for (let i = 0; i < conversations.length; ++i) {
-                let packed: {}[] = [];
-                let messages: Message[] = await Message.find({
-                    where: {
-                        conversationID: conversations[i].conversationID,
-                        timeSent: Not(LessThanOrEqual(conversations[i].lastSeen))
-                    }
-                });
-                // Process the messages and pack them up for addition to messagesToSend
-                for (let j = 0; j < messages.length; ++i) {
-                    packed.push({
-                        conversationID: messages[i].conversationID,
-                        from: messages[i].userID,
-                        timeSent: messages[i].timeSent,
-                        content: messages[i].content
-                    })
-                }
-                messagesToSend.push(packed);
-            }
-            response.send(JSON.stringify(messagesToSend));
-        } else {
-            // not logged in, send error and terminate
+        if (typeof request.user == null) {
+            // TODO send error
+            return;
         }
+        const user: User = request.user;
+        const conversations: ConversationParticipant[] = await ConversationParticipant.find({
+            where: {
+                userID: user.id
+            }
+        });
+        const messages: {}[] = await getMessages(conversations);
+        response.send(JSON.stringify(messages));
     });
+
     app.post("/messages/more", async (request: Request, response: Response) => {
         if (typeof request.user == null) {
-            // send logged in error and terminate
+            // TODO send error
             return;
         } else if (typeof request.body !== "object") {
-            // send improper message error and terminate
+            response.sendStatus(400); // HTTP 400: Bad client request
             return;
         }
         const user: User = request.user;
@@ -61,12 +75,13 @@ export function route(app: Express, db: Connection) {
         let conversationEntry: ConversationParticipant | undefined = await ConversationParticipant.findOne({
             where: {
                 conversationID: conversationID,
-                user: user
+                userID: user.id
             }
         });
         // If no entry is found...
         if (conversationEntry == null) {
-            // Return error to client and terminate
+            response.sendStatus(400); // HTTP 400: Bad client request
+            return;
         }
         // For with the conversation, get more messages, pack them up, send them
         let messages: Message[] = await Message.find({
@@ -79,6 +94,15 @@ export function route(app: Express, db: Connection) {
             skip: alreadyHave,
             take: 20
         });
-        // TODO
+        // Pack them up and ship them off
+        let toSend: {}[] = [];
+        for( let i = 0; i < messages.length; ++i) {
+            toSend.push({
+                from: messages[i].userID,
+                timeSent: messages[i].timeSent,
+                content: messages[i].content
+            });
+        }
+        response.send(JSON.stringify(toSend));
     });
 }

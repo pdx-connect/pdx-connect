@@ -43,7 +43,6 @@ interface State {
     showNotifications?: boolean;
     displayName?: string | undefined;
     showOobe: boolean;
-    socket: WebSocket;
     messageCount: number;
     notificationCount: number;
 }
@@ -54,6 +53,7 @@ interface State {
 export class Home extends Page<Props, State> {
 
     private static readonly DEFAULT_ID: number = 0;
+    private socket: WebSocket|null = null;
     
     constructor(props: Props) {
         super(props);
@@ -65,7 +65,6 @@ export class Home extends Page<Props, State> {
             showNotifications: false,
             displayName: "",
             showOobe: false,
-            socket: new WebSocket("ws://localhost:9999"),
             messageCount: 0, 
             notificationCount: 0,
         };
@@ -167,7 +166,7 @@ export class Home extends Page<Props, State> {
 
         // See whether an entry for the user exists
         for(let i = 0; i < length; ++i) {
-            if (tempMessages[i].userID == newMessages.userID) {
+            if (tempMessages[i].conversationID == newMessages.conversationID) {
                 foundAt = i;
                 break;
             }
@@ -200,20 +199,22 @@ export class Home extends Page<Props, State> {
         this.getUserOOBE().then();
         this.getUserName().then();
         
-        socket = new WebSocket("asdfq");
+        this.socket = new WebSocket("ws://localhost:9999");
         // Get unread messages from before we were connected
         this.getUnreadMessages();
 
         // Establish behavior of connection
-        this.state.socket.onopen = () => {
+        this.socket.onopen = () => {
             // When a message is received, do...
-            this.state.socket.onmessage = (msg: MessageEvent) => {
-                let newMessages: ConversationEntry = this.parseMessage(msg);
-                this.addNewMessages(newMessages);
-            }
-            this.state.socket.onerror = (error) => {
-            }
-            this.state.socket.onclose = (closed) => {
+            if( this.socket != null ) { // TODO: this check is a hacky work around
+                this.socket.onmessage = (msg: MessageEvent) => {
+                    let newMessages: ConversationEntry = this.parseMessage(msg);
+                    this.addNewMessages(newMessages);
+                }
+                this.socket.onerror = (error) => {
+                }
+                this.socket.onclose = (closed) => {
+                }
             }
         }
     }
@@ -224,7 +225,9 @@ export class Home extends Page<Props, State> {
     public componentWillUnmount() {
         document.removeEventListener('keydown', this.enterKeyPressed);
 
-        this.state.socket.close();
+        if(this.socket != null) {
+            this.socket.close();
+        }
     }
 
     public updateHistory = (v: string) => {
