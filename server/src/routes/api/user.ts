@@ -12,6 +12,26 @@ export function route(app: Express, db: Connection) {
             name: user != null ? user.displayName : void 0
         }));
     });
+    // Post the user name to the database.
+    app.post("/api/user/name", async (request: Request, response: Response) => {
+        if (typeof request.body !== "string") {
+            response.sendStatus(400);
+            return;
+        }
+        const user: User|undefined = request.user;
+        if (user != null) {
+            user.displayName = request.body;
+            await user.save();
+            response.send(JSON.stringify({
+                success: true
+                //error: ""
+            }));
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
     app.get("/api/user/oobe", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         response.send(JSON.stringify({
@@ -51,6 +71,34 @@ export function route(app: Express, db: Connection) {
             description: description
         }));
     });
+    // Post the user's profile bio to the database.
+    app.post("/api/user/description", async (request: Request, response: Response) => {
+        if (typeof request.body !== "string") {
+            response.sendStatus(400);
+            return;
+        }
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const profile: UserProfile|undefined = await user.profile;
+            if (profile != null) {
+                profile.description = request.body;
+                await profile.save();
+                response.send(JSON.stringify({
+                    success: true
+                    //error: ""
+                }));
+            } else {
+                response.send(JSON.stringify({
+                    error: "Profile not created yet."
+                }));
+            }
+            
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
     app.get("/api/user/major", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         let major: {
@@ -79,6 +127,49 @@ export function route(app: Express, db: Connection) {
             major: major
         }));
     });
+    // Post major data to the database.
+    // app.post("/api/user/major", async (request: Request, response: Response) => {
+    //     if (typeof request.body !== "string") {
+    //         response.sendStatus(400);
+    //         return;
+    //     }
+    //     const user: User|undefined = request.user;
+    //     //let major: {
+    //         //id: number;
+    //         //name: string;
+    //     //}|null|undefined;
+    //     if (user != null) {
+    //         const profile: UserProfile|undefined = await user.profile;
+    //         if (profile != null) {
+    //             profile.major = request.body;
+    //             await profile.save();
+    //             response.send(JSON.stringify({
+    //                 success: true
+    //                 //error: ""
+    //             }));
+    //             // const tag: Tag|null = await profile.major;
+    //             // if (tag != null) {
+    //             //     major = {
+    //             //         id: tag.id,
+    //             //         name: tag.name
+    //             //     };
+    //             // } else {
+    //             //     major = null;
+    //             // }
+    //         } else {
+    //             response.send(JSON.stringify({
+    //                 error: "Profile not created yet."
+    //             }));
+    //         }
+    //     } else {
+    //         response.send(JSON.stringify({
+    //             error: "Not logged in."
+    //         }));
+    //     }
+        
+    // });
+
+
     app.post("/api/user/interests", async (request: Request, response: Response) => {
         // Parse the request body
         if (typeof request.body !== "object") {

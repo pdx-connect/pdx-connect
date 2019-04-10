@@ -206,7 +206,9 @@ function generateSessionKey(): string {
         saveUninitialized: false
         // TODO May need to configure this session more (secure cookies, proxy, session store, etc)
     }));
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({
+        strict: false
+    }));
     app.use(passport.initialize());
     app.use(passport.session());
     

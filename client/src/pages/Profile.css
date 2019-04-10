@@ -64,6 +64,10 @@ input#displayName.generic.form-control
     font-weight: bold;
 }
 
+input#displayName.error {
+    border-color: red;
+}
+
 .bottomMargin
 {
     margin-bottom: 2%;
