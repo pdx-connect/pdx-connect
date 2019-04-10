@@ -16,7 +16,6 @@ import { Listings } from "./Listings";
 import { Inbox } from "./Inbox";
 import { Settings } from "./Settings";
 import { SearchResults } from "./SearchResults";
-import { MessageAlert } from "./MessageAlert";
 
 import { Oobe } from "./profile/Oobe";
 
@@ -53,6 +52,8 @@ interface State {
  *
  */
 export class Home extends Page<Props, State> {
+
+    private static readonly DEFAULT_ID: number = 0;
     
     constructor(props: Props) {
         super(props);
@@ -82,8 +83,6 @@ export class Home extends Page<Props, State> {
         const name: string|undefined = data.name;
         this.setState({displayName: name});
     };
-
-    private readonly DefaultID: Number = 0;
 
     private readonly getUserOOBE = async () => {
         const response: Response = await fetch("/api/user/oobe", {
@@ -144,11 +143,11 @@ export class Home extends Page<Props, State> {
     };
 
     private readonly parseMessage = (msg: MessageEvent) => {
-        let result: UserEntry = JSON.parse(msg.data);
+        let result: ConversationEntry = JSON.parse(msg.data);
         let everythingIsNotGood = true;
         // TODO: Add any important checks
         if (everythingIsNotGood) {
-            result.userID = this.DefaultID;
+            result.conversationID = Home.DEFAULT_ID;
         }
         return result;
     };
@@ -161,7 +160,7 @@ export class Home extends Page<Props, State> {
         // TODO: Add post request asking for older messages
     };
 
-    private readonly addNewMessages = (newMessages: UserEntry) => {
+    private readonly addNewMessages = (newMessages: ConversationEntry) => {
         let tempMessages: ConversationEntry[] = this.state.messages;
         let length = tempMessages.length;
         let foundAt = -1;
@@ -189,7 +188,7 @@ export class Home extends Page<Props, State> {
 
     };
 
-    private readonly sendMessage = (msg) => {
+    private readonly sendMessage = (msg: any) => {
         console.log("This is the message: ", msg);
     };
     
@@ -201,7 +200,7 @@ export class Home extends Page<Props, State> {
         this.getUserOOBE().then();
         this.getUserName().then();
         
-        socket = new ws("asdfq");
+        socket = new WebSocket("asdfq");
         // Get unread messages from before we were connected
         this.getUnreadMessages();
 
