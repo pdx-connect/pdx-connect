@@ -34,9 +34,13 @@ export function route(app: Express, db: Connection) {
                             };
                         }
                     }    
+
+                    // If the user did not setup his/her major,
+                    // return an empty string for the major
                     return {
                         userID: user.id,
-                        displayName: user.displayName
+                        displayName: user.displayName,
+                        major: ""
                     };
                 }))
             } else {
