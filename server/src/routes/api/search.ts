@@ -36,7 +36,8 @@ export function route(app: Express, db: Connection) {
                    }
                    return {
                        userID: user.id,
-                       displayName: user.displayName
+                       displayName: user.displayName,
+                       major: ""
                    };
                }))
            } else {
