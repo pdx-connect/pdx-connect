@@ -22,20 +22,22 @@ export function route(app: Express, db: Connection) {
                 // Create an array of user(s) containing their ID, displayName, major
                 USERS = await Promise.all(users.map(async user => {
                     const user_profile: UserProfile|undefined = await user.profile;
-
+                    
                     if(user_profile != undefined){
-                        return {
-                            userID: user.id,
-                            displayName: user.displayName,
-                            major: await user_profile.major
-                        };
-                    }
-                    else {
-                        return {
-                            userID: user.id,
-                            displayName: user.displayName
-                        };
-                    }
+                        const major_tag: Tag|undefined|null = await user_profile.major;
+                                    
+                        if(major_tag != null){
+                            return {
+                                userID: user.id,
+                                displayName: user.displayName,
+                                major: await major_tag.name
+                            };
+                        }
+                    }    
+                    return {
+                        userID: user.id,
+                        displayName: user.displayName
+                    };
                 }))
             } else {
                 response.sendStatus(400);
