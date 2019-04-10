@@ -30,6 +30,7 @@ interface State {
     showNotifications?: boolean;
     displayName?: string | undefined;
     showOobe: boolean;
+    finalSearchField: string;
 }
 
 /**
@@ -47,6 +48,7 @@ export class Home extends Page<Props, State> {
             showNotifications: false,
             displayName: "",
             showOobe: false,
+            finalSearchField: "",
         };
     }
     
@@ -113,6 +115,9 @@ export class Home extends Page<Props, State> {
     private readonly enterKeyPressed = (e: any) => {
         if (e.keyCode === 13) {
             e.preventDefault();
+            if (this.state.searchField != null) {
+                this.setState({finalSearchField: this.state.searchField})
+            }
             this.props.history.push('search-results')
         }
     };
@@ -216,7 +221,7 @@ export class Home extends Page<Props, State> {
                     <Row>
                         <Col sm={10} md={11} className="component"> 
                             <CurrentContent
-                                searchField={this.state.searchField}
+                                finalSearchField={this.state.finalSearchField}
                             /> 
                         </Col>
                     </Row>

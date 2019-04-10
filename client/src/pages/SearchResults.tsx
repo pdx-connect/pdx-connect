@@ -6,29 +6,21 @@ import { Container, Row, Col } from "react-bootstrap";
 import { Toolbar, Data } from "react-data-grid-addons"
 
 interface Props {
-    searchField?: string;
+    finalSearchField: string;
 }
 
 interface State {
+    rows: [];
 }
 
-
-const nameFormatter = ({ value } : {value: any}) => {
-    return (
-        <div>{value.name}</div>
-    );
-}
 
 const columns = [
-    { key: "displayName", name: "Username", editable: false, filterable: true},
-    { key: "major", name: "Major", editable: false, formatter: nameFormatter, filterable: true}
+    { key: "userID", name: "Username", editable: false, filterable: true},
+    { key: "displayName", name: "Major", editable: false, filterable: true}
 ];
 
-  const rows = [
-    { userID: 1, displayName: "Bradley Odell", major: {id: 4, name: "Computer Science" }},
-    { userID: 22, displayName: "Ivan", major: {id: 4, name: "Computer Science"}},
-    { userID: 33, displayName: "Brooke", major: {id: 4, name: "Computer Science"}}
-];
+
+
 
 const selectors = Data.Selectors;
 
@@ -68,20 +60,42 @@ export class SearchResults extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);
+        this.state = {rows: []}
+    }
+    componentDidMount(){
+        const results = this.getResults(1, this.props.finalSearchField);
+        console.log("results: ", results)
     }
 
-    state = { rows };
+    private readonly getResults = async (searchBy: number, displayName: string) => {
+        const response: Response = await fetch("/api/search/profile", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                searchBy: searchBy,
+                displayName: displayName
+            })
+        });
+        const data = await response.json(); 
+        console.log(data);
+        this.setState({rows: data.users})
+        return data
+    }
+
 
     /**
      * @override
      */
     public render(): ReactNode {
+        console.log("Rows: ", this.state.rows);
         return (
             <Container fluid className="searchResults">
                 <Row className="toprow">
-                    <Col sm={8} md={8} className="resultsFor">Search results for: {this.props.searchField}</Col>
+                    <Col sm={8} md={8} className="resultsFor">Search results for: {this.props.finalSearchField}</Col>
                 </Row>
-                <ReactGrid rows={rows}></ReactGrid>
+                <ReactGrid rows={this.state.rows}></ReactGrid>
             </Container>
         );
     }
