@@ -15,10 +15,10 @@ interface State {
 
 
 const columns = [
-    { key: "userID", name: "Username", editable: false, filterable: true},
-    { key: "displayName", name: "Major", editable: false, filterable: true}
+    { key: "userID", name: "User ID", editable: false, filterable: true},
+    { key: "displayName", name: "Name", editable: false, filterable: true},
+    { key: "major", name: "Major", editable: false, filterable: true}
 ];
-
 
 
 
