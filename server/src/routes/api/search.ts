@@ -70,7 +70,7 @@ export function route(app: Express, db: Connection) {
                         return {
                             userID: user_profile.userID,
                             displayName: user.displayName,
-                            major: await user_profile.major
+                            major: request.body.major
                         };
                     }))
                 }
