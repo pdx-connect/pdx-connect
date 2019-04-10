@@ -32,14 +32,14 @@ async function getMessages (conversations: ConversationParticipant[]) {
         conversationsToSend.push({
             conversationID: conversations[i].conversationID,
             lastSeen: conversations[i].lastSeen,
-            message: messages 
+            messages: packed
         });
     }
     return conversationsToSend;
 }
 
 export function route(app: Express, db: Connection) {
-    app.post("/messages/backlog", async (request: Request, response: Response) => {
+    app.get("/messages/backlog", async (request: Request, response: Response) => {
         if (typeof request.user == null) {
             // TODO send error
             return;

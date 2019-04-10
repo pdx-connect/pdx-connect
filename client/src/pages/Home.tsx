@@ -23,15 +23,22 @@ interface Props extends RouteComponentProps {
     
 }
 
+interface ServerMessage {
+    from: number;
+    timeSent: number;
+    content: string;
+}
+
 export interface Message {
     userID: number;
-    text: string;
     timeSent: number;
+    text: string;
     seen: boolean;
 }
 
 export interface ConversationEntry {
     conversationID: number;
+    lastSeen: number;
     entries: Message[];
 }
 
@@ -145,7 +152,22 @@ export class Home extends Page<Props, State> {
     /*
         Messaging Functions
     */
-    // Is this necessary?
+    private readonly convertMessages = (messages: ServerMessage[], lastSeen: number) => {
+        let toReturn: Message[] = [];
+
+        for(let i = 0; i < messages.length; ++i) {
+            // TODO Unsure whether to use checks or enforce types in the argument list
+            toReturn.push({
+                userID: messages[i].from,
+                timeSent: messages[i].timeSent,
+                text: messages[i].content,
+                seen: true ? messages[i].timeSent < lastSeen : false
+            });
+        }
+        return toReturn;
+    };
+
+    /* TODO Is this necessary?
     private readonly parseMessage = (msg: MessageEvent) => {
         let result: ConversationEntry = JSON.parse(msg.data);
         let everythingIsNotGood = true;
@@ -154,26 +176,35 @@ export class Home extends Page<Props, State> {
             result.conversationID = 0;
         }
         return result;
-    };
+    };*/
 
     // Update the messages state element to include new messages
-    private readonly addNewMessages = (newMessages: ConversationEntry) => {
+    private readonly addToConversation = (newMessages: ConversationEntry) => {
         let tempMessages: ConversationEntry[] = this.state.messages;
         let length = tempMessages.length;
         let foundAt = -1;
 
-        // See whether an entry for the user exists
+        // See whether an entry for the conversation exists exists
         for(let i = 0; i < length; ++i) {
             if (tempMessages[i].conversationID == newMessages.conversationID) {
                 foundAt = i;
                 break;
             }
         }
-        // If the user entry exists, append messages
+        // If the user entry exists, add the messages
         if (foundAt >= 0) {
             length = newMessages.entries.length;
             for(let i = 0; i < length; ++i) {
-                tempMessages[foundAt].entries.push(newMessages.entries[i]);
+                // Ignore messages which are already in the log
+                if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
+                    continue;
+                } else if ( newMessages.entries[i].timeSent == tempMessages[foundAt].entries[0].timeSent 
+                            &&  newMessages.entries[i].userID == tempMessages[foundAt].entries[0].userID 
+                            &&  newMessages.entries[i].text == tempMessages[foundAt].entries[0].text ) {
+                    continue;
+                } else { 
+                    tempMessages[foundAt].entries.unshift(newMessages.entries[i])
+                }
             }
         }
         // Otherwise just append UserEntry object
@@ -181,23 +212,50 @@ export class Home extends Page<Props, State> {
             tempMessages.push(newMessages);
         }
         // Update the state of the this component
-        this.setState({messages: tempMessages, messageCount: this.state.messageCount+1});
-
+        this.setState({messages: tempMessages});
     };
 
     // Get the initial backlog of messages
     private readonly getUnreadMessages = async () => {
+        let conversations: ConversationEntry[] = [];
+
         const response: Response = await fetch("/messages/backlog", {
-            method: 'POST',
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            /* Unnecessary? 
-            body: JSON.stringify({
-                userID: userID,
-                verificationCode: confirmationCode
-            })*/
+            }
         });
+        const data = await response.json();
+        if(data.length == null) {
+            // TODO throw an error
+            console.log("error in getUnreadMessages")
+            return;
+        }
+        // For each conversation returned, put it in the messages element
+        for (let i = 0; i < data.length; ++i) {
+            // Enforce types before moving on
+            if(typeof data[i] !== "object") {
+                // TODO throw an error
+                console.log("error in getUnreadMessages")
+                return;
+            }
+            const conversationID: number = data[i].conversationID;
+            const lastSeen: number = data[i].lastSeen;
+            const messages: ServerMessage[] = data[i].messages;
+            if (conversationID == null || lastSeen == null || messages == null) {
+                // TODO throw error
+                console.log("error in getUnreadMesasages");
+                return;
+            }
+            // Add the conversaion
+            conversations.push({
+                conversationID: conversationID,
+                lastSeen: lastSeen,
+                entries: this.convertMessages(messages, lastSeen)
+            });
+        }
+        // Update messages, this should force rerender to components which use messages
+        this.setState({messages: conversations});
     };
 
     // Get more messages for a particular conversation, update messages state elemtn
@@ -209,6 +267,9 @@ export class Home extends Page<Props, State> {
     private readonly sendMessage = (conversationID: number, msg: any) => {
         console.log("This is the message: ", msg);
     };
+    /*
+        End Messaging Functions
+    */
     
     /**
      * @override
@@ -227,8 +288,8 @@ export class Home extends Page<Props, State> {
             // When a message is received, do...
             if( this.socket != null ) { // TODO: this check is a hacky work around
                 this.socket.onmessage = (msg: MessageEvent) => {
-                    let newMessages: ConversationEntry = this.parseMessage(msg);
-                    this.addNewMessages(newMessages);
+                    //let newMessages: ConversationEntry = this.parseMessage(msg);
+                    //this.addNewMessages(newMessages);
                 }
                 this.socket.onerror = (error) => {
                 }
