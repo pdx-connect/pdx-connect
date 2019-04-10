@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Message, UserEntry} from "./Home";
+import {Message, ConversationEntry} from "./Home";
 
 
 interface Props {

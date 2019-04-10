@@ -4,12 +4,12 @@ import { User } from "../entity/User"
 import { ConversationParticipant } from "../entity/ConversationParticipant"
 import { Message} from "../entity/Message"
 import { Conversation } from "../entity/Conversation";
-import { type } from "os";
 
 export function route(app: Express, db: Connection) {
     app.post("/messages/backlog", async (request: Request, response: Response) => {
-        if( typeof request.user == null ||) {
+        if( typeof request.user == null) {
             // send error and terminate
+            return;
         }
         const user: User = request.user;
         let messagesToSend: {}[] = [];
@@ -59,6 +59,7 @@ export function route(app: Express, db: Connection) {
         // Return error if body did not contain correct information
         if (conversation == null || alreadyHave == null) {
             // Return error to client and terminate
+            return;
         }
         // Find correct conversation
         let conversationEntry: ConversationParticipant | undefined = await ConversationParticipant.findOne({
@@ -81,6 +82,6 @@ export function route(app: Express, db: Connection) {
             },
             skip: alreadyHave,
             take: 20
-        })
+        });
     });
 }

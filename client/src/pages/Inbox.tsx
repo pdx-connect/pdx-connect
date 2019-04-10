@@ -1,8 +1,12 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
+import {ConversationEntry} from "./Home";
 
 
 interface Props {
+    sendMessage: (msg: String) => void;
+    conversations: ConversationEntry[];
+    newMessageCount: number;
 }
 
 interface State {

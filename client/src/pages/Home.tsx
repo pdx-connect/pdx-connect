@@ -25,18 +25,19 @@ interface Props extends RouteComponentProps {
 }
 
 export interface Message {
-    timeStamp: Number;
-    text: String;
+    userID: number;
+    text: string;
     seen: boolean;
+    timeStamp: Number;
 }
 
-export interface UserEntry {
-    userID: Number;
+export interface ConversationEntry {
+    conversationID: number;
     entries: Message[];
 }
 
 interface State {
-    messages: UserEntry[];
+    messages: ConversationEntry[];
     alerts: object;
     searchField?: string;
     showMessages?: boolean;
@@ -44,6 +45,8 @@ interface State {
     displayName?: string | undefined;
     showOobe: boolean;
     socket: WebSocket;
+    messageCount: number;
+    notificationCount: number;
 }
 
 /**
@@ -62,6 +65,8 @@ export class Home extends Page<Props, State> {
             displayName: "",
             showOobe: false,
             socket: new WebSocket("ws://localhost:9999"),
+            messageCount: 0, 
+            notificationCount: 0,
         };
     }
     
@@ -157,7 +162,7 @@ export class Home extends Page<Props, State> {
     };
 
     private readonly addNewMessages = (newMessages: UserEntry) => {
-        let tempMessages: UserEntry[] = this.state.messages;
+        let tempMessages: ConversationEntry[] = this.state.messages;
         let length = tempMessages.length;
         let foundAt = -1;
 
@@ -180,8 +185,12 @@ export class Home extends Page<Props, State> {
             tempMessages.push(newMessages);
         }
         // Update the state of the this component
-        this.setState({messages: tempMessages});
+        this.setState({messages: tempMessages, messageCount: this.state.messageCount+1});
 
+    };
+
+    private readonly sendMessage = (msg) => {
+        console.log("This is the message: ", msg);
     };
     
     /**
@@ -192,14 +201,15 @@ export class Home extends Page<Props, State> {
         this.getUserOOBE().then();
         this.getUserName().then();
         
+        socket = new ws("asdfq");
         // Get unread messages from before we were connected
         this.getUnreadMessages();
 
         // Establish behavior of connection
         this.state.socket.onopen = () => {
             // When a message is received, do...
-            this.state.socket.onmessage = (msg) => {
-                let newMessages: UserEntry = this.parseMessage(msg);
+            this.state.socket.onmessage = (msg: MessageEvent) => {
+                let newMessages: ConversationEntry = this.parseMessage(msg);
                 this.addNewMessages(newMessages);
             }
             this.state.socket.onerror = (error) => {
@@ -226,10 +236,6 @@ export class Home extends Page<Props, State> {
      * @override
      */
     public render(): ReactNode {
-
-        let messages = Object.keys(this.state.messages);
-        let notifications = Object.keys(this.state.alerts);
-
 
         const content: { [key: string]: any } = {
             "/": HomeContent,
@@ -267,7 +273,7 @@ export class Home extends Page<Props, State> {
                 </Col>
                 <Col sm={7} md={7} className="topRight">
                     <FaSignOutAlt className="logout" onClick={this.logout}/>
-                    <Button size="sm" className="floatRight counter">{messages.length}</Button>
+                    <Button size="sm" className="floatRight counter">{this.state.messageCount}</Button>
                         <FaComment className="notifications" onClick={this.showMessages}/>
                         <Modal show={this.state.showNotifications} onHide={this.closeNotifications} dialogClassName="messages-modal">
                             <Modal.Header closeButton>
@@ -277,7 +283,7 @@ export class Home extends Page<Props, State> {
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
-                    <Button size="sm" className="floatRight counter">{notifications.length}</Button>
+                    <Button size="sm" className="floatRight counter">{this.state.notificationCount}</Button>
                         <FaStar className="notifications" onClick={this.showNotifications}/>
                         <Modal show={this.state.showMessages} onHide={this.closeMessages} dialogClassName="messages-modal">
                             <Modal.Header closeButton>
@@ -296,7 +302,9 @@ export class Home extends Page<Props, State> {
                         <Col sm={10} md={11} className="pageTitle"> {title[this.props.history.location.pathname]} </Col>
                     </Row>
                     <Row>
-                        <Col sm={10} md={11} className="component"> <CurrentContent/> </Col>
+                        <Col sm={10} md={11} className="component"> 
+                            <CurrentContent sendMessage={this.sendMessage}/> 
+                        </Col>
                     </Row>
                 </Col>
                 <Col sm={2} md={2} className="rightSidebar">Ad Space</Col>
