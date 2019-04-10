@@ -4,7 +4,9 @@ import {ConversationEntry} from "./Home";
 
 
 interface Props {
-    sendMessage: (msg: String) => void;
+    sendMessage: (conversationID: number, msg: string) => void;
+    getMoreMessages: (conversationID: number) => void;
+    seenRecent: (conversationID: number, time: number) => void;
     conversations: ConversationEntry[];
     newMessageCount: number;
 }

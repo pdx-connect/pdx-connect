@@ -26,8 +26,8 @@ interface Props extends RouteComponentProps {
 export interface Message {
     userID: number;
     text: string;
+    timeSent: number;
     seen: boolean;
-    timeStamp: Number;
 }
 
 export interface ConversationEntry {
@@ -39,11 +39,11 @@ interface State {
     messages: ConversationEntry[];
     alerts: object;
     searchField?: string;
-    showMessages?: boolean;
+    showMessages?: boolean; // TODO is this necessary?
     showNotifications?: boolean;
     displayName?: string | undefined;
     showOobe: boolean;
-    messageCount: number;
+    messageCount: number; // TODO is this necessary?
     notificationCount: number;
 }
 
@@ -52,7 +52,6 @@ interface State {
  */
 export class Home extends Page<Props, State> {
 
-    private static readonly DEFAULT_ID: number = 0;
     private socket: WebSocket|null = null;
     
     constructor(props: Props) {
@@ -106,8 +105,14 @@ export class Home extends Page<Props, State> {
         }).then(response => { response; this.props.history.push('/login'); });
     };
 
+    // TODO is this necessary?
     private readonly showMessages = () => {
         this.setState({showMessages: true});
+    };
+
+    // TODO is this necessary?
+    private readonly closeMessages = () => {
+        this.setState({showMessages: false});
     };
 
     private readonly closeOobe = () => {
@@ -116,10 +121,6 @@ export class Home extends Page<Props, State> {
 
     private readonly showNotifications= () => {
         this.setState({showNotifications: true});
-    };
-
-    private readonly closeMessages = () => {
-        this.setState({showMessages: false});
     };
 
     private readonly closeNotifications= () => {
@@ -141,24 +142,21 @@ export class Home extends Page<Props, State> {
         this.logUserOut().then();
     };
 
+    /*
+        Messaging Functions
+    */
+    // Is this necessary?
     private readonly parseMessage = (msg: MessageEvent) => {
         let result: ConversationEntry = JSON.parse(msg.data);
         let everythingIsNotGood = true;
         // TODO: Add any important checks
         if (everythingIsNotGood) {
-            result.conversationID = Home.DEFAULT_ID;
+            result.conversationID = 0;
         }
         return result;
     };
 
-    private readonly getUnreadMessages = () => {
-        // TODO: Add post request to server for old messages
-    };
-
-    private readonly getMoreMessages = (userID: Number, alreadyHave: Number) => {
-        // TODO: Add post request asking for older messages
-    };
-
+    // Update the messages state element to include new messages
     private readonly addNewMessages = (newMessages: ConversationEntry) => {
         let tempMessages: ConversationEntry[] = this.state.messages;
         let length = tempMessages.length;
@@ -187,7 +185,28 @@ export class Home extends Page<Props, State> {
 
     };
 
-    private readonly sendMessage = (msg: any) => {
+    // Get the initial backlog of messages
+    private readonly getUnreadMessages = async () => {
+        const response: Response = await fetch("/messages/backlog", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            /* Unnecessary? 
+            body: JSON.stringify({
+                userID: userID,
+                verificationCode: confirmationCode
+            })*/
+        });
+    };
+
+    // Get more messages for a particular conversation, update messages state elemtn
+    private readonly getMoreMessages = (conversationID: number) => {
+        // TODO: Add post request asking for older messages
+    };
+
+    // Send a message to the server, insert it into our message log
+    private readonly sendMessage = (conversationID: number, msg: any) => {
         console.log("This is the message: ", msg);
     };
     
