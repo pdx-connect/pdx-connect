@@ -7,7 +7,6 @@ import { Toolbar, Data } from "react-data-grid-addons"
 
 interface Props {
     finalSearchField: string;
-    searchField: string;
 }
 
 interface State {

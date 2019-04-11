@@ -222,7 +222,6 @@ export class Home extends Page<Props, State> {
                         <Col sm={10} md={11} className="component"> 
                             <CurrentContent
                                 finalSearchField={this.state.finalSearchField}
-                                searchField={this.state.searchField}
                             /> 
                         </Col>
                     </Row>
