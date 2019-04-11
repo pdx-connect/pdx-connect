@@ -1,8 +1,8 @@
 import {Express, Request, Response} from "express";
 import {Connection, Not, LessThanOrEqual} from "typeorm";
-import { User } from "../entity/User";
-import { ConversationParticipant } from "../entity/ConversationParticipant";
-import { Message} from "../entity/Message";
+import { User } from "../../entity/User";
+import { ConversationParticipant } from "../../entity/ConversationParticipant";
+import { Message} from "../../entity/Message";
 
 
 async function getMessages (conversations: ConversationParticipant[]) {
@@ -39,7 +39,7 @@ async function getMessages (conversations: ConversationParticipant[]) {
 }
 
 export function route(app: Express, db: Connection) {
-    app.get("/messages/backlog", async (request: Request, response: Response) => {
+    app.get("/api/messages/backlog", async (request: Request, response: Response) => {
         if (typeof request.user == null) {
             // TODO send error
             return;
@@ -54,7 +54,7 @@ export function route(app: Express, db: Connection) {
         response.send(JSON.stringify(messages));
     });
 
-    app.post("/messages/more", async (request: Request, response: Response) => {
+    app.post("/api/messages/more", async (request: Request, response: Response) => {
         if (typeof request.user == null) {
             // TODO send error
             return;

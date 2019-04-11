@@ -3,7 +3,7 @@ import {Conversation} from "./Conversation"
 import {User} from "./User"
 
 
-@Entity("messages")
+@Entity("message")
 export class Message extends BaseEntity {
 
     @PrimaryGeneratedColumn({
@@ -32,7 +32,7 @@ export class Message extends BaseEntity {
     readonly conversation!: Promise<Conversation>;
 
     @Column({
-        name: "user_id",
+        name: "from_user_id",
         type: "int",
         unsigned: true,
         comment: "Foreign key to user table	"
@@ -40,7 +40,7 @@ export class Message extends BaseEntity {
     readonly userID!: number;
 
     @JoinColumn({
-        name: "user_id"
+        name: "from_user_id"
     })
     @ManyToOne(type => User, {
         onDelete: "RESTRICT", 

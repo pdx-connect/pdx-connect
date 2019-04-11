@@ -7,7 +7,6 @@ import {route as logout} from "./logout";
 import {route as reset} from "./reset";
 import {route as api} from "./api";
 import {route as ws} from "./ws";
-import {route as messages} from "./messages"
 
 export function configure(app: Express, db: Connection) {
     // Configure public vs private routes
@@ -19,5 +18,4 @@ export function configure(app: Express, db: Connection) {
     reset(app, db);
     api(app, db);
     ws(app, db);
-    messages(app, db);
 }

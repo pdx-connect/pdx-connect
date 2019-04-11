@@ -18,6 +18,7 @@ import { Settings } from "./Settings";
 import { SearchResults } from "./SearchResults";
 
 import { Oobe } from "./profile/Oobe";
+import { number } from "prop-types";
 
 interface Props extends RouteComponentProps {
     
@@ -167,17 +168,6 @@ export class Home extends Page<Props, State> {
         return toReturn;
     };
 
-    /* TODO Is this necessary?
-    private readonly parseMessage = (msg: MessageEvent) => {
-        let result: ConversationEntry = JSON.parse(msg.data);
-        let everythingIsNotGood = true;
-        // TODO: Add any important checks
-        if (everythingIsNotGood) {
-            result.conversationID = 0;
-        }
-        return result;
-    };*/
-
     // Update the messages state element to include new messages
     private readonly addToConversation = (newMessages: ConversationEntry) => {
         let tempMessages: ConversationEntry[] = this.state.messages;
@@ -194,7 +184,7 @@ export class Home extends Page<Props, State> {
         // If the user entry exists, add the messages
         if (foundAt >= 0) {
             length = newMessages.entries.length;
-            for(let i = 0; i < length; ++i) {
+            for(let i = length-1; i <= 0; --i) {
                 // Ignore messages which are already in the log
                 if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
                     continue;
@@ -219,7 +209,7 @@ export class Home extends Page<Props, State> {
     private readonly getUnreadMessages = async () => {
         let conversations: ConversationEntry[] = [];
 
-        const response: Response = await fetch("/messages/backlog", {
+        const response: Response = await fetch("/api/messages/backlog", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -259,14 +249,85 @@ export class Home extends Page<Props, State> {
     };
 
     // Get more messages for a particular conversation, update messages state elemtn
-    private readonly getMoreMessages = (conversationID: number) => {
-        // TODO: Add post request asking for older messages
+    private readonly getMoreMessages = async (conversationID: number) => {
+        let conversation: ConversationEntry;
+        let alreadyHave: number = 0;
+        let lastSeen: number = 0;
+    
+        // Search for the conversation, get the number of existing messages
+        for (let i = 0; i < this.state.messages.length; ++i) {
+            if (this.state.messages[i].conversationID == conversationID) {
+                alreadyHave = this.state.messages[i].entries.length;
+                lastSeen = this.state.messages[i].lastSeen;
+                break;
+            }
+        }
+        // Get the messages from the server
+        const response: Response = await fetch("/api/messages/more", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                conversationID: conversationID,
+                alreadyHave: alreadyHave,
+            })
+        });
+        // Turn the response into a ConversationEntry
+        const data = await response.json();
+        if (data == null) {
+            // TODO throw an error
+            console.log("error in getMoreMessages");
+            return;
+        }
+        let messages: ServerMessage[] = data;
+        if (messages == null) {
+            // TODO throw an error
+            console.log("error in getMoreMessages");
+            throw new Error();
+        }
+        conversation = {
+            conversationID: conversationID,
+            lastSeen: lastSeen, 
+            entries: this.convertMessages(messages, lastSeen)
+        };
+        this.addToConversation(conversation);
     };
 
     // Send a message to the server, insert it into our message log
-    private readonly sendMessage = (conversationID: number, msg: any) => {
-        console.log("This is the message: ", msg);
+    private readonly sendMessage = (conversationID: number, msg: string) => {
+        let tempMessages: ConversationEntry[] = this.state.messages;
+        if (this.socket == null) {
+            // TODO send error
+            console.log("error in sendMessage");
+            return;
+        }
+        // Send the message as a string
+        this.socket.send(JSON.stringify({
+            type: "message", 
+            conversationID: conversationID,
+            content: msg
+        }));
+        // Search the messages log, find the conversation, add the message
+        for (let i = 0; i < tempMessages.length; ++i) {
+            if (tempMessages[i].conversationID == conversationID) {
+                tempMessages[i].entries.unshift({
+                    userID: 0, // !!! TODO get userID
+                    timeSent: Date.now(),
+                    text: msg,
+                    seen: true
+                });
+                break;
+            }
+        }
+        this.setState({messages: tempMessages});
     };
+
+    private readonly seenRecent = (conversationID: number, time: number) => {
+        // TODO write the function
+        return;
+    }
+
     /*
         End Messaging Functions
     */
@@ -288,8 +349,9 @@ export class Home extends Page<Props, State> {
             // When a message is received, do...
             if( this.socket != null ) { // TODO: this check is a hacky work around
                 this.socket.onmessage = (msg: MessageEvent) => {
-                    //let newMessages: ConversationEntry = this.parseMessage(msg);
-                    //this.addNewMessages(newMessages);
+                    let newMessages: ConversationEntry = this.parseMessage(msg);
+                    // TODO Replace parseMessage with in-function code
+                    this.addToConversation(newMessages);
                 }
                 this.socket.onerror = (error) => {
                 }
