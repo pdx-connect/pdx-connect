@@ -103,9 +103,12 @@ export function route(app: Express, db: Connection) {
                             if ( connections[j].user == participants[i].userID 
                                 && participants[i].userID != user.id) {
                                 connections[j].socket.send(JSON.stringify({
-                                    from: newMessage.userID,
-                                    timeSent: newMessage.timeSent,
-                                    content: newMessage.content
+                                    conversationID: conversationID,
+                                    message: {
+                                        from: newMessage.userID,
+                                        timeSent: newMessage.timeSent,
+                                        content: newMessage.content
+                                    }
                                 }))
                             }
                         }

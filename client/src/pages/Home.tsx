@@ -349,18 +349,49 @@ export class Home extends Page<Props, State> {
             // When a message is received, do...
             if( this.socket != null ) { // TODO: this check is a hacky work around
                 this.socket.onmessage = (msg: MessageEvent) => {
-                    let newMessages: ConversationEntry = this.parseMessage(msg);
-                    // TODO Replace parseMessage with in-function code
-                    this.addToConversation(newMessages);
-                }
+                    let toAdd: ConversationEntry;
+                    let message: Message;
+                    let data = msg.data;
+                    if (typeof data !== "object") {
+                        // TODO throw an error
+                        console.log("error in socket.onmessage");
+                        return;
+                    }
+                    data = JSON.parse(data);
+                    let lastSeen: number = 0;
+                    let conversationID: number = data.conversationID;
+                    let msgFromServer: ServerMessage = data.message;
+                    if (conversationID == null || msgFromServer == null) {
+                        // TODO throw an error
+                        console.log("error in socket.onmessage")
+                        return;
+                    }
+                    message = {
+                        userID: msgFromServer.from,
+                        timeSent: msgFromServer.timeSent,
+                        text: msgFromServer.content,
+                        seen: false,
+                    }
+                    for (let i = 0; i < this.state.messages.length; ++i) {
+                        if (this.state.messages[i].conversationID == conversationID ){
+                            lastSeen = this.state.messages[i].lastSeen;
+                            break;
+                        }
+                    }
+                    toAdd = {
+                        conversationID: conversationID,
+                        lastSeen: lastSeen,
+                        entries: [message]
+                    }
+                };
                 this.socket.onerror = (error) => {
-                }
+                };
                 this.socket.onclose = (closed) => {
-                }
+                };
             }
-        }
-    }
-    
+        };
+    };
+
     /**
      * @override
      */
