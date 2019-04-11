@@ -7,6 +7,7 @@ import { Toolbar, Data } from "react-data-grid-addons"
 
 interface Props {
     finalSearchField: string;
+    searchField: string;
 }
 
 interface State {
@@ -62,9 +63,20 @@ export class SearchResults extends Component<Props, State> {
         super(props);
         this.state = {rows: []}
     }
-    componentDidMount(){
-        const results = this.getResults(1, this.props.finalSearchField);
-        console.log("results: ", results)
+    private readonly enterKeyPressed = (e: any) => {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            if (this.props.finalSearchField != null) {
+                const results = this.getResults(1, this.props.finalSearchField);
+            }
+        }
+    };
+
+    public componentDidMount(){
+        document.addEventListener('keydown', this.enterKeyPressed);
+        if (this.props.finalSearchField != null) {
+            const results = this.getResults(1, this.props.finalSearchField)
+        }
     }
 
     private readonly getResults = async (searchBy: number, displayName: string) => {

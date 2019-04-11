@@ -115,7 +115,7 @@ export class Home extends Page<Props, State> {
     private readonly enterKeyPressed = (e: any) => {
         if (e.keyCode === 13) {
             e.preventDefault();
-            if (this.state.searchField != null) {
+            if (this.state.searchField != undefined) {
                 this.setState({finalSearchField: this.state.searchField})
             }
             this.props.history.push('search-results')
@@ -222,6 +222,7 @@ export class Home extends Page<Props, State> {
                         <Col sm={10} md={11} className="component"> 
                             <CurrentContent
                                 finalSearchField={this.state.finalSearchField}
+                                searchField={this.state.searchField}
                             /> 
                         </Col>
                     </Row>

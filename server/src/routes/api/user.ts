@@ -51,6 +51,34 @@ export function route(app: Express, db: Connection) {
             description: description
         }));
     });
+    app.get("/api/user/major", async (request: Request, response: Response) => {
+        const user: User|undefined = request.user;
+        let major: {
+            id: number;
+            name: string;
+        }|null|undefined;
+        if (user != null) {
+            const profile: UserProfile|undefined = await user.profile;
+            if (profile != null) {
+                const tag: Tag|null = await profile.major;
+                if (tag != null) {
+                    major = {
+                        id: tag.id,
+                        name: tag.name
+                    };
+                } else {
+                    major = null;
+                }
+            } else {
+                major = void 0;
+            }
+        } else {
+            major = void 0;
+        }
+        response.send(JSON.stringify({
+            major: major
+        }));
+    });
     app.post("/api/user/interests", async (request: Request, response: Response) => {
         // Parse the request body
         if (typeof request.body !== "object") {
