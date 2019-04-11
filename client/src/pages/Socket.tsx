@@ -59,6 +59,49 @@ export class Socket extends Component<Props, State> {
     };
 
     private readonly getUnreadMessages = async () => {
+        let conversations: ConversationEntry[] = [];
+
+        const response: Response = await fetch("/api/messages/backlog", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        if(data.length == null) {
+            // TODO throw an error
+            console.log("error in getUnreadMessages")
+            return;
+        }
+        // For each conversation returned, put it in the messages element
+        for (let i = 0; i < data.length; ++i) {
+            // Enforce types before moving on
+            if(typeof data[i] !== "object") {
+                // TODO throw an error
+                console.log("error in getUnreadMessages")
+                return;
+            }
+            const conversationID: number = data[i].conversationID;
+            const lastSeen: number = data[i].lastSeen;
+            const messages: ServerMessage[] = data[i].messages;
+            if (conversationID == null || lastSeen == null || messages == null) {
+                // TODO throw error
+                console.log("error in getUnreadMesasages");
+                return;
+            }
+            // Add the conversaion
+            conversations.push({
+                conversationID: conversationID,
+                lastSeen: lastSeen,
+                entries: this.convertMessages(messages, lastSeen)
+            });
+        }
+        // Update messages, this should force rerender to components which use messages
+        this.setState({messages: conversations});
+    };
+
+    /*
+    private readonly getUnreadMessages = async () => {
         const response: Response = await fetch("/api/messages/backlog", {
             method: 'GET',
             headers: {
@@ -130,6 +173,7 @@ export class Socket extends Component<Props, State> {
 
         return conversations;
     };
+    */
 
     private readonly convertMessages = (messages: ServerMessage[], lastSeen: number) => {
         let toReturn: Message[] = [];

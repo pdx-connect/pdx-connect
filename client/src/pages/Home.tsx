@@ -229,7 +229,7 @@ export class Home extends Page<Props, State> {
                 <Modal.Footer>
                 </Modal.Footer>
             </Modal>
-            {/*<Socket/>*/}
+            <Socket/>
         </Container>);
     }
 
