@@ -128,3 +128,13 @@
     padding-bottom: 1%;
     font-family: 'Varela Round', sans-serif;
 }
+
+.notAuthorized
+{
+    color: red;
+    text-transform: uppercase;
+    letter-spacing: .2vw;
+    text-align: center;
+    padding-bottom: 1%;
+    font-family: 'Varela Round', sans-serif;
+}

@@ -92,23 +92,22 @@ export function route(app: Express, db: Connection) {
         }
 
         // Verify inputs
-        const incomingInterests: number[] = body.interests;
-        if (incomingInterests.length <= 0) {
-            response.send(JSON.stringify({
-                error: "No interests submitted."
-            }));
-            return;
-        }
+        const incomingInterests: unknown[] = body.interests;
 
         const user: User|undefined = request.user;
         if (user != null) {
             const profile: UserProfile|undefined = await user.profile;
             if (profile != null) {
-                const incomingTags = await Promise.all(incomingInterests.map(id => Tag.findOne({
-                    where: {
-                        id: id
+                const incomingTags = await Promise.all(incomingInterests.map((id: unknown) => {
+                    if (typeof id !== "number") {
+                        return void 0;
                     }
-                })));
+                    return Tag.findOne({
+                        where: {
+                            id: id
+                        }
+                    });
+                }));
                 if (ArrayUtils.checkNonNull(incomingTags)) {
                     profile.interests = Promise.resolve(incomingTags);
                     await profile.save();
