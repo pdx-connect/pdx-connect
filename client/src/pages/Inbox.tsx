@@ -1,13 +1,13 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {ConversationEntry} from "./Home";
+//import {ConversationEntry} from "./Home";
 
 
 interface Props {
     sendMessage: (conversationID: number, msg: string) => void;
     getMoreMessages: (conversationID: number) => void;
     seenRecent: (conversationID: number, time: number) => void;
-    conversations: ConversationEntry[];
+    //conversations: ConversationEntry[];
     newMessageCount: number;
 }
 

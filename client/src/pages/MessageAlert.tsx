@@ -1,14 +1,14 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {ConversationEntry} from "./Home";
+//import {ConversationEntry} from "./Home";
 
 
 interface Props {
-    messages: ConversationEntry[];
+    //messages: ConversationEntry[];
 }
 
 interface State {
-    messages: ConversationEntry[];
+    //messages: ConversationEntry[];
 }
 
 /**
@@ -25,7 +25,7 @@ export class MessageAlert extends Component<Props, State> {
      */
     public render(): ReactNode {
         return (
-            <pre>Welcome to Message Alerts {this.props.messages}</pre>
+            <pre>Welcome to Message Alerts {/*this.props.messages*/}</pre>
         );
     }
     
