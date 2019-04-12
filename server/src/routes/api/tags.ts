@@ -18,7 +18,7 @@ export function route(app: Express, db: Connection) {
         });
     }
 
-    app.post("/api/tags/academia", async (request: Request, response: Response) => {
+    app.get("/api/tags/academia", async (request: Request, response: Response) => {
         let list: string[] = [];
 
         // Get the academia tag
@@ -39,6 +39,7 @@ export function route(app: Express, db: Connection) {
         response.send(JSON.stringify(list));
     });
 
+    // Modify to return only leaf tags to Oobe.tsx for interest tags
     // app.get("/api/tags", async (request: Request, response: Response) => {
     //     let json: {
     //         id: number;
