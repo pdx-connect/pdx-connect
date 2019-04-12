@@ -3,6 +3,8 @@ import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 //import {ConversationEntry} from "./Home";
 
+import "./Inbox.css";
+
 
 interface Props {
     sendMessage: (conversationID: number, msg: string) => void;
@@ -23,13 +25,49 @@ const conversations = [
             {
                 userID: 6,
                 timeSent: 1555011169,
-                text: "A am David!",
+                text: "I am David!",
                 seen: false
             },
             {
                 userID: 4,
                 timeSent: 1555011175,
-                text: "I am Daniel",
+                text: "I am Daniel!",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011179,
+                text: "Whats up?",
+                seen: false
+            },
+            {
+                userID: 4,
+                timeSent: 1555011186,
+                text: "Nothing much",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011197,
+                text: "Are you actually Daniel?",
+                seen: false
+            },
+            {
+                userID: 4,
+                timeSent: 1555011201,
+                text: "Nah I'm David lol",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011210,
+                text: "Ah, you got me for a sec",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011220,
+                text: "Why are you like this?",
                 seen: false
             }
         ]
@@ -68,12 +106,32 @@ export class Inbox extends Component<Props, State> {
     private readonly getInbox = () => {
         let rows = [];
         for (let i=0; i<conversations.length; i++) {
-            rows.push( <Row className="convo-id"> ConversationID: {conversations[i].conversationID} 
-                <Col>  </Col>
-            
-            </Row> );
-            for (let j=0; j<conversations[i].messages.length; j++) {
-                {conversations[i].messages[j]}
+            rows.push(
+                <Row className="conversation">
+                    <Col sm={6} >Message from: user {conversations[i].messages[0].userID}</Col>
+                    <Col sm={6} >{conversations[i].messages[conversations[i].messages.length-1].text}</Col>
+                </Row>
+            );
+        }
+        return rows;
+    }
+
+    private readonly getMessages = () => {
+        let rows = [];
+        for (let i=0; i<conversations[0].messages.length; i++) {
+            if (conversations[0].messages[i].userID == 6) {
+                 rows.push(
+                      <Row className="my-message">
+                        <Col sm={12} > {conversations[0].messages[i].text}</Col>
+                      </Row>
+                );
+            }
+            else {
+                rows.push(
+                    <Row className="other-message">
+                      <Col sm={12} > {conversations[0].messages[i].text}</Col>
+                    </Row>
+              );
             }
         }
         return rows;
@@ -100,12 +158,18 @@ export class Inbox extends Component<Props, State> {
                     print message left side
             */
 
-            let inbox = this.getInbox();
+            let conversations = this.getInbox();
+            let messages = this.getMessages();
 
         return (
 
             <Container fluid className="inbox">
-                {inbox}
+                <div className="conversations">
+                    {conversations}
+                </div>
+                <div className="chat-box">
+                    {messages}
+                </div>
             </Container>
         );
     }
