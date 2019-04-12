@@ -39,24 +39,27 @@ export function route(app: Express, db: Connection) {
         response.send(JSON.stringify(list));
     });
 
-    // Modify to return only leaf tags to Oobe.tsx for interest tags
-    // app.get("/api/tags", async (request: Request, response: Response) => {
-    //     let json: {
-    //         id: number;
-    //         name: string;
-    //     }[] | string;
-    //     if (request.isAuthenticated()) {
-    //         const tags: Tag[] =  await Tag.find();
-    //         json = [];
-    //         for (const tag of tags) {
-    //             json.push({
-    //                 id: tag.id,
-    //                 name: tag.name
-    //             });
-    //         }
-    //     } else {
-    //         json = "Not logged in.";
-    //     }
-    //     response.send(JSON.stringify(json));
-    // });
+
+    app.get("/api/tags", async (request: Request, response: Response) => {
+        let json: {
+            id: number;
+            name: string;
+        }[] | string;
+        if (request.isAuthenticated()) {
+            const tags: Tag[] =  await Tag.find();
+            json = [];
+            for (const tag of tags) {
+                if(tag.isParent == false)
+                {
+                    json.push({
+                        id: tag.id,
+                        name: tag.name
+                    });
+                }
+            }
+        } else {
+            json = "Not logged in.";
+        }
+        response.send(JSON.stringify(json));
+    });
 }
