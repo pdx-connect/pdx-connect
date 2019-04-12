@@ -24,13 +24,13 @@ export function route(app: Express, db: Connection) {
                    const user_profile: UserProfile|undefined = await user.profile;
 
                    if(user_profile != undefined){
-                       const major_tag: Tag|undefined|null = await user_profile.major;
+                       const academia_tag: Tag|undefined|null = await user_profile.major;
 
-                       if(major_tag != null){
+                       if(academia_tag != null){
                            return {
                                userID: user.id,
                                displayName: user.displayName,
-                               major: await major_tag.name
+                               major: await academia_tag.name
                            };
                        }
                    }
@@ -48,19 +48,19 @@ export function route(app: Express, db: Connection) {
        else if(request.body.searchBy === 2)    // Search by major
        {
            if (request.body.major != null) {
-               // Found the tag id of the coressponding tag
-               const Major: Tag|undefined = await Tag.findOne({
+               // Found the tag id of the coresponding tag
+               const academia_tag: Tag|undefined = await Tag.findOne({
                    where: {
                        name: request.body.major
                    }
                });
 
-               if(Major != undefined)
+               if(academia_tag != undefined)
                {
                    // Search the DB to find all users with this major
                    const user_profiles: UserProfile[] = await UserProfile.find({
                        where: {
-                           major: Major.id
+                           major: academia_tag.id
                        }
                    });
 
