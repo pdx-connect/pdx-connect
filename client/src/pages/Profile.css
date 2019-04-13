@@ -56,18 +56,6 @@
     color: #297d7d;
 }
 
-input#displayName.generic.form-control
-{
-    color: #b3b3b3;
-    text-transform: uppercase;
-    letter-spacing: .5vw;
-    font-weight: bold;
-}
-
-input#displayName.error {
-    border-color: red;
-}
-
 .bottomMargin
 {
     margin-bottom: 2%;
