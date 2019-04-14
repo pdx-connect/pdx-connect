@@ -15,7 +15,6 @@ interface State {
 
 
 const columns = [
-    { key: "userID", name: "User ID", editable: false, filterable: true},
     { key: "displayName", name: "Name", editable: false, filterable: true},
     { key: "major", name: "Major", editable: false, filterable: true}
 ];
@@ -90,7 +89,6 @@ export class SearchResults extends Component<Props, State> {
             })
         });
         const data = await response.json(); 
-        console.log(data);
         this.setState({rows: data.users})
         return data
     }
@@ -100,11 +98,10 @@ export class SearchResults extends Component<Props, State> {
      * @override
      */
     public render(): ReactNode {
-        console.log("Rows: ", this.state.rows);
         return (
             <Container fluid className="searchResults">
                 <Row className="toprow">
-                    <Col sm={8} md={8} className="resultsFor">Search results for: {this.props.finalSearchField}</Col>
+                    <Col sm={8} md={8} className="resultsFor">Search results by username for: {this.props.finalSearchField}</Col>
                 </Row>
                 <ReactGrid rows={this.state.rows}></ReactGrid>
             </Container>
