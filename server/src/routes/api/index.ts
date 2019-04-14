@@ -3,9 +3,8 @@ import {Connection} from "typeorm";
 import {route as user} from "./user";
 import {route as tags} from "./tags";
 import {route as settings} from "./settings";
-import {route as search} from "./search"
+import {route as search} from "./search";
 import {registerPublicPath} from "../authentication";
-import { SearchField } from "react-bootstrap-table";
 
 registerPublicPath("/api");
 
