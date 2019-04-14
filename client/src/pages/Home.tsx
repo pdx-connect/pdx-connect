@@ -10,7 +10,7 @@ import "./Home.css";
 
 import { HomeContent } from "./HomeContent";
 import { Profile } from "./Profile";
-import { Calendar } from "./Calendar";
+import { Calendar } from "./calendar/Calendar";
 import { Listings } from "./Listings";
 import { Inbox } from "./Inbox";
 import { Settings } from "./Settings";
