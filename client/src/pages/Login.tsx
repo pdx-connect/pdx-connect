@@ -3,8 +3,10 @@ import {ReactNode} from "react";
 import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Page} from "../Page";
 import {RouteComponentProps, withRouter} from "react-router-dom";
+import { FaAngleRight } from "react-icons/fa";
 
 import "./Login.css";
+import { classNames } from "react-select/lib/utils";
 
 
 interface Props extends RouteComponentProps {
@@ -15,6 +17,7 @@ interface State {
     email?: string;
     password?: string;
     notAuthorized: boolean;
+    emptyFields: boolean
 }
 
 /**
@@ -27,7 +30,8 @@ export class Login extends Page<Props, State> {
         this.state = {
             email: "",
             password: "",
-            notAuthorized: false
+            notAuthorized: false,
+            emptyFields: false
         };
     }
 
@@ -38,10 +42,19 @@ export class Login extends Page<Props, State> {
     private readonly setPassword = (e: any) => {
         this.setState({password: e.target.value});
     };
+
+
+    // Similar to enterKeyPressed - Authenticate user and move to the home page
+    // But this is for when the arrow is used instead of the enter key
+    private readonly nextArrowPressed = (e: any) => {
+        if( !this.checkNull() )     // Make sure fields entered before going to authenticate
+            this.processCredentials();
+    };
     
     private readonly enterKeyPressed = (e: any) => {
         if (e.keyCode === 13) {
-            this.processCredentials();
+            if( !this.checkNull() )     // Make sure fields entered before going to authenticate
+                this.processCredentials();
         }
     };
 
@@ -68,8 +81,24 @@ export class Login extends Page<Props, State> {
         }
     };
 
+    // Check if email and password are entered
+    private readonly checkNull = () => {
+        if (this.state.email === "" || this.state.password === "") {
+            this.setState({
+                emptyFields: true,
+                notAuthorized: false
+            })
+            return true;
+        }
+        return false;
+    };
+
+
     private readonly processCredentials = () => {
-        if (this.state.email != null && this.state.password != null) {
+       if (this.state.email != null && this.state.password != null) {
+            this.setState({
+                emptyFields: false
+            })
             this.authenticate(this.state.email, this.state.password).then();
         }
     };
@@ -108,24 +137,27 @@ export class Login extends Page<Props, State> {
         const password =
             <Button size="sm" variant="light" onClick={() => {this.clearLocalStorage(); this.props.history.push('/reset')} } className="password-forgot">password?</Button>;
 
+        const loginButton =
+            <Button size="sm" variant="light" onClick={this.nextArrowPressed} className="login-button">login</Button>;
+
+
         return (
             <Container fluid className="login">
                 <Row className="title">
-                    <Col sm={2}></Col>
-                    <Col sm={8}><h1>pdx connect</h1></Col>
-                    <Col sm={2}></Col>
+                    <Col sm={12}><h1>pdx connect</h1></Col>
                 </Row>
 
                 <Row>
-                    <Col sm={4}></Col>
-                    <Col sm={4} className="notAuthorized">
+                    <Col sm={3}></Col>
+                    <Col sm={6} className="notAuthorized">
                         {this.state.notAuthorized? <span>Credentials Incorrect</span> : null}
+                        {this.state.emptyFields? <span> Please enter your credentials </span> : null}
                     </Col>
-                    <Col sm={4}></Col>
+                    <Col sm={3}></Col>
                 </Row>
                 <Row>
-                    <Col sm={4}></Col>
-                    <Col sm={4}>
+                    <Col sm={3}></Col>
+                    <Col sm={6}>
                         <Form>
                             <Form.Group className="formBasic">
                                 <Form.Control type="email" placeholder="email" className="generic" onChange={this.setEmail}/>
@@ -136,16 +168,17 @@ export class Login extends Page<Props, State> {
                             </Form.Group>
                         </Form>
                     </Col>
-                    <Col sm={4}></Col>
+                    <Col sm={3}></Col>
                 </Row>
 
                 <Row>
-                    <Col sm={4}></Col>
-                    <Col sm={4}>
+                    <Col sm={3}></Col>
+                    <Col sm={6} className="regPass">
+                        { loginButton }
                         { register }
                         { password }
                     </Col>
-                    <Col sm={4}></Col>
+                    <Col sm={3}></Col>
                 </Row>
             </Container>
         );

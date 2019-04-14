@@ -7,6 +7,7 @@
   "dependencies": {
     "@types/react": "^16.8.8",
     "@types/react-burger-menu": "^2.2.2",
+    "@types/react-data-grid": "^4.0.2",
     "@types/react-dom": "^16.8.2",
     "@types/react-router-dom": "^4.3.1",
     "@types/react-select": "^2.0.15",
@@ -14,6 +15,8 @@
     "react": "^16.8.4",
     "react-bootstrap": "^1.0.0-beta.5",
     "react-burger-menu": "^2.6.5",
+    "react-data-grid": "^6.1.0",
+    "react-data-grid-addons": "^6.1.0",
     "react-dom": "^16.8.4",
     "react-fa": "^5.0.0",
     "react-hot-loader": "^4.8.0",

@@ -1,7 +1,7 @@
 import * as React from "react";
 import {ReactNode} from "react";
 import {Page} from "../Page";
-import {RouteComponentProps} from "react-router";
+import {RouteComponentProps, Redirect, Route, Switch} from "react-router";
 import { Sidebar } from "./Sidebar";
 import { Container, Row, Col, Form, Button, Modal} from "react-bootstrap";
 import { FaStar, FaComment, FaSignOutAlt } from "react-icons/fa";
@@ -225,11 +225,10 @@ export class Home extends Page<Props, State> {
                             <Modal.Title>Messages</Modal.Title>
                             </Modal.Header>
                             <Modal.Body>TODO: Put messages here</Modal.Body>
-                            <Socket/>
+                            <Socket/> {/* Don't know where to put this */}
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
-                        
                 </Col>
             </Row>
             <Row className="main">

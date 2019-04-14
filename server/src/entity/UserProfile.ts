@@ -75,7 +75,7 @@ export class UserProfile extends BaseEntity {
         width: 1,
         unsigned: true
     })
-    isPrivate!: boolean;
+    isPublic!: boolean;
 
     @Column({
         name: "tags",
@@ -133,7 +133,7 @@ export class UserProfile extends BaseEntity {
             this.major = Promise.resolve(null);
             this.interests = Promise.resolve([]);
             this.isOnCampus = null;
-            this.isPrivate = false;
+            this.isPublic = true;
             this.isTags = true;
             this.isMiscellaneous = true;
             this.isDirectMessage = true;

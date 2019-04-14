@@ -12,6 +12,26 @@ export function route(app: Express, db: Connection) {
             name: user != null ? user.displayName : void 0
         }));
     });
+    // Post the user name to the database.
+    app.post("/api/user/name", async (request: Request, response: Response) => {
+        if (typeof request.body !== "string") {
+            response.sendStatus(400);
+            return;
+        }
+        const user: User|undefined = request.user;
+        if (user != null) {
+            user.displayName = request.body;
+            await user.save();
+            response.send(JSON.stringify({
+                success: true
+                //error: ""
+            }));
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
     app.get("/api/user/oobe", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         response.send(JSON.stringify({
@@ -51,6 +71,34 @@ export function route(app: Express, db: Connection) {
             description: description
         }));
     });
+    // Post the user's profile bio to the database.
+    app.post("/api/user/description", async (request: Request, response: Response) => {
+        if (typeof request.body !== "string") {
+            response.sendStatus(400);
+            return;
+        }
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const profile: UserProfile|undefined = await user.profile;
+            if (profile != null) {
+                profile.description = request.body;
+                await profile.save();
+                response.send(JSON.stringify({
+                    success: true
+                    //error: ""
+                }));
+            } else {
+                response.send(JSON.stringify({
+                    error: "Profile not created yet."
+                }));
+            }
+            
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
     app.get("/api/user/major", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         let major: {
@@ -79,6 +127,49 @@ export function route(app: Express, db: Connection) {
             major: major
         }));
     });
+    // Post major data to the database.
+    // app.post("/api/user/major", async (request: Request, response: Response) => {
+    //     if (typeof request.body !== "string") {
+    //         response.sendStatus(400);
+    //         return;
+    //     }
+    //     const user: User|undefined = request.user;
+    //     //let major: {
+    //         //id: number;
+    //         //name: string;
+    //     //}|null|undefined;
+    //     if (user != null) {
+    //         const profile: UserProfile|undefined = await user.profile;
+    //         if (profile != null) {
+    //             profile.major = request.body;
+    //             await profile.save();
+    //             response.send(JSON.stringify({
+    //                 success: true
+    //                 //error: ""
+    //             }));
+    //             // const tag: Tag|null = await profile.major;
+    //             // if (tag != null) {
+    //             //     major = {
+    //             //         id: tag.id,
+    //             //         name: tag.name
+    //             //     };
+    //             // } else {
+    //             //     major = null;
+    //             // }
+    //         } else {
+    //             response.send(JSON.stringify({
+    //                 error: "Profile not created yet."
+    //             }));
+    //         }
+    //     } else {
+    //         response.send(JSON.stringify({
+    //             error: "Not logged in."
+    //         }));
+    //     }
+        
+    // });
+
+
     app.post("/api/user/interests", async (request: Request, response: Response) => {
         // Parse the request body
         if (typeof request.body !== "object") {
@@ -92,23 +183,22 @@ export function route(app: Express, db: Connection) {
         }
 
         // Verify inputs
-        const incomingInterests: number[] = body.interests;
-        if (incomingInterests.length <= 0) {
-            response.send(JSON.stringify({
-                error: "No interests submitted."
-            }));
-            return;
-        }
+        const incomingInterests: unknown[] = body.interests;
 
         const user: User|undefined = request.user;
         if (user != null) {
             const profile: UserProfile|undefined = await user.profile;
             if (profile != null) {
-                const incomingTags = await Promise.all(incomingInterests.map(id => Tag.findOne({
-                    where: {
-                        id: id
+                const incomingTags = await Promise.all(incomingInterests.map((id: unknown) => {
+                    if (typeof id !== "number") {
+                        return void 0;
                     }
-                })));
+                    return Tag.findOne({
+                        where: {
+                            id: id
+                        }
+                    });
+                }));
                 if (ArrayUtils.checkNonNull(incomingTags)) {
                     profile.interests = Promise.resolve(incomingTags);
                     await profile.save();
@@ -143,7 +233,7 @@ export function route(app: Express, db: Connection) {
         const body: any = request.body;
 
         // Verify inputs
-        const isPrivate: boolean = body.isPrivate;
+        const isPublic: boolean = body.isPublic;
         const isTags: boolean = body.isTags;
         const isMiscellaneous: boolean = body.isMiscellaneous;
         const isDirectMessage: boolean = body.isDirectMessage;
@@ -153,7 +243,7 @@ export function route(app: Express, db: Connection) {
         if (user != null) {
             const profile: UserProfile|undefined = await user.profile;
             if (profile != null) {
-                profile.isPrivate = isPrivate;
+                profile.isPublic = isPublic;
                 profile.isTags = isTags;
                 profile.isMiscellaneous = isMiscellaneous;
                 profile.isDirectMessage = isDirectMessage;
