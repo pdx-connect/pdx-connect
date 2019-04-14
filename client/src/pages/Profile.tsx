@@ -115,8 +115,21 @@ export class Profile extends Component<Props, State> {
                 }
                 break;
             }
-            case "major":
+            case "major": {
+                const response: Response = await fetch("/api/user/major", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.state.major)
+                });
+                const data = await response.json();
+                if (!('success' in data)) {
+                    this.error(e, true);
+                    return;
+                }
                 break;
+            }
             case "description": {
                 const response: Response = await fetch("/api/user/description", {
                     method: 'POST',

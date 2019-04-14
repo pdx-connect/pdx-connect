@@ -32,6 +32,7 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+    // Manage the OOBE (out of box experience)
     app.get("/api/user/oobe", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         response.send(JSON.stringify({
@@ -58,6 +59,7 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+    // Manage the user's description/bio
     app.get("/api/user/description", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         let description: string|null|undefined;
@@ -99,6 +101,7 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+    // Manage the user's major as a tag and a name
     app.get("/api/user/major", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         let major: {
@@ -128,48 +131,82 @@ export function route(app: Express, db: Connection) {
         }));
     });
     // Post major data to the database.
-    // app.post("/api/user/major", async (request: Request, response: Response) => {
-    //     if (typeof request.body !== "string") {
-    //         response.sendStatus(400);
-    //         return;
-    //     }
-    //     const user: User|undefined = request.user;
-    //     //let major: {
-    //         //id: number;
-    //         //name: string;
-    //     //}|null|undefined;
-    //     if (user != null) {
-    //         const profile: UserProfile|undefined = await user.profile;
-    //         if (profile != null) {
-    //             profile.major = request.body;
-    //             await profile.save();
-    //             response.send(JSON.stringify({
-    //                 success: true
-    //                 //error: ""
-    //             }));
-    //             // const tag: Tag|null = await profile.major;
-    //             // if (tag != null) {
-    //             //     major = {
-    //             //         id: tag.id,
-    //             //         name: tag.name
-    //             //     };
-    //             // } else {
-    //             //     major = null;
-    //             // }
-    //         } else {
-    //             response.send(JSON.stringify({
-    //                 error: "Profile not created yet."
-    //             }));
-    //         }
-    //     } else {
-    //         response.send(JSON.stringify({
-    //             error: "Not logged in."
-    //         }));
-    //     }
+    app.post("/api/user/major", async (request: Request, response: Response) => {
+        // if (typeof request.body !== "object") {
+        //     response.sendStatus(400);
+        //     return;
+        // }
+
+        // const body: any = request.body;
+        // if (!Array.isArray(body.major)) {
+        //     response.sendStatus(400);
+        //     return;
+        // }
+
+        // const incomingMajor: unknown[] = body.major;
+
+        // const user: User|undefined = request.user;
+        // //let major: {
+        //     //id: number;
+        //     //name: string;
+        // //}|null|undefined;
+        // if (user != null) {
+        //     const profile: UserProfile|undefined = await user.profile;
+        //     if (profile != null) {
+                // profile.major = request.body;
+                // await profile.save();
+                // response.send(JSON.stringify({
+                //     success: true
+                //     //error: ""
+                // }));
+
+
+        //         const incoming = await Promise.all(incomingMajor.map((id: unknown) => {
+        //             if (typeof id !== "number") {
+        //                 return void 0;
+        //             }
+        //             return Tag.findOne({
+        //                 where: {
+        //                     id: id
+        //                 }
+        //             });
+        //         }));
+        //         if (ArrayUtils.checkNonNull(incoming)) {
+        //             profile.major = Promise.resolve(incoming);
+        //             await profile.save();
+        //             // Send success response
+        //             response.send(JSON.stringify({
+        //                 success: true
+        //             }));
+        //         } else {
+        //             // Send error response
+        //             response.send(JSON.stringify({
+        //                 error: "Invalid ID for major."
+        //             }));
+        //         }
+        //         // const tag: Tag|null = await profile.major;
+        //         // if (tag != null) {
+        //         //     major = {
+        //         //         id: tag.id,
+        //         //         name: tag.name
+        //         //     };
+        //         // } else {
+        //         //     major = null;
+        //         // }
+        //     } else {
+        //         response.send(JSON.stringify({
+        //             error: "Profile not created yet."
+        //         }));
+        //     }
+        // } else {
+        //     response.send(JSON.stringify({
+        //         error: "Not logged in."
+        //     }));
+        // }
         
-    // });
+    });
 
-
+    // Manage user interests
     app.post("/api/user/interests", async (request: Request, response: Response) => {
         // Parse the request body
         if (typeof request.body !== "object") {
