@@ -165,16 +165,25 @@ export class Profile extends Component<Props, State> {
 
         const {selectedOptions, handleInterestChange} = this.props;
 
+        // Commuter options (one or the other)
         const commuterOptions = [
             { value: 'on campus', label: 'campus' },
             { value: 'remote', label: 'remote' }
           ]
 
+        // User's interests. A user can select multiple interests.
         const interests = [
             { value: 'free food', label: 'free food' },
             { value: 'biking', label: 'biking' },
             { value: 'art', label: 'art'},
             { value: 'computer science', label: 'computer science'}
+        ]
+
+        // A list of majors. A user can only select one major at a time.
+        const majors = [
+            { value: 'food', label: 'food' },
+            { value: 'english', label: 'english'},
+            { value: 'art', label: 'art' }
         ]
 
         
@@ -211,10 +220,19 @@ export class Profile extends Component<Props, State> {
                        </Col>
                    </Row>
 
-                   <Row>
+                   <Row className="bottomMargin">
                        <Col sm={4} className="label">major</Col>
-
                        <Col sm={4}>
+                            <Select
+                                options={majors}
+                                value={selectedOptions}
+                                onChange={handleInterestChange}
+                            />
+                       </Col>
+
+                       <Col sm={4} className="edit"></Col>
+
+                       {/* <Col sm={4}>
                             <Form.Group className="formBasic">
                                 <Form.Control
                                     type="text"
@@ -239,7 +257,7 @@ export class Profile extends Component<Props, State> {
                                     <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('major')}></FaUndoAlt>
                             </div>
                             }
-                       </Col>
+                       </Col> */}
                    </Row>
 
                    <Row className="bottomMargin">
