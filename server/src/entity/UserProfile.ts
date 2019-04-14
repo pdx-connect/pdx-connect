@@ -70,7 +70,7 @@ export class UserProfile extends BaseEntity {
     isOnCampus!: boolean|null;
     
     @Column({
-        name: "private",
+        name: "public",
         type: "tinyint",
         width: 1,
         unsigned: true
