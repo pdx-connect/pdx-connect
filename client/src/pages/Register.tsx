@@ -231,6 +231,7 @@ export class Register extends Page<Props, State> {
         
     private readonly handleJoin = () => {
             const email = this.removeDomain();
+            this.setState({email: email});
             if (this.state.displayName != null && email != null && this.state.password != null && this.state.domain != null) {
                 this.registerUser(this.state.displayName, this.state.password, email, this.state.domain).then();
             }
