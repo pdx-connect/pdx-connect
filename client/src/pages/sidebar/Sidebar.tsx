@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import { FaHome, FaUser, FaCog, FaCalendar, FaClipboard, FaMailBulk} from 'react-icons/fa';
+import { FaHome, FaUser, FaCalendar, FaClipboard, FaMailBulk} from 'react-icons/fa';
 import { slide as Menu } from 'react-burger-menu';
 
 import "./Sidebar.css";
@@ -48,7 +48,6 @@ export class Sidebar extends Component<Props, State> {
                     <span className="sidebarMenuItem" onClick={() => this.props.updateHistory("/calendar")}><FaCalendar className="icon" /><span className="sidebarMenuItemTitle">calendar</span></span>
                     <span className="sidebarMenuItem" onClick={() => this.props.updateHistory("/listings")}><FaClipboard className="icon" /><span className="sidebarMenuItemTitle">listings</span></span>
                     <span className="sidebarMenuItem" onClick={() => this.props.updateHistory("/inbox")}><FaMailBulk className="icon" /><span className="sidebarMenuItemTitle">inbox</span></span>
-                    <span className="sidebarMenuItem" onClick={() => this.props.updateHistory("/settings")}><FaCog className="icon" /><span className="sidebarMenuItemTitle">settings</span></span>
                 </Menu>
         );
     }
