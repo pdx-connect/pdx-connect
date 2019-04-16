@@ -20,25 +20,6 @@ export class Tag extends BaseEntity {
         unique: true
     })
     name!: string;
-
-
-    @Column({
-        name: "parent",
-        type: "tinyint",
-        width: 1,
-        unsigned: true
-    })
-    isParent!: boolean;
-
-    
-    @Column({
-        name: "child",
-        type: "tinyint",
-        width: 1,
-        unsigned: true
-    })
-    isChild!: boolean;
-
     
     @JoinTable({
         name: "tag_children",
@@ -52,11 +33,74 @@ export class Tag extends BaseEntity {
     @ManyToMany(type => Tag)
     children!: Promise<Tag[]>;
 
+    @ManyToMany(type => Tag, tag => tag.children)
+    parents!: Promise<Tag[]>;
+    
+    @JoinTable({
+        name: "tag_related",
+        joinColumn: {
+            name: "tag_id"
+        },
+        inverseJoinColumn: {
+            name: "related_tag_id"
+        }
+    })
+    @ManyToMany(type => Tag, tag => tag.related)
+    related!: Promise<Tag[]>;
 
-    // @ManyToMany(type => Tag, tag => tag.children)
-    // parents!: Promise<Tag[]>;
-    //
-    // @ManyToMany(type => Tag, tag => tag.related)
-    // related!: Promise<Tag[]>;
+    /**
+     * Gets all leaf descendent tag nodes of this tag.
+     */
+    public getLeafDescendents(): Promise<Map<number, Tag>> {
+        return this.traverse((parent: Tag, children: Tag[]) => children.length === 0);
+    }
+
+    /**
+     * Get all descendent tag nodes of this tag.
+     */
+    public getDescendents(): Promise<Map<number, Tag>> {
+        return this.traverse(() => true);
+    }
+    
+    /**
+     * Traverse the tag tree starting at this tag.
+     * @param predicate A function to indicate how to continue traversing the tag tree at certain tag nodes.
+     */
+    public async traverse(predicate: (parent: Tag, children: Tag[]) => boolean|null): Promise<Map<number, Tag>> {
+        const map: Map<number, Tag> = new Map();
+        const stack: Tag[] = await this.children;
+        // Process stack to traverse tag tree
+        let tag: Tag|undefined;
+        while ((tag = stack.pop()) != null) {
+            // Load children of tag
+            const children: Tag[] = await tag.children;
+            // Invoke the predicate to determine how to continue traversing the tag tree
+            const result: boolean|null = predicate(tag, children);
+            if (result != null) {
+                if (result) {
+                    // Add tag to result map
+                    map.set(tag.id, tag);
+                }
+                // Add children to stack
+                for (const child of children) {
+                    if (!map.has(child.id)) {
+                        stack.push(child);
+                    }
+                }
+            }
+        }
+        return map;
+    }
+    
+    /**
+     * Gets the major tag.
+     */
+    public static findMajor(): Promise<Tag> {
+        return this.findOneOrFail({
+            where: {
+                name: "major"
+            }
+        });
+    }
     
 }
