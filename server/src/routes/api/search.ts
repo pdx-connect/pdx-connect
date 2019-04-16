@@ -30,14 +30,16 @@ export function route(app: Express, db: Connection) {
                            return {
                                userID: user.id,
                                displayName: user.displayName,
-                               major: await major_tag.name
+                               major: await major_tag.name,
+                               tags: "Food, art boy, science, Performing"
                            };
                        }
                    }
                    return {
                        userID: user.id,
                        displayName: user.displayName,
-                       major: ""
+                       major: "Not set",
+                       tags: "Other, Portland, Museums"
                    };
                }))
            } else {

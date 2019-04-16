@@ -3,7 +3,7 @@ import {Component, ReactNode, useState} from "react";
 import ReactDataGrid from 'react-data-grid';
 import "./SearchResults.css"
 import { Container, Row, Col } from "react-bootstrap";
-import { Toolbar, Data } from "react-data-grid-addons"
+import { Toolbar, Data } from "react-data-grid-addons";
 
 interface Props {
     finalSearchField: string;
@@ -16,7 +16,8 @@ interface State {
 
 const columns = [
     { key: "displayName", name: "Name", editable: false, filterable: true},
-    { key: "major", name: "Major", editable: false, filterable: true}
+    { key: "major", name: "Major", editable: false, filterable: true},
+    { key: "tags", name: "Tags", editable: false, filterable: true}
 ];
 
 
@@ -44,7 +45,7 @@ function ReactGrid({ rows } : { rows : any}) {
         <ReactDataGrid
             columns={columns}
             rowGetter={i => filteredRows[i]}
-            rowsCount={10}
+            rowsCount={30}
             minHeight={500}
             toolbar={<Toolbar enableFilter={true} />}
             onAddFilter={filter => setFilters(handleFilterChange(filter))}
@@ -61,6 +62,7 @@ export class SearchResults extends Component<Props, State> {
         super(props);
         this.state = {rows: []}
     }
+
     private readonly enterKeyPressed = (e: any) => {
         if (e.keyCode === 13) {
             e.preventDefault();

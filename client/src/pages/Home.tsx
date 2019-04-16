@@ -102,7 +102,12 @@ export class Home extends Page<Props, State> {
         if (e.keyCode === 13 && this.state.searchField != "") {
             e.preventDefault();
             if (this.state.searchField != undefined) {
-                this.setState({finalSearchField: this.state.searchField})
+                if (this.state.searchField == "[ALL]") {
+                    this.setState({finalSearchField: ""})
+                }
+                else {
+                    this.setState({finalSearchField: this.state.searchField})
+                }
             }
             this.props.history.push('search-results')
             
