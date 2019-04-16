@@ -233,7 +233,7 @@ export function route(app: Express, db: Connection) {
         const body: any = request.body;
 
         // Verify inputs
-        const isPrivate: boolean = body.isPrivate;
+        const isPublic: boolean = body.isPublic;
         const isTags: boolean = body.isTags;
         const isMiscellaneous: boolean = body.isMiscellaneous;
         const isDirectMessage: boolean = body.isDirectMessage;
@@ -243,7 +243,7 @@ export function route(app: Express, db: Connection) {
         if (user != null) {
             const profile: UserProfile|undefined = await user.profile;
             if (profile != null) {
-                profile.isPrivate = isPrivate;
+                profile.isPublic = isPublic;
                 profile.isTags = isTags;
                 profile.isMiscellaneous = isMiscellaneous;
                 profile.isDirectMessage = isDirectMessage;

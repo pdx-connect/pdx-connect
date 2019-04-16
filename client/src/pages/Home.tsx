@@ -1,7 +1,7 @@
 import * as React from "react";
 import {ReactNode} from "react";
 import {Page} from "../Page";
-import {RouteComponentProps} from "react-router";
+import {RouteComponentProps, Redirect, Route, Switch} from "react-router";
 import { Sidebar } from "./Sidebar";
 import { Container, Row, Col, Form, Button, Modal} from "react-bootstrap";
 import { FaStar, FaComment, FaSignOutAlt } from "react-icons/fa";
@@ -88,24 +88,10 @@ export class Home extends Page<Props, State> {
         }).then(response => { response; this.props.history.push('/login'); });
     };
 
-    private readonly showMessages = () => {
-        this.setState({showMessages: true});
-    };
-
-    private readonly closeOobe = () => {
-        this.setState({showOobe: false});
-    };
-
-    private readonly showNotifications= () => {
-        this.setState({showNotifications: true});
-    };
-
-    private readonly closeMessages = () => {
-        this.setState({showMessages: false});
-    };
-
-    private readonly closeNotifications= () => {
-        this.setState({showNotifications: false});
+    private readonly handleModalClose = (e: any) => {
+        this.setState({
+            [e]: false
+        } as any);
     };
 
     private readonly setSearchField = (e: any) => {
@@ -155,16 +141,6 @@ export class Home extends Page<Props, State> {
         let messages = Object.keys(this.state.messages);
         let notifications = Object.keys(this.state.alerts);
 
-        const content: { [key: string]: any } = {
-            "/": HomeContent,
-            "/profile": Profile,
-            "/calendar": Calendar,
-            "/listings": Listings,
-            "/inbox": Inbox,
-            "/settings": Settings,
-            "/search-results": SearchResults
-        };
-
         const title: { [key: string]: any } = {
             "/": 'home',
             "/profile": 'profile',
@@ -175,7 +151,6 @@ export class Home extends Page<Props, State> {
             "/search-results": 'search results'
         };
         
-        let CurrentContent = content[this.props.history.location.pathname];
 
         return (
         <Container fluid className="home">
@@ -191,23 +166,24 @@ export class Home extends Page<Props, State> {
                 </Col>
                 <Col sm={7} md={7} className="topRight">
                     <FaSignOutAlt className="logout" onClick={this.logout}/>
-                    <Button size="sm" className="floatRight counter">{messages.length}</Button>
-                        <FaComment className="notifications" onClick={this.showMessages}/>
-                        <Modal show={this.state.showNotifications} onHide={this.closeNotifications} dialogClassName="messages-modal">
-                            <Modal.Header closeButton>
-                            <Modal.Title>Notifications</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>TODO: Put notifications here</Modal.Body>
-                            <Modal.Footer>
-                            </Modal.Footer>
-                        </Modal>
-                    <Button size="sm" className="floatRight counter">{notifications.length}</Button>
-                        <FaStar className="notifications" onClick={this.showNotifications}/>
-                        <Modal show={this.state.showMessages} onHide={this.closeMessages} dialogClassName="messages-modal">
+                        <Button size="sm" className="floatRight counter">{messages.length}</Button>
+                        <FaComment className="notifications" onClick={() => this.setState({ showMessages: true })}/>
+                        <Modal show={this.state.showMessages} onHide={() => this.handleModalClose('showMessages')} dialogClassName="messages-modal">
                             <Modal.Header closeButton>
                             <Modal.Title>Messages</Modal.Title>
                             </Modal.Header>
                             <Modal.Body>TODO: Put messages here</Modal.Body>
+                            <Modal.Footer>
+                            </Modal.Footer>
+                        </Modal>
+
+                        <Button size="sm" className="floatRight counter">{notifications.length}</Button>
+                    <FaStar className="notifications" onClick={() => this.setState({ showNotifications: true })}/>
+                        <Modal show={this.state.showNotifications} onHide={() => this.handleModalClose('showNotifications')} dialogClassName="messages-modal">
+                            <Modal.Header closeButton>
+                            <Modal.Title>Notifications</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>TODO: Put notifications here</Modal.Body>
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
@@ -220,19 +196,29 @@ export class Home extends Page<Props, State> {
                         <Col sm={10} md={11} className="pageTitle"> {title[this.props.history.location.pathname]} </Col>
                     </Row>
                     <Row>
-                        <Col sm={10} md={11} className="component"> 
-                            <CurrentContent
-                                finalSearchField={this.state.finalSearchField}
-                            /> 
+                        <Col sm={10} md={11} className="component">
+                            <Switch>
+                                <Route exact path="/" component={HomeContent} />
+                                <Route path="/profile" component={Profile} />
+                                <Route path="/calendar" component={Calendar} />
+                                <Route path="/listings" component={Listings} />
+                                <Route path="/inbox" component={Inbox} />
+                                <Route path="/settings" component={Settings} />
+                                <Route
+                                    path="/search-results"
+                                    render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}
+                                />
+                                <Redirect to="/" />
+                            </Switch> 
                         </Col>
                     </Row>
                 </Col>
                 <Col sm={2} md={2} className="rightSidebar">Ad Space</Col>
             </Row>
 
-            <Modal size="lg" show={this.state.showOobe} onHide={this.closeOobe} dialogClassName="oobe-modal" backdrop="static">
+            <Modal size="lg" show={this.state.showOobe} onHide={() => this.handleModalClose('showOobe')} dialogClassName="oobe-modal" backdrop="static">
                 <Modal.Header><h4>Hey {this.state.displayName}!</h4></Modal.Header>
-                <Modal.Body><Oobe onHide={this.closeOobe}/></Modal.Body>
+                <Modal.Body><Oobe onHide={() => this.handleModalClose('showOobe')}/></Modal.Body>
                 <Modal.Footer>
                 </Modal.Footer>
             </Modal>

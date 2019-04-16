@@ -136,7 +136,7 @@ export class Oobe extends Component<Props, State> {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                isPrivate: profile,
+                isPublic: profile,
                 isTags: tags,
                 isMiscellaneous: miscellaneous,
                 isDirectMessage: messages,
