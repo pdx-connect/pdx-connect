@@ -1,6 +1,7 @@
 import * as React from "react";
-import {Container, Row, Col, Form, Button} from "react-bootstrap";
+import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
+
 //import {ConversationEntry} from "./Home";
 
 import "./Inbox.css";
@@ -10,11 +11,13 @@ interface Props {
     sendMessage: (conversationID: number, msg: string) => void;
     getMoreMessages: (conversationID: number) => void;
     seenRecent: (conversationID: number, time: number) => void;
-//    conversations: ConversationEntry[];
+    //conversations: ConversationEntry[];
     newMessageCount: number;
 }
 
 interface State {
+    currentConversation: number;
+    textField: string;
 }
 
 const conversations = [
@@ -67,7 +70,58 @@ const conversations = [
             {
                 userID: 6,
                 timeSent: 1555011220,
-                text: "Why are you like this?",
+                text: "Ayyyyyyyyyyyyyyyy",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011225,
+                text: "Ayyyyyy",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011225,
+                text: "Ayyyyyy",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011225,
+                text: "Ayyyyyy",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011225,
+                text: "Ayyyyyy",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011225,
+                text: "Ayyyyyy",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011225,
+                text: "Ayyyyyy",
+                seen: false
+            },            {
+                userID: 6,
+                timeSent: 1555011225,
+                text: "Ayyyyyy",
+                seen: false
+            },            {
+                userID: 6,
+                timeSent: 1555011225,
+                text: "Ayyyyyy",
+                seen: false
+            },            {
+                userID: 6,
+                timeSent: 1555011225,
+                text: "Ayyyyyy",
                 seen: false
             }
         ]
@@ -77,13 +131,13 @@ const conversations = [
         lastSeen: 1555011959, // epoch
         messages: [
             {
-                userID: 1,
+                userID: 4,
                 timeSent: 1555011169,
                 text: "I am user 1",
                 seen: false
             },
             {
-                userID: 2,
+                userID: 6,
                 timeSent: 1555011175,
                 text: "I am user 2",
                 seen: false
@@ -92,8 +146,6 @@ const conversations = [
     }
 ];
 
-
-
 /**
  * 
  */
@@ -101,15 +153,31 @@ export class Inbox extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);
+        this.state = {
+            currentConversation: 0,
+            textField: "Default state text",
+        }
+    }
+
+    private readonly onChange = (e: any) => {
+        this.setState({textField: e.target.value});
+    }
+
+    private readonly onSubmit = (e: any) => {
+        this.setState({textField: ""});
+        //this.props.onSendMessage(this.state.textField)
+        console.log(this.state.textField);
     }
     
     private readonly getInbox = () => {
         let rows = [];
         for (let i=0; i<conversations.length; i++) {
             rows.push(
-                <Row className="conversation">
-                    <Col sm={6} >Message from: user {conversations[i].messages[0].userID}</Col>
-                    <Col sm={6} >{conversations[i].messages[conversations[i].messages.length-1].text}</Col>
+                <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="conversation">
+                    <Col key={i} sm={12}>
+                        Message from: user {conversations[i].messages[0].userID}
+                        Preview: {conversations[i].messages[conversations[i].messages.length-1].text}
+                    </Col>
                 </Row>
             );
         }
@@ -118,18 +186,18 @@ export class Inbox extends Component<Props, State> {
 
     private readonly getMessages = () => {
         let rows = [];
-        for (let i=0; i<conversations[0].messages.length; i++) {
+        for (let i=0; i<conversations[this.state.currentConversation].messages.length; i++) {
             if (conversations[0].messages[i].userID == 6) {
                  rows.push(
-                      <Row className="my-message">
-                        <Col sm={12} > {conversations[0].messages[i].text}</Col>
-                      </Row>
+                    <Row key={i} className="my-message">
+                        <Col key={i} sm={12} > {conversations[this.state.currentConversation].messages[i].text}</Col>
+                    </Row>
                 );
             }
             else {
                 rows.push(
-                    <Row className="other-message">
-                      <Col sm={12} > {conversations[0].messages[i].text}</Col>
+                    <Row key={i} className="other-message">
+                        <Col key={i} sm={12} > {conversations[this.state.currentConversation].messages[i].text}</Col>
                     </Row>
               );
             }
@@ -167,8 +235,18 @@ export class Inbox extends Component<Props, State> {
                 <div className="conversations">
                     {conversations}
                 </div>
+
                 <div className="chat-box">
                     {messages}
+                </div>
+
+                <div className="text-box">
+                    <Form onSubmit={(e: any) => this.onSubmit(e)}>
+                        <Row>
+                            <Col><Form.Control onChange={(e: any) => this.onChange(e)} type="text" size="sm"/></Col>
+                            <Col><Button variant="primary" type="submit">Send</Button></Col>
+                        </Row>
+                    </Form>
                 </div>
             </Container>
         );
