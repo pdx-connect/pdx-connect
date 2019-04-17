@@ -77,6 +77,30 @@ export class Profile extends Component<Props, State> {
     }
 
     // Obtains the majors list from the DB
+    private readonly getmajors = async () => {
+        const response: Response = await fetch("/api/tags/majors", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const majors: {
+            id: number;
+            name: string;
+        }[] = await response.json();
+
+        const all_majors = majors.map(t => {
+            return {
+                value: t.id.toString(),
+                label: t.name
+            };
+        });
+        
+        this.setState({
+            majors: all_majors
+        });
+    }
 
     /**
      * @override
@@ -93,10 +117,8 @@ export class Profile extends Component<Props, State> {
             { value: 'art', label: 'art' }
         ];
 
-        // Update the majors options with the ones from the DB
-        this.setState({
-            majors: listmajors
-        });
+
+        this.getmajors();
     }
 
     private readonly toggle = (e: keyof SubState, state?: boolean) => {
@@ -123,6 +145,7 @@ export class Profile extends Component<Props, State> {
         } as any);
     };
 
+    // Update profile data from the database.
     private readonly update = async (e: keyof SubState) => {
         console.log('TODO: user wants to update profile setting: ', e);
         // Update specific profile information and send changes to the
