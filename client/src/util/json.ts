@@ -1,7 +1,7 @@
 /**
  * Sends a GET request to the given route and returns the JSON response.
  */
-export function getJSON(route: string): Promise<unknown> {
+export function getJSON(route: string): Promise<any> {
     return fetch(route, {
         method: "GET",
         headers: {
@@ -13,7 +13,7 @@ export function getJSON(route: string): Promise<unknown> {
 /**
  * Sends a POST request to the given route with the given JSON-serializable data.
  */
-export function postJSON(route: string, data: any): Promise<unknown> {
+export function postJSON(route: string, data: any): Promise<any> {
     return fetch(route, {
         method: "POST",
         headers: {
