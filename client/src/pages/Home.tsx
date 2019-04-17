@@ -51,16 +51,6 @@ export class Home extends Page<Props, State> {
             userID: null
         };
     }
-
-    private readonly setter = (s: any, v: any) => {
-        this.setState({
-            [s]: v
-        } as any);
-    };
-
-    private readonly getter = (s: any) => {
-        return [s];
-    };
     
     private readonly getUserProfileData = async () => {
         const response: Response = await fetch("/api/user/name", {
@@ -98,6 +88,10 @@ export class Home extends Page<Props, State> {
             redirect: "follow",
             referrer: "no-referrer",
         }).then(response => { response; this.props.history.push('/login'); });
+    };
+
+    private readonly updateDisplayName = (displayName: string) => {
+        this.setState({displayName: displayName});
     };
 
     private readonly handleModalClose = (e: any) => {
@@ -212,7 +206,7 @@ export class Home extends Page<Props, State> {
                                 <Route exact path="/" component={HomeContent} />
                                 <Route
                                     path="/profile"
-                                    render={props => <Profile {...props} userID={this.state.userID} setter={this.setter} />}
+                                    render={props => <Profile {...props} userID={this.state.userID} updateDisplayName={this.updateDisplayName} />}
                                 />
                                 <Route path="/calendar" component={Calendar} />
                                 <Route path="/listings" component={Listings} />

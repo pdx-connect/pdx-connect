@@ -14,7 +14,7 @@ interface Disabled {
 
 interface Props {
     userID: number | null;
-    setter: (s: string, v: string) => void,
+    updateDisplayName: (s: string) => void,
 }
 
 interface SubState {
@@ -127,7 +127,7 @@ export class Profile extends Component<Props, State> {
                     this.error(e, true);
                     return;
                 } else {
-                    this.props.setter('displayName', this.state.displayName);
+                    this.props.updateDisplayName(this.state.displayName);
                 }
                 break;
             }
