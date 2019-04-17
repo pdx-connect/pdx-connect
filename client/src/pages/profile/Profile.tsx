@@ -13,7 +13,6 @@ interface Disabled {
 }
 
 interface Props {
-    userID: number | null;
     updateDisplayName: (s: string) => void,
 }
 
@@ -165,8 +164,6 @@ export class Profile extends Component<Props, State> {
         const currentBio = "New to Oregon and PSU. Looking to connect with foodies, art lovers, and other anthro majors.";
         const currentOptIn = "mat@gmail.com";
         const currentPicture = "matilda.png";
-
-        const {userID} = this.props;
 
         const commuterOptions = [
             { value: 'on campus', label: 'campus' },
