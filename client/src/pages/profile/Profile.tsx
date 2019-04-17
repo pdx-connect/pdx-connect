@@ -4,7 +4,7 @@ import {Container, Row, Col, Form} from "react-bootstrap";
 import { FaPencilAlt, FaSave, FaUndoAlt } from "react-icons/fa";
 import Select from 'react-select';
 import {ActionMeta, ValueType} from "react-select/lib/types";
-import {OptionType} from "../components/types";
+import {OptionType} from "../../components/types";
 import "./Profile.css";
 
 interface Disabled {
@@ -13,8 +13,7 @@ interface Disabled {
 }
 
 interface Props {
-    selectedOptions: ValueType<OptionType>;
-    handleInterestChange: (value: ValueType<OptionType>, action: ActionMeta) => void;
+    updateDisplayName: (s: string) => void,
 }
 
 interface SubState {
@@ -30,6 +29,7 @@ interface SubState {
 interface State extends SubState {
     error: { [key in keyof SubState]: boolean };
     disabled: { [key in keyof SubState]: boolean };
+    selectedOptions: OptionType[];
 }
 
 
@@ -67,9 +67,22 @@ export class Profile extends Component<Props, State> {
                 'optInEmail': true,
                 'picture': true,
                 'description': true
-            }
+            },
+            selectedOptions: [],
         };
     }
+
+    private readonly handleInterestChange = (value: ValueType<OptionType>, action: ActionMeta) => {
+        let selectedOptions: OptionType[];
+        if (value == null) {
+            selectedOptions = [];
+        } else if (Array.isArray(value)) {
+            selectedOptions = value;
+        } else {
+            selectedOptions = [value];
+        }
+        this.setState({selectedOptions});
+    };
 
     private readonly toggle = (e: keyof SubState, state?: boolean) => {
         let updatedDisabled = this.state.disabled;
@@ -112,6 +125,8 @@ export class Profile extends Component<Props, State> {
                 if (!('success' in data)) {
                     this.error(e, true);
                     return;
+                } else {
+                    this.props.updateDisplayName(this.state.displayName);
                 }
                 break;
             }
@@ -149,8 +164,6 @@ export class Profile extends Component<Props, State> {
         const currentBio = "New to Oregon and PSU. Looking to connect with foodies, art lovers, and other anthro majors.";
         const currentOptIn = "mat@gmail.com";
         const currentPicture = "matilda.png";
-
-        const {selectedOptions, handleInterestChange} = this.props;
 
         const commuterOptions = [
             { value: 'on campus', label: 'campus' },
@@ -245,8 +258,8 @@ export class Profile extends Component<Props, State> {
                        <Col sm={4}>
                             <Select
                                 options={interests}
-                                value={selectedOptions}
-                                onChange={handleInterestChange}
+                                value={this.state.selectedOptions}
+                                onChange={this.handleInterestChange}
                                 isMulti={true}
                             />
                        </Col>
