@@ -20,6 +20,10 @@ interface Props {
 interface SubState {
     displayName: string;
     major: string;
+    majors: {
+        value: string;
+        label: string;
+    }[];
     commuter: string;
     interests: [];
     optInEmail: string;
@@ -33,8 +37,6 @@ interface State extends SubState {
 }
 
 
-
-
 /**
  * 
  */
@@ -45,6 +47,7 @@ export class Profile extends Component<Props, State> {
         this.state = {
             displayName: "",
             major: "",
+            majors: [],
             commuter: "",
             interests: [],
             optInEmail: "",
@@ -53,6 +56,7 @@ export class Profile extends Component<Props, State> {
             error: {
                 'displayName': false,
                 'major': false,
+                'majors': false,
                 'commuter': false,
                 'interests': false,
                 'optInEmail': false,
@@ -62,6 +66,7 @@ export class Profile extends Component<Props, State> {
             disabled: {
                 'displayName': true,
                 'major': true,
+                'majors': true,
                 'commuter': true,
                 'interests': true,
                 'optInEmail': true,
@@ -69,6 +74,29 @@ export class Profile extends Component<Props, State> {
                 'description': true
             }
         };
+    }
+
+    // Obtains the majors list from the DB
+
+    /**
+     * @override
+     */
+    public componentDidMount() {
+        // TODO: Call database and get an array of majors.
+        // 
+
+        // A temporary list of majors. A user can only select one major at a time.
+        // Will be replaced by the database's list of major tags.
+        const listmajors = [
+            { value: 'food', label: 'food' },
+            { value: 'english', label: 'english'},
+            { value: 'art', label: 'art' }
+        ];
+
+        // Update the majors options with the ones from the DB
+        this.setState({
+            majors: listmajors
+        });
     }
 
     private readonly toggle = (e: keyof SubState, state?: boolean) => {
@@ -157,6 +185,7 @@ export class Profile extends Component<Props, State> {
      */
     public render(): ReactNode {
 
+        // Placeholder variables for the profile fields
         const currentDisplayName = "matilda";
         const currentMajor = "english";
         const currentBio = "New to Oregon and PSU. Looking to connect with foodies, art lovers, and other anthro majors.";
@@ -178,18 +207,10 @@ export class Profile extends Component<Props, State> {
             { value: 'art', label: 'art'},
             { value: 'computer science', label: 'computer science'}
         ]
-
-        // A list of majors. A user can only select one major at a time.
-        const majors = [
-            { value: 'food', label: 'food' },
-            { value: 'english', label: 'english'},
-            { value: 'art', label: 'art' }
-        ]
-
         
         return (
                 <Container fluid className="profile">
-                   <Row>
+                   <Row> {/* Display name */}
                        <Col sm={4} className="label">display name</Col>
 
                        <Col sm={4}>
@@ -220,11 +241,12 @@ export class Profile extends Component<Props, State> {
                        </Col>
                    </Row>
 
+                    {/* Major */}
                    <Row className="bottomMargin">
                        <Col sm={4} className="label">major</Col>
                        <Col sm={4}>
                             <Select
-                                options={majors}
+                                options={this.state.majors}
                                 value={selectedOptions}
                                 onChange={handleInterestChange}
                             />
@@ -232,34 +254,9 @@ export class Profile extends Component<Props, State> {
 
                        <Col sm={4} className="edit"></Col>
 
-                       {/* <Col sm={4}>
-                            <Form.Group className="formBasic">
-                                <Form.Control
-                                    type="text"
-                                    placeholder={currentMajor}
-                                    onChange={this.handleChange}
-                                    id="major"
-                                    className="generic"
-                                    value={this.state.major}
-                                    disabled={this.state.disabled['major']}
-                                />
-                            </Form.Group>
-                       </Col>
-                       
-                       <Col sm={4} className="edit">
-                            {this.state.disabled['major']?
-                            <div>
-                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('major')}/>
-                            </div>
-                                :
-                            <div>
-                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('major')}></FaSave>
-                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('major')}></FaUndoAlt>
-                            </div>
-                            }
-                       </Col> */}
                    </Row>
 
+                   {/* Commuter status */}
                    <Row className="bottomMargin">
                        <Col sm={4} className="label">commuter</Col>
 
@@ -270,8 +267,8 @@ export class Profile extends Component<Props, State> {
                        <Col sm={4} className="edit"></Col>
                    </Row>
 
-
-                   <Row>
+                   {/* Interests */}
+                   <Row className="bottomMargin">
                        <Col sm={4} className="label">interests</Col>
                        <Col sm={4}>
                             <Select
