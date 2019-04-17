@@ -143,6 +143,24 @@ const conversations = [
                 seen: false
             }
         ]
+    },
+    {   
+        conversationID: 102,
+        lastSeen: 1555011969, // epoch
+        messages: [
+            {
+                userID: 4,
+                timeSent: 1555011169,
+                text: "Hello world",
+                seen: false
+            },
+            {
+                userID: 6,
+                timeSent: 1555011175,
+                text: "ayee",
+                seen: false
+            }
+        ]
     }
 ];
 
@@ -155,7 +173,7 @@ export class Inbox extends Component<Props, State> {
         super(props);
         this.state = {
             currentConversation: 0,
-            textField: "Default state text",
+            textField: "",
         }
     }
 
@@ -164,22 +182,44 @@ export class Inbox extends Component<Props, State> {
     }
 
     private readonly onSubmit = (e: any) => {
+        e.preventDefault();
+
+
+
+        //
+        // Message sending code goes here
+        //
+
+
+
+        console.log(this.state.textField);
         this.setState({textField: ""});
         //this.props.onSendMessage(this.state.textField)
-        console.log(this.state.textField);
     }
     
     private readonly getInbox = () => {
         let rows = [];
         for (let i=0; i<conversations.length; i++) {
-            rows.push(
-                <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="conversation">
-                    <Col key={i} sm={12}>
-                        Message from: user {conversations[i].messages[0].userID}
-                        Preview: {conversations[i].messages[conversations[i].messages.length-1].text}
-                    </Col>
-                </Row>
-            );
+            if (i == this.state.currentConversation) {
+                rows.push(
+                    <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="open-conversation">
+                        <Col key={i} sm={12}>
+                            Message from: user {conversations[i].messages[0].userID}
+                            Preview: {conversations[i].messages[conversations[i].messages.length-1].text}
+                        </Col>
+                    </Row>
+                );
+            }
+            else {
+                rows.push(
+                    <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="conversation">
+                        <Col key={i} sm={12}>
+                            Message from: user {conversations[i].messages[0].userID}
+                            Preview: {conversations[i].messages[conversations[i].messages.length-1].text}
+                        </Col>
+                    </Row>
+                );
+            }
         }
         return rows;
     }
@@ -190,14 +230,14 @@ export class Inbox extends Component<Props, State> {
             if (conversations[0].messages[i].userID == 6) {
                  rows.push(
                     <Row key={i} className="my-message">
-                        <Col key={i} sm={12} > {conversations[this.state.currentConversation].messages[i].text}</Col>
+                        <Col key={i} sm={12}> {conversations[this.state.currentConversation].messages[i].text}</Col>
                     </Row>
                 );
             }
             else {
                 rows.push(
                     <Row key={i} className="other-message">
-                        <Col key={i} sm={12} > {conversations[this.state.currentConversation].messages[i].text}</Col>
+                        <Col key={i} sm={12}> {conversations[this.state.currentConversation].messages[i].text}</Col>
                     </Row>
               );
             }
@@ -209,7 +249,6 @@ export class Inbox extends Component<Props, State> {
      * @override
      */
     public render(): ReactNode {
-
 
             /* 
             
@@ -243,7 +282,7 @@ export class Inbox extends Component<Props, State> {
                 <div className="text-box">
                     <Form onSubmit={(e: any) => this.onSubmit(e)}>
                         <Row>
-                            <Col><Form.Control onChange={(e: any) => this.onChange(e)} type="text" size="sm"/></Col>
+                            <Col><Form.Control onChange={(e: any) => this.onChange(e)} type="text" value={this.state.textField} placeholder="Enter message..."/></Col>
                             <Col><Button variant="primary" type="submit">Send</Button></Col>
                         </Row>
                     </Form>
@@ -251,5 +290,4 @@ export class Inbox extends Component<Props, State> {
             </Container>
         );
     }
-
 }

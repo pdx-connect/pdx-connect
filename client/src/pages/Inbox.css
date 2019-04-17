@@ -7,10 +7,27 @@
 
 .conversation
 {
+    transition: all .1s ease-in-out;
+    background-color: lightgrey;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 15px;
+    cursor: pointer;
+}
+
+.conversation:hover, .open-conversation:hover
+{
+    transform: scale(1.05);
+}
+
+.open-conversation
+{
+    transition: all .1s ease-in-out;
     background-color: bisque;
     border-radius: 10px;
     padding: 10px;
     margin: 15px;
+    cursor: pointer;
 }
 
 .conversations
@@ -21,6 +38,7 @@
     width: 25%;
     height: 600px;
     border-radius: 10px;
+    overflow: scroll;
 }
 
 .chat-box
