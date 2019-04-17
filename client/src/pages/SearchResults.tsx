@@ -3,7 +3,7 @@ import {Component, ReactNode, useState} from "react";
 import ReactDataGrid from 'react-data-grid';
 import "./SearchResults.css"
 import { Container, Row, Col } from "react-bootstrap";
-import { Toolbar, Data } from "react-data-grid-addons";
+import { Toolbar, Data, Filters } from "react-data-grid-addons";
 
 interface Props {
     finalSearchField: string;
@@ -13,16 +13,18 @@ interface State {
     rows: [];
 }
 
+const selectors = Data.Selectors;
+
+const {
+    AutoCompleteFilter,
+  } = Filters;
 
 const columns = [
     { key: "displayName", name: "Name", editable: false, filterable: true},
     { key: "major", name: "Major", editable: false, filterable: true},
-    { key: "tags", name: "Tags", editable: false, filterable: true}
+    { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: AutoCompleteFilter}
 ];
 
-
-
-const selectors = Data.Selectors;
 
 const handleFilterChange = (filter: any) => (filters: any) => {
     const newFilters = { ...filters };
@@ -33,6 +35,14 @@ const handleFilterChange = (filter: any) => (filters: any) => {
     }
     return newFilters;
 };
+
+function getValidFilterValues(rows : any, columnId : any) {
+    return rows
+        .map((r: { [x: string]: any; }) => r[columnId])
+        .filter((item: any, i: any, a: { indexOf: (arg0: any) => void; }) => {
+            return i === a.indexOf(item);
+        });
+}
 
 function getRows(rows: any, filters: any) {
     return selectors.getRows({ rows, filters });
@@ -50,6 +60,7 @@ function ReactGrid({ rows } : { rows : any}) {
             toolbar={<Toolbar enableFilter={true} />}
             onAddFilter={filter => setFilters(handleFilterChange(filter))}
             onClearFilters={() => setFilters({})}
+            getValidFilterValues={columnKey => getValidFilterValues(rows, columnKey)}
         />
     );
 }
