@@ -25,11 +25,12 @@ const selectors = Data.Selectors;
 
 const {
     MultiSelectFilter,
+    AutoCompleteFilter,
   } = Filters;
 
 const columns = [
-    { key: "displayName", name: "Name", editable: false, filterable: true},
-    { key: "major", name: "Major", editable: false, filterable: true},
+    { key: "displayName", name: "Name", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
+    { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
     { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: MultiSelectFilter}
 ];
 
