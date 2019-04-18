@@ -11,20 +11,26 @@ interface Props {
 
 interface State {
     rows: [];
-    tags: any;
+    tags: {
+        id: number;
+        name: string;
+    }[];
 }
-let tag: any = ""
+let tag: {
+    id: number;
+    name: string;
+}[] = []
 
 const selectors = Data.Selectors;
 
 const {
-    AutoCompleteFilter,
+    MultiSelectFilter,
   } = Filters;
 
 const columns = [
     { key: "displayName", name: "Name", editable: false, filterable: true},
     { key: "major", name: "Major", editable: false, filterable: true},
-    { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: AutoCompleteFilter}
+    { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: MultiSelectFilter}
 ];
 
 
@@ -91,6 +97,7 @@ export class SearchResults extends Component<Props, State> {
                 const results = this.getResults(1, this.props.finalSearchField);
             }
             const tags = this.getTags
+            tag = this.state.tags
         }
     };
 
