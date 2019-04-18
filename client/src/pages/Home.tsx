@@ -2,21 +2,20 @@ import * as React from "react";
 import {ReactNode} from "react";
 import {Page} from "../Page";
 import {RouteComponentProps, Redirect, Route, Switch} from "react-router";
-import { Sidebar } from "./Sidebar";
-import { Container, Row, Col, Form, Button, Modal} from "react-bootstrap";
-import { FaStar, FaComment, FaSignOutAlt } from "react-icons/fa";
+import {Sidebar} from "./sidebar/Sidebar";
+import {Container, Row, Col, Form, Button, Modal} from "react-bootstrap";
+import {FaStar, FaComment, FaSignOutAlt} from "react-icons/fa";
+
+import {HomeContent} from "./HomeContent";
+import {Profile} from "./profile/Profile";
+import {Calendar} from "./calendar/Calendar";
+import {Listings} from "./listings/Listings";
+import {Inbox} from "./inbox/Inbox";
+import {SearchResults} from "./search-results/SearchResults";
+import {Oobe} from "./oobe/Oobe";
+import {getJSON} from "../util/json";
 
 import "./Home.css";
-
-import { HomeContent } from "./HomeContent";
-import { Profile } from "./Profile";
-import { Calendar } from "./Calendar";
-import { Listings } from "./Listings";
-import { Inbox } from "./Inbox";
-import { Settings } from "./Settings";
-import { SearchResults } from "./SearchResults";
-
-import { Oobe } from "./profile/Oobe";
 
 interface Props extends RouteComponentProps {
     
@@ -31,6 +30,7 @@ interface State {
     displayName?: string | undefined;
     showOobe: boolean;
     finalSearchField: string;
+    userID: null | number;
 }
 
 /**
@@ -49,31 +49,20 @@ export class Home extends Page<Props, State> {
             displayName: "",
             showOobe: false,
             finalSearchField: "",
+            userID: null
         };
     }
     
-    private readonly getUserName = async () => {
-        const response: Response = await fetch("/api/user/name", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+    private readonly getUserProfileData = async () => {
+        const data = await getJSON("/api/user/name");
+        this.setState({
+            displayName: data.name,
+            userID: data.userID
         });
-
-        const data = await response.json();
-        const name: string|undefined = data.name;
-        this.setState({displayName: name});
     };
 
     private readonly getUserOOBE = async () => {
-        const response: Response = await fetch("/api/user/oobe", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
+        const data = await getJSON("/api/user/oobe");
         this.setState({showOobe: !data.oobe});
     };
 
@@ -85,7 +74,13 @@ export class Home extends Page<Props, State> {
             credentials: "same-origin",
             redirect: "follow",
             referrer: "no-referrer",
-        }).then(response => { response; this.props.history.push('/login'); });
+        }).then(response => {
+            this.props.history.push('/login');
+        });
+    };
+
+    private readonly updateDisplayName = (displayName: string) => {
+        this.setState({displayName: displayName});
     };
 
     private readonly handleModalClose = (e: any) => {
@@ -124,7 +119,7 @@ export class Home extends Page<Props, State> {
     public componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
         this.getUserOOBE().then();
-        this.getUserName().then();
+        this.getUserProfileData().then();
     }
     
     /**
@@ -152,7 +147,6 @@ export class Home extends Page<Props, State> {
             "/calendar": 'calendar',
             "/listings": 'listings',
             "/inbox": 'inbox',
-            "/settings": 'settings',
             "/search-results": 'search results'
         };
         
@@ -204,11 +198,13 @@ export class Home extends Page<Props, State> {
                         <Col sm={10} md={11} className="component">
                             <Switch>
                                 <Route exact path="/" component={HomeContent} />
-                                <Route path="/profile" component={Profile} />
+                                <Route
+                                    path="/profile"
+                                    render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} />}
+                                />
                                 <Route path="/calendar" component={Calendar} />
                                 <Route path="/listings" component={Listings} />
                                 <Route path="/inbox" component={Inbox} />
-                                <Route path="/settings" component={Settings} />
                                 <Route
                                     path="/search-results"
                                     render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}

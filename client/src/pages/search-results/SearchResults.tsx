@@ -101,6 +101,9 @@ export class SearchResults extends Component<Props, State> {
         }
     };
 
+    /**
+     * @override
+     */
     public componentDidMount(){
         document.addEventListener('keydown', this.enterKeyPressed);
         if (this.props.finalSearchField != null) {
