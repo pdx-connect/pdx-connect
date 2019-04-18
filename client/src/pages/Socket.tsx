@@ -220,9 +220,51 @@ export class Socket extends Component<Props, State> {
     };
 
     private readonly seenRecent = (conversationID: number, time: number) => {
-        // TODO write the function
-        return;
+        // Verify socket
+        if (this.socket == null) {
+            // TODO throw an error?
+            console.log("Failed in seenRecent - socket is null")
+            return;
+        }
+        // Update the local log of messages
+        let tempMessages: ConversationEntry[] = this.state.messages;
+        let found = false;
+        for (let i = 0; i < tempMessages.length; ++i) {
+            if (tempMessages[i].conversationID == conversationID) {
+                found = true;
+                tempMessages[i].lastSeen = time;
+                for (let j = 0; j < tempMessages[i].entries.length; ++j) {
+                    if (tempMessages[i].entries[j].timeSent < time) {
+                        tempMessages[i].entries[j].seen = true;
+                    }
+                }
+            }
+        }
+        
+        if (!found) {
+            // TODO throw an error?
+            console.log("Tried to indicate conversation is seen when conversation is not loaded");
+            return;
+        }
+        // Send the message to the server
+        this.socket.send(JSON.stringify({
+            type: "seen",
+            conversationID: conversationID, 
+            content: time
+        }));
     };
+
+    private readonly startConversation = async (userIDs: number[]) => {
+        let response = await fetch("/api/messages/start", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userIDs: userIDs
+            })
+        });
+    }
 
     /**
      * @override

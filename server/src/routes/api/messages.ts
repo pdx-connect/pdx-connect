@@ -3,6 +3,7 @@ import {Connection, Not, LessThanOrEqual} from "typeorm";
 import { User } from "../../entity/User";
 import { ConversationParticipant } from "../../entity/ConversationParticipant";
 import { Message} from "../../entity/Message";
+import { Conversation } from "../../entity/Conversation";
 
 
 async function getMessages (conversations: ConversationParticipant[]) {
@@ -52,6 +53,58 @@ export function route(app: Express, db: Connection) {
         });
         const messages: {}[] = await getMessages(conversations);
         response.send(JSON.stringify(messages));
+    });
+
+    app.get("/api/messages/start", async (request: Request, response, Response) => {
+        if (typeof request.user == null) {
+            // TODO send error
+            return;
+        }
+        // Get the request information and validate format
+        const user: User = request.user;
+        if (typeof request.body !== "object") {
+            response.sendStatus(400); // HTTP 400: Bad client request
+            return;
+        }
+        const body: {userIDs: number[]} = request.body;
+        if (body == null) {
+            response.sendStatus(400); // HTTP 400: Bad client request
+            return;
+        }
+        const userIDs: number[] = body.userIDs;
+        // REMOVE THIS TO ENABLE GROUP CHATS
+        if (userIDs.length > 1) {
+            response.sendStatus(400); // HTTP 400: Bad client request
+            return;            
+        }
+        // Check if the conversation needs to be created
+        if (userIDs.length == 1) {
+            // TODO look for conversation between user and userIDs[0]
+            // TODO send an error
+            return;
+        }
+        // Create the new conversation and participant entities, and save them
+        let conversation = new Conversation();
+        conversation.save();
+        let thisParticipant = new ConversationParticipant(conversation, user);
+        thisParticipant.save();
+        for (let i = 0; i < userIDs.length; ++i) {
+            let newUser: User|undefined = await User.findOne({
+                where: {
+                    userID: userIDs[i]
+                }
+            });
+            if (newUser == null) {
+                // TODO send an error
+            } else {
+                let newParticipant = new ConversationParticipant(conversation,newUser);
+                newParticipant.save();
+            }
+        }
+        // Send conversationID because to client
+        response.send(JSON.stringify({
+            conversationID: conversation.id
+        }));
     });
 
     app.post("/api/messages/more", async (request: Request, response: Response) => {

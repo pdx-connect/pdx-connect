@@ -2,7 +2,7 @@ import {BaseEntity, Column, Entity, IsNull, Not, OneToMany, PrimaryGeneratedColu
 import { ConversationParticipant } from "./ConversationParticipant";
 import { Message } from "./Message";
 
-@Entity("conversation")
+@Entity("conversation") 
 export class Conversation extends BaseEntity {
 
     @PrimaryGeneratedColumn({
@@ -35,4 +35,9 @@ export class Conversation extends BaseEntity {
     @OneToMany(type => Message, message => message.conversation)
     readonly messages!: Promise<Message[]>;
 
+    constructor() {
+        super();
+        this.isArchived = false;
+        this.isDeactivated = false;
+    }
 }
