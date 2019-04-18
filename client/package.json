@@ -5,7 +5,6 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "@types/date-arithmetic": "^3.1.2",
     "@types/react": "^16.8.8",
     "@types/react-big-calendar": "^0.20.13",
     "@types/react-burger-menu": "^2.2.2",
@@ -14,7 +13,7 @@
     "@types/react-router-dom": "^4.3.1",
     "@types/react-select": "^2.0.15",
     "bootstrap": "^4.3.1",
-    "date-arithmetic": "^3.1.0",
+    "moment": "^2.24.0",
     "react": "^16.8.4",
     "react-big-calendar": "^0.20.4",
     "react-bootstrap": "^1.0.0-beta.5",
@@ -28,7 +27,8 @@
     "react-router-dom": "^4.3.1",
     "react-select": "^2.4.2",
     "react-switch": "^4.1.0",
-    "shared": "^0.0.1"
+    "shared": "^0.0.1",
+    "tslib": "^1.9.3"
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
