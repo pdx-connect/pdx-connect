@@ -4,6 +4,7 @@ import ReactDataGrid from 'react-data-grid';
 import "./SearchResults.css"
 import { Container, Row, Col } from "react-bootstrap";
 import { Toolbar, Data } from "react-data-grid-addons"
+import {postJSON} from "../../util/json";
 
 interface Props {
     finalSearchField: string;
@@ -71,31 +72,28 @@ export class SearchResults extends Component<Props, State> {
         }
     };
 
+    private readonly getResults = async (searchBy: number, displayName: string) => {
+        const data = await postJSON("/api/search/profile", {
+            searchBy: searchBy,
+            displayName: displayName
+        });
+        console.log(data);
+        this.setState({
+            rows: data.users
+        });
+        return data
+    };
+
+    /**
+     * @override
+     */
     public componentDidMount(){
         document.addEventListener('keydown', this.enterKeyPressed);
         if (this.props.finalSearchField != null) {
             const results = this.getResults(1, this.props.finalSearchField)
         }
     }
-
-    private readonly getResults = async (searchBy: number, displayName: string) => {
-        const response: Response = await fetch("/api/search/profile", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                searchBy: searchBy,
-                displayName: displayName
-            })
-        });
-        const data = await response.json(); 
-        console.log(data);
-        this.setState({rows: data.users})
-        return data
-    }
-
-
+    
     /**
      * @override
      */

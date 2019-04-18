@@ -2,11 +2,10 @@ import * as React from "react";
 import {ReactNode} from "react";
 import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Page} from "../Page";
-import {RouteComponentProps, withRouter} from "react-router-dom";
-import { FaAngleRight } from "react-icons/fa";
+import {RouteComponentProps} from "react-router-dom";
+import {postJSON} from "../util/json";
 
 import "./Login.css";
-import { classNames } from "react-select/lib/utils";
 
 
 interface Props extends RouteComponentProps {
@@ -59,25 +58,17 @@ export class Login extends Page<Props, State> {
     };
 
     private readonly authenticate = async (email: string, password: string) => {
-        const response: Response = await fetch("/login", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
+        const data = await postJSON("/login", {
+            email: email,
+            password: password
         });
-
-        const data = await response.json();
         if ('success' in data) {
             localStorage.clear();
             this.props.history.push("/");
-        }
-        else
-        {
-            this.setState({notAuthorized: true});
+        } else {
+            this.setState({
+                notAuthorized: true
+            });
         }
     };
 
@@ -87,24 +78,22 @@ export class Login extends Page<Props, State> {
             this.setState({
                 emptyFields: true,
                 notAuthorized: false
-            })
+            });
             return true;
         }
         return false;
     };
-
-
+    
     private readonly processCredentials = () => {
        if (this.state.email != null && this.state.password != null) {
             this.setState({
                 emptyFields: false
-            })
+            });
             this.authenticate(this.state.email, this.state.password).then();
         }
     };
 
-    public clearLocalStorage()
-    {
+    private static clearLocalStorage() {
         localStorage.removeItem('displayName');
         localStorage.removeItem('email');
         localStorage.removeItem('disabled');
@@ -135,7 +124,7 @@ export class Login extends Page<Props, State> {
             <Button size="sm" variant="light" onClick={() => {this.props.history.push('/register')} } className="register">register</Button>;
 
         const password =
-            <Button size="sm" variant="light" onClick={() => {this.clearLocalStorage(); this.props.history.push('/reset')} } className="password-forgot">password?</Button>;
+            <Button size="sm" variant="light" onClick={() => {Login.clearLocalStorage(); this.props.history.push('/reset')} } className="password-forgot">password?</Button>;
 
         const loginButton =
             <Button size="sm" variant="light" onClick={this.nextArrowPressed} className="login-button">login</Button>;

@@ -2,19 +2,20 @@ import * as React from "react";
 import {ReactNode} from "react";
 import {Page} from "../Page";
 import {RouteComponentProps, Redirect, Route, Switch} from "react-router";
-import { Sidebar } from "./sidebar/Sidebar";
-import { Container, Row, Col, Form, Button, Modal} from "react-bootstrap";
-import { FaStar, FaComment, FaSignOutAlt } from "react-icons/fa";
+import {Sidebar} from "./sidebar/Sidebar";
+import {Container, Row, Col, Form, Button, Modal} from "react-bootstrap";
+import {FaStar, FaComment, FaSignOutAlt} from "react-icons/fa";
+
+import {HomeContent} from "./HomeContent";
+import {Profile} from "./profile/Profile";
+import {Calendar} from "./calendar/Calendar";
+import {Listings} from "./listings/Listings";
+import {Inbox} from "./inbox/Inbox";
+import {SearchResults} from "./search-results/SearchResults";
+import {Oobe} from "./oobe/Oobe";
+import {getJSON} from "../util/json";
 
 import "./Home.css";
-
-import { HomeContent } from "./HomeContent";
-import { Profile } from "./profile/Profile";
-import { Calendar } from "./calendar/Calendar";
-import { Listings } from "./listings/Listings";
-import { Inbox } from "./inbox/Inbox";
-import { SearchResults } from "./search-results/SearchResults";
-import { Oobe } from "./oobe/Oobe";
 
 interface Props extends RouteComponentProps {
     
@@ -53,14 +54,7 @@ export class Home extends Page<Props, State> {
     }
     
     private readonly getUserProfileData = async () => {
-        const response: Response = await fetch("/api/user/name", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
+        const data = await getJSON("/api/user/name");
         this.setState({
             displayName: data.name,
             userID: data.userID
@@ -68,16 +62,9 @@ export class Home extends Page<Props, State> {
     };
 
     private readonly getUserOOBE = async () => {
-        const response: Response = await fetch("/api/user/oobe", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
+        const data = await getJSON("/api/user/oobe");
         this.setState({showOobe: !data.oobe});
-    }
+    };
 
     private readonly logUserOut = async() => {
         return fetch("/logout", {
@@ -87,7 +74,9 @@ export class Home extends Page<Props, State> {
             credentials: "same-origin",
             redirect: "follow",
             referrer: "no-referrer",
-        }).then(response => { response; this.props.history.push('/login'); });
+        }).then(response => {
+            this.props.history.push('/login');
+        });
     };
 
     private readonly updateDisplayName = (displayName: string) => {
