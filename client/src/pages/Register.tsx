@@ -4,12 +4,12 @@ import {ReactNode} from "react";
 import {Container, Row, Col, Modal} from "react-bootstrap";
 import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from "react-icons/fa";
 import {RouteComponentProps} from "react-router-dom";
-import "./Register.css";
-
 import {BasicInfo} from './register/BasicInfo';
 import {Agreement} from './register/Agreement';
 import {EmailConfirmation} from './register/EmailConfirmation';
+import {getJSON, postJSON} from "../util/json";
 
+import "./Register.css";
 
 interface Props extends RouteComponentProps {
 }
@@ -108,20 +108,12 @@ export class Register extends Page<Props, State> {
         this.setState({show: false});
     };
 
-    private readonly registerUser = async (displayName: string, password: string, email: string, domain:string) => {
-        const response: Response = await fetch("/register", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                displayName: displayName,
-                email: email.concat('@').concat(domain),
-                password: password
-            })
+    private readonly registerUser = async (displayName: string, password: string, email: string, domain: string) => {
+        const data = await postJSON("/register", {
+            displayName: displayName,
+            email: email.concat('@').concat(domain),
+            password: password
         });
-
-        const data = await response.json();
         
         if ('error' in data) {
             console.log("Error: ", data['error']);
@@ -148,54 +140,28 @@ export class Register extends Page<Props, State> {
     };
 
     private readonly verifyUser = async (userID: number, confirmationCode: string) => {
-        const response: Response = await fetch("/register/verify", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                userID: userID,
-                verificationCode: confirmationCode
-            })
+        const data = await postJSON("/register/verify", {
+            userID: userID,
+            verificationCode: confirmationCode
         });
-
-        const data = await response.json();
-
         if ('error' in data) {
-            console.log("Error: ", data['error']);
+            console.log("Error: ", data.error);
         } else {
             this.setState({
                 confirmed: true
             });
         }
     };
-
+    
     private readonly getDomain = async (): Promise<string> => {
-        const response: Response = await fetch("/api/settings/email-domain", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        const data: unknown = await response.json();
-        if (typeof data !== "string") {
-            throw new Error("Invalid response type: " + typeof data);
-        }
-        return data;
+        return getJSON("/api/settings/email-domain");
     };
 
     private readonly serverResendCode = async(email: string, userID: number, domain: string) => {
-        const response: Response = await fetch("/register/resend", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email.concat('@').concat(domain),
-                userID: userID
-            })
+        const data = await postJSON("/register/resend", {
+            email: email.concat('@').concat(domain),
+            userID: userID
         });
-        const data = await response.json();
         return 'success' in data;
     };
 

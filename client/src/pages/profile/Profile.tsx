@@ -1,10 +1,12 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Form} from "react-bootstrap";
-import { FaPencilAlt, FaSave, FaUndoAlt } from "react-icons/fa";
+import {FaPencilAlt, FaSave, FaUndoAlt} from "react-icons/fa";
 import Select from 'react-select';
 import {ActionMeta, ValueType} from "react-select/lib/types";
 import {OptionType} from "../../components/types";
+import {postJSON} from "../../util/json";
+
 import "./Profile.css";
 
 interface Disabled {
@@ -31,9 +33,6 @@ interface State extends SubState {
     disabled: { [key in keyof SubState]: boolean };
     selectedOptions: OptionType[];
 }
-
-
-
 
 /**
  * 
@@ -114,14 +113,7 @@ export class Profile extends Component<Props, State> {
         // DB
         switch (e) {
             case "displayName": {
-                const response: Response = await fetch("/api/user/name", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(this.state.displayName)
-                });
-                const data = await response.json();
+                const data = await postJSON("/api/user/name", this.state.displayName);
                 if (!('success' in data)) {
                     this.error(e, true);
                     return;
@@ -133,14 +125,7 @@ export class Profile extends Component<Props, State> {
             case "major":
                 break;
             case "description": {
-                const response: Response = await fetch("/api/user/description", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(this.state.description)
-                });
-                const data = await response.json();
+                const data = await postJSON("/api/user/description", this.state.description);
                 if (!('success' in data)) {
                     this.error(e, true);
                     return;
