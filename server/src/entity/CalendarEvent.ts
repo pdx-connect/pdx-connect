@@ -1,5 +1,16 @@
-import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    Entity,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    ManyToOne, OneToMany,
+    PrimaryGeneratedColumn
+} from "typeorm";
 import {User} from "./User";
+import {Tag} from "./Tag";
+import {CalendarEventComment} from "./CalendarEventComment";
 
 @Entity("event")
 export class CalendarEvent extends BaseEntity {
@@ -50,7 +61,25 @@ export class CalendarEvent extends BaseEntity {
         name: "end",
         type: "datetime"
     })
-    end!: Date|null;
+    end!: Date | null;
+
+    @JoinTable({
+        name: "event_tags",
+        joinColumn: {
+            name: "event_id"
+        },
+        inverseJoinColumn: {
+            name: "tag_id"
+        }
+    })
+    @ManyToMany(type => Tag, {
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE"
+    })
+    tags!: Promise<Tag[]>;
+    
+    @OneToMany(type => CalendarEventComment, comment => comment.event)
+    readonly comments!: Promise<CalendarEventComment[]>;
 
     /**
      * Internal constructor.
@@ -68,6 +97,8 @@ export class CalendarEvent extends BaseEntity {
             this.description = description;
             this.start = start;
             this.end = end != null ? end : null;
+            this.tags = Promise.resolve([]);
+            this.comments = Promise.resolve([]);
         }
     }
 
