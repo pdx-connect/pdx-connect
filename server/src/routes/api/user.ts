@@ -1,18 +1,21 @@
 import {Express, Request, Response} from "express";
-import {Connection} from "typeorm";
+import {Connection, Repository} from "typeorm";
 import {User} from "../../entity/User";
 import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
+import {Event} from "../../entity/Event"
 
 export function route(app: Express, db: Connection) {
     app.get("/api/user/name", async (request: Request, response: Response) => {
+        console.log("user path");
         const user: User|undefined = request.user;
         response.send(JSON.stringify({
             name: user != null ? user.displayName : void 0,
             userID: user != null ? user.id: void 0,
         }));
     });
+
     // Post the user name to the database.
     app.post("/api/user/name", async (request: Request, response: Response) => {
         if (typeof request.body !== "string") {
@@ -268,4 +271,17 @@ export function route(app: Express, db: Connection) {
         }
     });
 
+    // get all the events for a given user 
+    app.get("/api/user/events", async (request: Request, response: Response) => {
+        const user: User = request.user;
+        const event: Event[]|undefined = await user.events;
+        // console.log("Only the user's event",event)
+        response.send(JSON.stringify({event}));
+    });
+
+    app.get("/api/events", async (request: Request, response: Response) => {
+        const allEvents = await Event.find();
+        // console.log("all the events: ", allEvents);
+        response.send(JSON.stringify({allEvents}));
+    });
 }
