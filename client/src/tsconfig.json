@@ -9,7 +9,8 @@
       "es2018"
     ],
     "jsx": "react",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "importHelpers": true
   },
   "references": [
     { "path": "../../shared/src"}

@@ -9,7 +9,8 @@ export function route(app: Express, db: Connection) {
     app.get("/api/user/name", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         response.send(JSON.stringify({
-            name: user != null ? user.displayName : void 0
+            name: user != null ? user.displayName : void 0,
+            userID: user != null ? user.id: void 0,
         }));
     });
     // Post the user name to the database.
