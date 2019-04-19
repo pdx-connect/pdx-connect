@@ -123,6 +123,8 @@ export class Profile extends Component<Props, State> {
 
         this.getmajors();
     }
+
+    // New function to handle change in Interests
     private readonly handleInterestChange = (value: ValueType<OptionType>, action: ActionMeta) => {
         let selectedOptions: OptionType[];
         if (value == null) {
@@ -274,7 +276,19 @@ export class Profile extends Component<Props, State> {
                             />
                        </Col>
 
-                       <Col sm={4} className="edit"></Col>
+                       <Col sm={4} className="edit">
+                       {this.state.disabled['major']?
+                            <div>
+                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('major')}/>
+                            </div>
+                                :
+                            <div>
+                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('major')}></FaSave>
+                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('major')}></FaUndoAlt>
+                            </div>
+                            }
+                       
+                       </Col>
 
                    </Row>
 
