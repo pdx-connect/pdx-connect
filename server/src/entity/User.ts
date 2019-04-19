@@ -3,7 +3,7 @@ import {UserEmail} from "./UserEmail";
 import {randomBytes} from "crypto";
 import {hash} from "bcrypt";
 import {UserProfile} from "./UserProfile";
-import {CalendarEvents} from "./CalendarEvents"
+import {CalendarEvent} from "./CalendarEvent";
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -43,10 +43,9 @@ export class User extends BaseEntity {
     
     @OneToOne(type => UserProfile, profile => profile.user)
     readonly profile!: Promise<UserProfile|undefined>;
-    
-    // user can have many events
-    @OneToMany(type => CalendarEvents, calendarevents => calendarevents.user) 
-    readonly calendarevents!: Promise<Event[]>;
+
+    @OneToMany(type => CalendarEvent, events => events.user)
+    readonly events!: Promise<CalendarEvent[]>;
 
     @Column({
         name: "deactivated",
@@ -73,9 +72,9 @@ export class User extends BaseEntity {
             this.emails = Promise.resolve([]);
             this.password = password;
             this.creationDate = new Date();
-            this.deactivated = false;
             this.profile = Promise.resolve(void 0);
-            this.calendarevents = Promise.resolve([]);
+            this.events = Promise.resolve([]);
+            this.deactivated = false;
         }
     }
     

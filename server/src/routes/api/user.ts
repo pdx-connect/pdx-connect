@@ -4,7 +4,7 @@ import {User} from "../../entity/User";
 import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
-import {CalendarEvents} from "../../entity/CalendarEvents"
+import {CalendarEvent} from "../../entity/CalendarEvent";
 
 export function route(app: Express, db: Connection) {
     app.get("/api/user/name", async (request: Request, response: Response) => {
@@ -269,12 +269,13 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
-
-    // get all the events for a given user 
     app.get("/api/user/events", async (request: Request, response: Response) => {
-        const user: User = request.user;
-        const event: Event[] = await user.calendarevents;
-        // console.log("Only the user's event",event)
-        response.send(JSON.stringify({event}));
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const events: CalendarEvent[] = await user.events;
+            response.send(JSON.stringify(events));
+        } else {
+            response.send(JSON.stringify("Not logged in."));
+        }
     });
 }
