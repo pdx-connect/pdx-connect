@@ -1,8 +1,8 @@
 import {BaseEntity, Column, Entity, JoinColumn, ManyToOne ,IsNull, Not, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {User} from "./User"
 
-@Entity("events")
-export class Event extends BaseEntity {
+@Entity("calendar_events")
+export class CalendarEvents extends BaseEntity {
     
     @PrimaryGeneratedColumn({
         name: "event_id",
@@ -47,7 +47,7 @@ export class Event extends BaseEntity {
     @JoinColumn({
         name: "user_id"
     })
-    @ManyToOne(type => User, user => user.events, {
+    @ManyToOne(type => User, user => user.calendarevents, {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE"
     })
