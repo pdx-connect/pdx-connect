@@ -23,13 +23,13 @@ export class Event extends BaseEntity {
         name: "start",
         type: "datetime"
     })
-    readonly start!: Date;
+    start!: Date;
     
     @Column({
         name: "end",
         type: "datetime"
     })
-    readonly end!: Date;
+    end!: Date;
 
     @Column({
         name: "description",
@@ -38,6 +38,12 @@ export class Event extends BaseEntity {
     })
     description!: string;
 
+    @Column({
+         name: "user_id",
+         unsigned: true
+    })
+    readonly userID!: number;
+
     @JoinColumn({
         name: "user_id"
     })
@@ -45,8 +51,7 @@ export class Event extends BaseEntity {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE"
     })
-    readonly user!: Promise<User| undefined>;
-// double check the undefined for the user  
+    readonly user!: Promise<User>;
 
     /**
      * Internal constructor.
@@ -58,11 +63,12 @@ export class Event extends BaseEntity {
     
     constructor(user?: User, title?: string, start?: Date, end?: Date, description?: string) {
         super();
-        if (title != null && start != null && end != null && description != null) {
+        if (user != null && title != null && start != null && end != null && description != null) {
             this.title = title; 
             this.start = start;
             this.end = end;
             this.description = description;
+            this.userID = user.id
             this.user = Promise.resolve(user);
         }
     }

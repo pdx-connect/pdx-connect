@@ -1,5 +1,5 @@
 import {Express, Request, Response} from "express";
-import {Connection, Repository} from "typeorm";
+import {Connection} from "typeorm";
 import {User} from "../../entity/User";
 import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
@@ -274,14 +274,8 @@ export function route(app: Express, db: Connection) {
     // get all the events for a given user 
     app.get("/api/user/events", async (request: Request, response: Response) => {
         const user: User = request.user;
-        const event: Event[]|undefined = await user.events;
+        const event: Event[] = await user.events;
         // console.log("Only the user's event",event)
         response.send(JSON.stringify({event}));
-    });
-
-    app.get("/api/events", async (request: Request, response: Response) => {
-        const allEvents = await Event.find();
-        // console.log("all the events: ", allEvents);
-        response.send(JSON.stringify({allEvents}));
     });
 }
