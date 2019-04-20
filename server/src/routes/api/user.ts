@@ -35,6 +35,71 @@ export function route(app: Express, db: Connection) {
         }
     });
 
+    // Get user profiles from userIDs
+    app.post("/api/user/profilesfromids", async (request: Request, response: Response) => {
+        // Establish user and body, temp user object
+        const user: User|undefined = request.user;
+        const body: {userID: number}[] = request.body;
+        let fromDB: UserProfile|undefined = undefined;
+        // Define array used to store/send information
+        let profiles: {
+            userID: number
+            userName: string|null
+            major: string|null
+            onCampus: boolean|null
+            description: string|null
+        }[] = [];
+        // Handle user not logged in
+        if (user == null) {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+            return;
+        }
+        // Handle bad body
+        if (body == null) {
+            response.send(JSON.stringify({
+                error: "Improper request format"
+            }));
+            return;
+        }
+        // Iterate over every requested userID
+        for (let i = 0; i < body.length; ++i) {
+            fromDB = await UserProfile.findOne({
+                where: {
+                    id: body[i].userID
+                }
+            });
+            // Push either the username or undefined, depending on query results
+            if (fromDB != null) {
+                let majorTag: Tag|null = await fromDB.major
+                let major: string|null = null;
+                if (majorTag != null) {
+                    let major: string = majorTag.name
+                } else {
+                    let major = null;
+                }
+                profiles.push({
+                    userID: fromDB.userID, 
+                    userName: (await fromDB.user).displayName,
+                    major: major,
+                    onCampus: fromDB.isOnCampus,
+                    description: fromDB.description
+                });
+            } else {
+                profiles.push({
+                    userID: body[i].userID, 
+                    userName: null,
+                    major: null,
+                    onCampus: null,
+                    description: null
+                });
+            }
+        }
+        // Send result
+        response.send(JSON.stringify(profiles));
+    });
+    /*
     // Get user names from userIDs
     app.post("/api/user/namesfromids", async (request: Request, response: Response) => {
         // Establish user and body, temp user object
@@ -77,6 +142,7 @@ export function route(app: Express, db: Connection) {
         // Send result
         response.send(JSON.stringify(names));
     });
+    */
 
     app.get("/api/user/oobe", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
