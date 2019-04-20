@@ -22,6 +22,7 @@ interface State {
   events: any;
   style: any;
   height: any;
+  alert: any;
 }
 var today = new Date();
 var y = today.getFullYear();
@@ -80,13 +81,6 @@ const events = [
   }
 ];
 
-/**
- *
- */
-
-const style = {
-  "min-height": 500
-};
 
 export class Calendar extends Component<Props, State> {
   constructor(props: Props) {
@@ -94,17 +88,60 @@ export class Calendar extends Component<Props, State> {
     this.state = {
       events: events,
       style: "",
-      height: "100vh"
+      height: "100vh",
+      alert: null 
     };
   }
+
+  addNewEvent(e: any, slotInfo:any) {
+    var newEvents = this.state.events;
+    newEvents.push({
+      title: e,
+      start: slotInfo.start,
+      end: slotInfo.end
+    });
+    this.setState({
+      alert: null,
+      events: newEvents
+    });
+  }
+//   addNewEventAlert(slotInfo: any) {
+//     this.setState({
+//       alert: (
+//         <SweetAlert
+//           input
+//           showCancel
+//           style={{ display: "block", marginTop: "-100px" }}
+//           title="Input something"
+//           onConfirm={e => this.addNewEvent(e, slotInfo)}
+//           onCancel={() => this.hideAlert()}
+//           confirmBtnBsStyle="info"
+//           cancelBtnBsStyle="danger"
+//         />
+//       )
+//     });
+//   }
 
   /**
    * @override
    */
   public render(): ReactNode {
+      
     return (
-      //   <div style={{ height: 700 }}>
       <div className="rbc-calendar">
+        <BigCalendar
+          selectable
+          localizer={localizer}
+          events={this.state.events}
+          startAccessor="start"
+          endAccessor="end"
+        //   onSelectSlot={slotInfo => this.addNewEventAlert(slotInfo)}
+        />
+      </div>
+    );
+  }
+}
+
         {/* <BigCalendar
           events={this.state.events}
           views={allViews}
@@ -113,15 +150,3 @@ export class Calendar extends Component<Props, State> {
           defaultDate={new Date(2015, 3, 1)}
           localizer={localizer}
         /> */}
-        <BigCalendar
-          selectable
-          localizer={localizer}
-          events={this.state.events}
-          startAccessor="start"
-          endAccessor="end"
-          //   style={{ height: "100vh" }}
-        />
-      </div>
-    );
-  }
-}
