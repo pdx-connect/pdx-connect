@@ -35,6 +35,7 @@
 .rbc-event-label,
 .rbc-row-segment .rbc-event-content,
 .rbc-show-more {
+  background-color:yellowgreen; /* remove later */
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
