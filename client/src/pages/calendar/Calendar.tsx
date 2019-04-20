@@ -1,8 +1,19 @@
 import * as React from "react";
 import { Component, ReactNode } from "react";
-import BigCalendar, { BigCalendarProps, Navigate, View, DateRange, DateLocalizer, ToolbarProps, EventProps, EventWrapperProps } from "react-big-calendar";
+import BigCalendar, {
+  BigCalendarProps,
+  Navigate,
+  View,
+  DateRange,
+  DateLocalizer,
+  ToolbarProps,
+  EventProps,
+  EventWrapperProps
+} from "react-big-calendar";
 import moment from "moment";
 
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import "./Calendar.css";
 const localizer = BigCalendar.momentLocalizer(moment);
 
 interface Props {}
@@ -92,23 +103,24 @@ export class Calendar extends Component<Props, State> {
    */
   public render(): ReactNode {
     return (
-      <div style={{ height: 700 }}>
-      <BigCalendar
+      //   <div style={{ height: 700 }}>
+      <div className="rbc-calendar">
+        {/* <BigCalendar
           events={this.state.events}
           views={allViews}
           step={60}
           showMultiDayTimes
           defaultDate={new Date(2015, 3, 1)}
           localizer={localizer}
-      />
-        {/* <BigCalendar
+        /> */}
+        <BigCalendar
           selectable
           localizer={localizer}
           events={this.state.events}
           startAccessor="start"
           endAccessor="end"
-        //   style={{ height: "100vh" }}
-        /> */}
+          //   style={{ height: "100vh" }}
+        />
       </div>
     );
   }
