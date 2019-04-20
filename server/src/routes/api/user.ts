@@ -14,7 +14,6 @@ export function route(app: Express, db: Connection) {
             userID: user != null ? user.id: void 0,
         }));
     });
-
     // Post the user name to the database.
     app.post("/api/user/name", async (request: Request, response: Response) => {
         if (typeof request.body !== "string") {
@@ -35,6 +34,50 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+
+    // Get user names from userIDs
+    app.post("/api/user/namesfromids", async (request: Request, response: Response) => {
+        // Establish user and body, temp user object
+        const user: User|undefined = request.user;
+        const body: {userID: number}[] = request.body;
+        let fromDB: User|undefined = undefined;
+        // Define array used to store/send information
+        let names: {
+            userID: number
+            userName: string|undefined
+        }[] = [];
+        // Handle user not logged in
+        if (user == null) {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+            return;
+        }
+        // Handle bad body
+        if (body == null) {
+            response.send(JSON.stringify({
+                error: "Improper request format"
+            }));
+            return;
+        }
+        // Iterate over every requested userID
+        for (let i = 0; i < body.length; ++i) {
+            fromDB = await User.findOne({
+                where: {
+                    id: body[i].userID
+                }
+            });
+            // Push either the username or undefined, depending on query results
+            if (fromDB != null) {
+                names.push({userID: fromDB.id, userName: fromDB.displayName});
+            } else {
+                names.push({userID: body[i].userID, userName: undefined});
+            }
+        }
+        // Send result
+        response.send(JSON.stringify(names));
+    });
+
     app.get("/api/user/oobe", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         response.send(JSON.stringify({
