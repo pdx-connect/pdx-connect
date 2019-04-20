@@ -36,6 +36,8 @@ interface State extends SubState {
     error: { [key in keyof SubState]: boolean };
     disabled: { [key in keyof SubState]: boolean };
     selectedOptions: OptionType[];
+    selectedMajors: OptionType[];
+    selectedInterests: OptionType[];
 }
 
 
@@ -76,6 +78,8 @@ export class Profile extends Component<Props, State> {
                 'description': true
             },
             selectedOptions: [],
+            selectedMajors: [],
+            selectedInterests: [],
         };
     }
 
@@ -124,17 +128,30 @@ export class Profile extends Component<Props, State> {
         this.getmajors();
     }
 
+    // New function to handle change in Majors
+    private readonly handleMajorChange = (value: ValueType<OptionType>, action: ActionMeta) => {
+        let selectedMajors: OptionType[];
+        if (value == null) {
+            selectedMajors = [];
+        } else if (Array.isArray(value)) {
+            selectedMajors = value;
+        } else {
+            selectedMajors = [value];
+        }
+        this.setState({selectedMajors});
+    };
+
     // New function to handle change in Interests
     private readonly handleInterestChange = (value: ValueType<OptionType>, action: ActionMeta) => {
-        let selectedOptions: OptionType[];
+        let selectedInterests: OptionType[];
         if (value == null) {
-            selectedOptions = [];
+            selectedInterests = [];
         } else if (Array.isArray(value)) {
-            selectedOptions = value;
+            selectedInterests = value;
         } else {
-            selectedOptions = [value];
+            selectedInterests = [value];
         }
-        this.setState({selectedOptions});
+        this.setState({selectedInterests});
     };
 
     private readonly toggle = (e: keyof SubState, state?: boolean) => {
@@ -178,14 +195,15 @@ export class Profile extends Component<Props, State> {
                 break;
             }
             case "major": {
-                const response: Response = await fetch("/api/user/major", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(this.state.major)
-                });
-                const data = await response.json();
+                // const response: Response = await fetch("/api/user/major", {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     },
+                //     body: JSON.stringify(this.state.major)
+                // });
+                // const data = await response.json();
+                const data = await postJSON("/api/user/major", this.state.major);
                 if (!('success' in data)) {
                     this.error(e, true);
                     return;
@@ -271,8 +289,8 @@ export class Profile extends Component<Props, State> {
                        <Col sm={4}>
                             <Select
                                 options={this.state.majors}
-                                value={this.state.selectedOptions}
-                                onChange={this.handleInterestChange}
+                                value={this.state.selectedMajors}
+                                onChange={this.handleMajorChange}
                             />
                        </Col>
 
@@ -309,7 +327,7 @@ export class Profile extends Component<Props, State> {
                        <Col sm={4}>
                             <Select
                                 options={interests}
-                                value={this.state.selectedOptions}
+                                value={this.state.selectedInterests}
                                 onChange={this.handleInterestChange}
                                 isMulti={true}
                             />
@@ -356,13 +374,13 @@ export class Profile extends Component<Props, State> {
                        <Col sm={4}>
                             <Form.Group className="formBasic">
                                 <Form.Control
-                                    type="text"
+                                    type="file"
                                     placeholder={currentPicture}
                                     onChange={this.handleChange}
                                     id="picture"
                                     className="generic"
                                     value={this.state.picture}
-                                    disabled={this.state.disabled['picture']}
+                                    //disabled={this.state.disabled['picture']}
                                 />
                             </Form.Group>
                        </Col>

@@ -131,7 +131,7 @@ export function route(app: Express, db: Connection) {
             major: major
         }));
     });
-    // Post major data to the database.
+    // Post major data to the database. Currently TODO
     app.post("/api/user/major", async (request: Request, response: Response) => {
         // Parse the request body
         if (typeof request.body !== "object") {
@@ -139,12 +139,47 @@ export function route(app: Express, db: Connection) {
             return;
         }
         const body: any = request.body;
-        if (!Array.isArray(body.major)) {
+        if (!Array.isArray(body.majors)) {
             response.sendStatus(400);
             return;
         }
 
-        const incomingMajor: unknown[] = body.major;
+        const incomingMajors: unknown[] = body.majors;
+
+        const user: User|undefined = request.user;
+
+        if (user != null) {
+            const profile: UserProfile|undefined = await user.profile;
+            // Show name
+            if (profile != null) {
+
+            } else {
+                // Send error response (profile has not been set up)
+                response.send(JSON.stringify({
+                    error: "Profile has not been set up."
+                }));
+            }
+        } else {
+            // User is not logged in
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
+
+    // Manage the user's commuter status
+    // Post major data to the database. Currently TODO
+    app.post("/api/user/on_campus", async (request: Request, response: Response) => {
+        // Parse the request body
+        if (typeof request.body !== "number") {
+            response.sendStatus(400);
+            return;
+        }
+        const body: any = request.body;
+        if (!Array.isArray(body.commuter)) {
+            response.sendStatus(400);
+            return;
+        }
 
         const user: User|undefined = request.user;
 
