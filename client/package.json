@@ -27,7 +27,8 @@
     "react-router-dom": "^4.3.1",
     "react-select": "^2.4.2",
     "react-switch": "^4.1.0",
-    "shared": "^0.0.1"
+    "shared": "^0.0.1",
+    "tslib": "^1.9.3"
   },
   "devDependencies": {
     "@hot-loader/react-dom": "^16.8.4",
