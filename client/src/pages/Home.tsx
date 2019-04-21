@@ -137,7 +137,7 @@ export class Home extends Page<Props, State> {
         let notifications = Object.keys(this.state.alerts);
 
         const title: { [key: string]: any } = {
-            "/": 'home',
+            "/": '',
             "/profile": 'profile',
             "/calendar": 'calendar',
             "/listings": 'listings',
