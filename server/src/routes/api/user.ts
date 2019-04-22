@@ -40,7 +40,6 @@ export function route(app: Express, db: Connection) {
         // Establish user and body, temp user object
         const user: User|undefined = request.user;
         const body: {userID: number}[] = request.body;
-        let fromDB: UserProfile|undefined = undefined;
         // Define array used to store/send information
         let profiles: {
             userID: number
@@ -63,11 +62,10 @@ export function route(app: Express, db: Connection) {
             }));
             return;
         }
-        // Iterate over every requested userID
         for (let i = 0; i < body.length; ++i) {
-            fromDB = await UserProfile.findOne({
+            let fromDB: UserProfile|undefined = await UserProfile.findOne({
                 where: {
-                    id: body[i].userID
+                    userID: body[i].userID
                 }
             });
             // Push either the username or undefined, depending on query results

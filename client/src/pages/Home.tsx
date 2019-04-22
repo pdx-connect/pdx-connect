@@ -136,6 +136,8 @@ export class Home extends Page<Props, State> {
         let messages = Object.keys(this.state.messages);
         let notifications = Object.keys(this.state.alerts);
 
+        this.testProfiles();
+
         const title: { [key: string]: any } = {
             "/": 'home',
             "/profile": 'profile',
