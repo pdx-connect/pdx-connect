@@ -1,34 +1,32 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
+import {ConversationEntry} from "./Home";
 
 
 interface Props {
+    messages: ConversationEntry[];
 }
 
 interface State {
+    messages: ConversationEntry[];
 }
 
 /**
  * 
  */
-export class Calendar extends Component<Props, State> {
+export class PopoutChat extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);
-        this.state = {
-        };
     }
-
-  
     
     /**
      * @override
      */
     public render(): ReactNode {
-
         return (
-                <pre>This is the calendar page</pre>
+            <pre>Welcome to Popout Chat{this.props.messages}</pre>
         );
     }
-
+    
 }

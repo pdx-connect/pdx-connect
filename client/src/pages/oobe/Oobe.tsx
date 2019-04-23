@@ -11,6 +11,7 @@ import {Welcome} from './Welcome';
 import {Interests} from './Interests';
 import {Personalization, Personalizations} from './Personalization';
 import {Finalize} from './Finalize';
+import {getJSON, postJSON} from "../../util/json";
 
 interface Props {
     onHide: () => void;
@@ -116,20 +117,14 @@ export class Oobe extends Component<Props, State> {
     };
 
     private readonly setInterests = async (selectedTags: number[]) => {
-        const response: Response = await fetch("/api/user/interests", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                interests: selectedTags
-            })
+        const data = await postJSON("/api/user/interests", {
+            interests: selectedTags
         });
-        const data = await response.json();
         return 'success' in data;
     };
 
     private readonly setPersonalization = async (profile: boolean, tags: boolean, miscellaneous: boolean, messages: boolean, comments: boolean): Promise<boolean> => {
+<<<<<<< HEAD:client/src/pages/profile/Oobe.tsx
         const response: Response = await fetch("/api/user/personalization", {
             method: 'POST',
             headers: {
@@ -142,8 +137,15 @@ export class Oobe extends Component<Props, State> {
                 isDirectMessage: messages,
                 isProfileComment: comments
             })
+=======
+        const data = await postJSON("/api/user/personalization", {
+            isPublic: profile,
+            isTags: tags,
+            isMiscellaneous: miscellaneous,
+            isDirectMessage: messages,
+            isProfileComment: comments
+>>>>>>> persson/messaging-client-and-server:client/src/pages/oobe/Oobe.tsx
         });
-        const data = await response.json();
         return 'success' in data;
     };
 
@@ -171,13 +173,7 @@ export class Oobe extends Component<Props, State> {
     };
 
     private readonly getTags = async () => {
-        const response: Response = await fetch("/api/tags", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        const data = await response.json();
+        const data = await getJSON("/api/tags");
         if (!Array.isArray(data)) {
             // Not logged in, throw exception
             throw data;
