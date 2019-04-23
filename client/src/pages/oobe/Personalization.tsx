@@ -2,7 +2,7 @@ import * as React from "react";
 import {Component} from "react";
 import {Container, Row, Col, Modal} from "react-bootstrap";
 import Switch from 'react-switch';
-import "./Profile.css";
+import "./oobe.css";
 import { FaInfo } from "react-icons/fa";
 
 import {Tags} from "./preferences/Tags";

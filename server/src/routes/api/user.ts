@@ -278,4 +278,51 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
         }
     });
+    app.post("/api/user/major", async (request: Request, response: Response) => {
+        // Parse the request body
+        if (typeof request.body !== "object") {
+            response.sendStatus(400);
+            return;
+        }
+        const body: any = request.body;
+        if (!body.major) {
+            response.sendStatus(400);
+            return;
+        }
+
+        // Verify inputs
+        const id: number = body.id;
+
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const profile: UserProfile|undefined = await user.profile;
+            if (profile != null) {
+                const tag: Tag | undefined =  await Tag.findOne({where: {id: id}});
+
+                if (tag != null) {
+                    profile.major = tag;
+                    await profile.save();
+                    // Send success response
+                    response.send(JSON.stringify({
+                        success: true
+                    }));
+                } else {
+                    // Send error response
+                    response.send(JSON.stringify({
+                        error: "Invalid ID for major tag."
+                    }));
+                }
+            } else {
+                // Send error response
+                response.send(JSON.stringify({
+                    error: "Profile has not been set up."
+                }));
+            }
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
+    
 }

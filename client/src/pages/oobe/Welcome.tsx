@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Component} from "react";
 import {Container, Row, Col} from "react-bootstrap";
-import "./Profile.css";
+import "./oobe.css";
 
 interface Props {
 }
