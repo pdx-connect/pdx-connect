@@ -47,6 +47,7 @@ export function route(app: Express, db: Connection) {
             major: string|null
             onCampus: boolean|null
             description: string|null
+            tags: string[]|null
         }[] = [];
         // Handle user not logged in
         if (user == null) {
@@ -68,21 +69,27 @@ export function route(app: Express, db: Connection) {
                     userID: body[i].userID
                 }
             });
-            // Push either the username or undefined, depending on query results
+            // Push either the username or undefined, depending on query results 
             if (fromDB != null) {
-                let majorTag: Tag|null = await fromDB.major
+                let majorTag: Tag|null = await fromDB.major;
                 let major: string|null = null;
+                let tagsObjs: Tag[]|null = await fromDB.interests;
+                let tags: string[]|null = [];
                 if (majorTag != null) {
-                    let major: string = majorTag.name
-                } else {
-                    let major = null;
+                    major = majorTag.name
+                }
+                if (tagsObjs != null) {
+                    for (let i = 0; i < tagsObjs.length; ++i) {
+                        tags.push(tagsObjs[i].name);
+                    }
                 }
                 profiles.push({
                     userID: fromDB.userID, 
                     userName: (await fromDB.user).displayName,
                     major: major,
                     onCampus: fromDB.isOnCampus,
-                    description: fromDB.description
+                    description: fromDB.description, 
+                    tags: tags
                 });
             } else {
                 profiles.push({
@@ -90,7 +97,8 @@ export function route(app: Express, db: Connection) {
                     userName: null,
                     major: null,
                     onCampus: null,
-                    description: null
+                    description: null,
+                    tags: null
                 });
             }
         }
