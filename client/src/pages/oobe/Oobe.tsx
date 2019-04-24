@@ -85,7 +85,7 @@ export class Oobe extends Component<Props, State> {
         this.state = {
             step: 1,
             selectedInterests: [],
-            selectedCommuterStatus: [],
+            selectedCommuterStatus: [{ value: 'true', label: 'On Campus'}],
             selectedMajor: [],
             personalizations: {
                 profile: true,
@@ -238,14 +238,13 @@ export class Oobe extends Component<Props, State> {
                     }
                 }
 
-                //if(this.state.selectedCommuterStatus[0].value === 'true')
-                //    await this.setCommuterStatus(true);
+                if(this.state.selectedCommuterStatus[0].value === 'true')
+                    await this.setCommuterStatus(true);
 
-                //if(this.state.selectedCommuterStatus[0].value === 'false')
-                //    await this.setCommuterStatus(false);
+                if(this.state.selectedCommuterStatus[0].value === 'false')
+                    await this.setCommuterStatus(false);
 
-                if (this.state.selectedMajor != null) {
-                    
+                if (this.state.selectedMajor.length != 0) {
                     const id: number = Number.parseInt(this.state.selectedMajor[0].value);
                     if (Number.isNaN(id)) {
                         throw new Error("Option value is not a number!");
