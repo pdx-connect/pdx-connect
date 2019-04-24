@@ -26,6 +26,10 @@ interface SubState {
         label: string;
     }[];
     commuter: string;
+    comm_status: {
+        value: string;
+        label: string;
+    }[];
     interests: [];
     optInEmail: string;
     picture: string;
@@ -53,6 +57,7 @@ export class Profile extends Component<Props, State> {
             major: "",
             majors: [],
             commuter: "",
+            comm_status: [],
             interests: [],
             optInEmail: "",
             picture: "",
@@ -62,6 +67,7 @@ export class Profile extends Component<Props, State> {
                 'major': false,
                 'majors': false,
                 'commuter': false,
+                'comm_status': false,
                 'interests': false,
                 'optInEmail': false,
                 'picture': false,
@@ -72,6 +78,7 @@ export class Profile extends Component<Props, State> {
                 'major': true,
                 'majors': true,
                 'commuter': true,
+                'comm_status': true,
                 'interests': true,
                 'optInEmail': true,
                 'picture': true,
@@ -109,6 +116,31 @@ export class Profile extends Component<Props, State> {
         });
     }
 
+    private readonly getcommuter = async () => {
+        const response: Response = await fetch("/api/user/on_campus", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const commuter: {
+            id: number;
+            name: string;
+        }[] = await response.json();
+
+        const c_status = commuter.map(t => {
+            return {
+                value: t.id.toString(),
+                label: t.name
+            };
+        });
+        
+        this.setState({
+            comm_status: c_status
+        });
+    }
+
     /**
      * @override
      */
@@ -139,6 +171,12 @@ export class Profile extends Component<Props, State> {
             selectedMajors = [value];
         }
         this.setState({selectedMajors});
+        console.log(selectedMajors);
+        console.log(selectedMajors[0]);
+        this.setState({
+            major: selectedMajors[0].label
+        });
+        console.log(this.state.major);
     };
 
     // New function to handle change in Interests
@@ -183,6 +221,7 @@ export class Profile extends Component<Props, State> {
         console.log('TODO: user wants to update profile setting: ', e);
         // Update specific profile information and send changes to the
         // DB
+        
         switch (e) {
             case "displayName": {
                 const data = await postJSON("/api/user/name", this.state.displayName);
@@ -194,16 +233,19 @@ export class Profile extends Component<Props, State> {
                 }
                 break;
             }
-            case "major": {
-                // const response: Response = await fetch("/api/user/major", {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json'
-                //     },
-                //     body: JSON.stringify(this.state.major)
-                // });
-                // const data = await response.json();
-                const data = await postJSON("/api/user/major", this.state.major);
+            case "major": {                
+                const data = await postJSON("/api/user/major", {
+                    major: Number.parseInt(this.state.selectedMajors[0].value)
+                });
+
+                if (!('success' in data)) {
+                    this.error(e, true);
+                    return;
+                }
+                break;
+            }
+            case "commuter": {
+                const data = await postJSON("/api/user/on_campus", this.state.comm_status);
                 if (!('success' in data)) {
                     this.error(e, true);
                     return;
@@ -315,7 +357,9 @@ export class Profile extends Component<Props, State> {
                        <Col sm={4} className="label">commuter</Col>
 
                        <Col sm={4}>
-                            <Select options={commuterOptions} />
+                            <Select 
+                                options={commuterOptions} 
+                            />
                        </Col>
                        
                        <Col sm={4} className="edit"></Col>

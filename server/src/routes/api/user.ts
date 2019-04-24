@@ -133,27 +133,51 @@ export function route(app: Express, db: Connection) {
             major: major
         }));
     });
-    // Post major data to the database. Currently TODO
+    // Post major data to the database. 
     app.post("/api/user/major", async (request: Request, response: Response) => {
         // Parse the request body
+        // It should be an object.
         if (typeof request.body !== "object") {
             response.sendStatus(400);
             return;
         }
+
+        // Get the request and the major.
         const body: any = request.body;
-        if (!Array.isArray(body.majors)) {
+        const incomingMajor: unknown = body.major;
+
+        // The incoming major should be a number.
+        if (typeof incomingMajor !== "number") {
             response.sendStatus(400);
             return;
         }
-
-        const incomingMajors: unknown[] = body.majors;
 
         const user: User|undefined = request.user;
 
         if (user != null) {
             const profile: UserProfile|undefined = await user.profile;
-            // Show name
+            // Find a major whose ID matches what is selected.
             if (profile != null) {
+                const incomingTag: Tag | undefined = await Tag.findOne({
+                    where: {
+                        id: incomingMajor
+                    }
+                });
+                
+                // Tag should not be null
+                if (incomingTag != null) {
+                    profile.major = Promise.resolve(incomingTag);
+                    await profile.save();
+                    // Send success response
+                    response.send(JSON.stringify({
+                        success: true
+                    }));
+                } else {
+                    // Send error response
+                    response.send(JSON.stringify({
+                        error: "Invalid ID for major tag."
+                    }));
+                }
 
             } else {
                 // Send error response (profile has not been set up)
@@ -178,10 +202,6 @@ export function route(app: Express, db: Connection) {
             return;
         }
         const body: any = request.body;
-        if (!Array.isArray(body.commuter)) {
-            response.sendStatus(400);
-            return;
-        }
 
         const user: User|undefined = request.user;
 
@@ -189,7 +209,8 @@ export function route(app: Express, db: Connection) {
             const profile: UserProfile|undefined = await user.profile;
             // Show name
             if (profile != null) {
-
+                    // TODO
+                    
             } else {
                 // Send error response (profile has not been set up)
                 response.send(JSON.stringify({
