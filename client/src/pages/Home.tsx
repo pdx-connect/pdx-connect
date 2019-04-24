@@ -130,13 +130,13 @@ export class Home extends Page<Props, State> {
         this.logUserOut().then();
     };
 
-    // private readonly getMessages = () => {
-    //     if (this.socket) {
-    //         return this.socket.current.state.messages;
-    //     } else {
-    //         return [];
-    //     }
-    // };
+    private readonly getMessages = () => {
+        if (this.state.conversations) {
+            return this.state.conversations;
+        } else {
+            return [];
+        }
+    };
 
     private readonly getSendMessages = () => {
         if (this.socket) {
@@ -269,7 +269,12 @@ export class Home extends Page<Props, State> {
                                 />
                                 <Route path="/calendar" component={Calendar} />
                                 <Route path="/listings" component={Listings} />
-                                <Route path="/inbox" component={Inbox} conversations={this.state.conversations} sendMessage={this.getSendMessages()} getMoreMessages={this.getGetMoreMessages()} seenRecent={this.getSeenRecent()} userID={this.state.userID}/>
+                                <Route path="/inbox" 
+                                       render={(props) => <Inbox {...props} conversations={this.getMessages()} 
+                                                                            sendMessage={this.getSendMessages()} 
+                                                                            getMoreMessages={this.getGetMoreMessages()} 
+                                                                            seenRecent={this.getSeenRecent()} 
+                                                                            userID={this.state.userID ? this.state.userID : 0}/>}></Route>
                                 <Route
                                     path="/search-results"
                                     render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}
