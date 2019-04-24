@@ -124,27 +124,12 @@ export class Oobe extends Component<Props, State> {
     };
 
     private readonly setPersonalization = async (profile: boolean, tags: boolean, miscellaneous: boolean, messages: boolean, comments: boolean): Promise<boolean> => {
-<<<<<<< HEAD:client/src/pages/profile/Oobe.tsx
-        const response: Response = await fetch("/api/user/personalization", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                isPublic: profile,
-                isTags: tags,
-                isMiscellaneous: miscellaneous,
-                isDirectMessage: messages,
-                isProfileComment: comments
-            })
-=======
         const data = await postJSON("/api/user/personalization", {
             isPublic: profile,
             isTags: tags,
             isMiscellaneous: miscellaneous,
             isDirectMessage: messages,
             isProfileComment: comments
->>>>>>> persson/messaging-client-and-server:client/src/pages/oobe/Oobe.tsx
         });
         return 'success' in data;
     };
