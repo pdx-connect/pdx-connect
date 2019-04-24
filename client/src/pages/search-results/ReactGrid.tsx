@@ -40,7 +40,6 @@ export class ReactGrid extends Component<Props, State> {
             if (this.props.searchField != null) {
                 const results = this.getResults(this.props.searchBy, this.props.searchField).then();
             }
-            console.log("Filters:", this.state.filters)
         }
     };
 
@@ -63,14 +62,12 @@ export class ReactGrid extends Component<Props, State> {
         else {
             const tags = this.getTags().then(tag=> {this.setState({tags : tag})})
             let tag = this.state.tags.map(x => x.name)
-            console.log(tag)
             return tag
         }
     }
     
     private getRows(rows: any, filters: any) {
         const selectors = Data.Selectors;
-        console.log("Getrows:", filters)
         return selectors.getRows({ rows, filters });
     }
 
@@ -110,7 +107,6 @@ export class ReactGrid extends Component<Props, State> {
 
     public render(): ReactNode {
         const filteredRows = this.getRows(this.state.rows, this.state.filters);
-        console.log("FilteredRows:", filteredRows)
         const columns = [
             { key: "displayName", name: "Name", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
             { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
@@ -123,7 +119,6 @@ export class ReactGrid extends Component<Props, State> {
             } else {
                 delete newFilters[filter.column.key];
             }
-            console.log("Newfilters:", newFilters)
             return newFilters;
         };
 
