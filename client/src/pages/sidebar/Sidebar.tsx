@@ -7,7 +7,7 @@ import "./Sidebar.css";
 
 
 interface Props {
-    displayName: string | undefined;
+    displayName?: string;
     updateHistory: (value: string) => void,
 }
 
@@ -21,20 +21,17 @@ export class Sidebar extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);
-        this.state = {
-        };
+        this.state = {};
     }
 
-  
-    
     /**
      * @override
      */
     public render(): ReactNode {
-
         let displayName = this.props.displayName;
-        if(displayName === undefined)
+        if (displayName == null) {
             displayName = "";
+        }
 
         return (
                 <Menu width={'25%'}>

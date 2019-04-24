@@ -151,3 +151,72 @@
     font-family: 'Varela Round', sans-serif;
     margin: 0 auto;
 }
+
+.home-content
+{
+    margin-bottom: 100px;
+}
+
+.home-content-sub-title
+{
+    color: #565656;
+    letter-spacing: 1vw;
+    text-align: center;
+    font-size: 3vw;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.home-content-button
+{
+    background-color: #9fc1c0;
+    width: 100%;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: .4vw;
+    font-weight: bold;
+    font-size: 1em;
+    height: 100%;
+    font-family: 'Varela Round', sans-serif;
+}
+
+.event-card, .listing-card
+{
+    margin-bottom: 2%;
+    font-family: 'Varela Round', sans-serif;
+    color: #565656;
+}
+
+.listing-header
+{
+    background-color: #c5e06f;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .4vw;
+    font-weight: bold;
+    color: #297d7d;
+}
+
+.event-header
+{
+    background-color: #297d7d;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .4vw;
+    font-weight: bold;
+    color: #c5e06f;
+}
+
+.description
+{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cards
+{
+    /*TODO: set dynamically getting window height*/
+    max-height: 600px;
+    overflow-y: scroll;
+}
