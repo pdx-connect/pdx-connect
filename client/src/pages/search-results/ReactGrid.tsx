@@ -132,6 +132,7 @@ export class ReactGrid extends Component<Props, State> {
                 columns={columns}
                 rowGetter={i => filteredRows[i]}
                 rowsCount={this.state.rows.length}
+                rowHeight={40}
                 minHeight={500}
                 toolbar={<Toolbar enableFilter={true} />}
                 onAddFilter={filter => this.setState({filters : handleFilterChange(filter) })}

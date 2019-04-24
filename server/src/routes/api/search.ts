@@ -25,21 +25,52 @@ export function route(app: Express, db: Connection) {
 
                    if(user_profile != undefined){
                        const major_tag: Tag|undefined|null = await user_profile.major;
+                       const user_tags: Tag[] = await user_profile.interests;
 
                        if(major_tag != null){
+                           if(user_tags && user_tags.length){
+                                let tags_modified = "Tags: "
+                                for(var i = 0; i < user_tags.length; ++i){
+                                    tags_modified = tags_modified.concat(await user_tags[i].name)
+                                    if(i < user_tags.length - 1){
+                                        tags_modified = tags_modified.concat(", ")
+                                    }
+                                }
+                                return {
+                                   userID: user.id,
+                                   displayName: user.displayName,
+                                   major: await major_tag.name,
+                                   tags: await tags_modified
+                                }
+                           }
                            return {
                                userID: user.id,
                                displayName: user.displayName,
                                major: await major_tag.name,
-                               tags: "Tags: Food"
+                               tags: "Tags: Not Set"
                            };
+                       }
+                       else if(user_tags && user_tags.length){
+                            let tags_modified = "Tags: "
+                            for(var i = 0; i < user_tags.length; ++i){
+                                tags_modified = tags_modified.concat(await user_tags[i].name)
+                                if(i < user_tags.length - 1){
+                                    tags_modified = tags_modified.concat(", ")
+                                }
+                            }
+                            return{
+                                userID: user.id,
+                                displayName: user.displayName,
+                                major: "Not Set",
+                                tags: await tags_modified
+                           }
                        }
                    }
                    return {
                        userID: user.id,
                        displayName: user.displayName,
-                       major: "Not set",
-                       tags: "Tags: Language, Portland, Books"
+                       major: "Not Set",
+                       tags: "Tags: Not Set"
                    };
                }))
            } else {
