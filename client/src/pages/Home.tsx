@@ -64,7 +64,6 @@ export class Home extends Page<Props, State> {
     private readonly getUserOOBE = async () => {
         const data = await getJSON("/api/user/oobe");
         this.setState({showOobe: !data.oobe});
-        //this.setState({showOobe: data.oobe});
     };
 
     private readonly logUserOut = async() => {
