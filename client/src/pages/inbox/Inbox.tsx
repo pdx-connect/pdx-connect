@@ -12,12 +12,7 @@ interface Props {
     sendMessage: (conversationID: number, msg: string) => void;
     getMoreMessages: (conversationID: number) => void;
     seenRecent: (conversationID: number, time: number) => void;
-<<<<<<< HEAD:client/src/pages/Inbox.tsx
-    //conversations: ConversationEntry[];
-=======
     conversations: ConversationEntry[];
->>>>>>> persson/messaging-client-and-server:client/src/pages/inbox/Inbox.tsx
-    newMessageCount: number;
 }
 
 interface State {

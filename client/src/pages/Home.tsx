@@ -159,7 +159,6 @@ export class Home extends Page<Props, State> {
             "/calendar": Calendar,
             "/listings": Listings,
             "/inbox": Inbox,
-//            "/settings": Settings,
             "/search-results": SearchResults
         };
         let messages = []
