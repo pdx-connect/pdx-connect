@@ -60,7 +60,7 @@ function getValidFilterValues(rows : any, columnId : any) {
     else {
         let tags = tag
         console.log("Tags:", tags)
-        return ["Science", "Museums", "Art boy"]
+        return ["Food", "Languages"]
     }
 }
 

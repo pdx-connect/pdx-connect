@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Component, ReactNode, useState} from "react";
+import {Component, ReactNode} from "react";
 import ReactDataGrid from 'react-data-grid';
 import "./SearchResults.css"
 import { Toolbar, Data, Filters } from "react-data-grid-addons"
@@ -18,6 +18,11 @@ interface State {
     }[];
     filters: any;
 }
+
+const {
+    MultiSelectFilter,
+    AutoCompleteFilter,
+} = Filters;
 
 export class ReactGrid extends Component<Props, State> {
     constructor(props : Props) {
@@ -58,6 +63,7 @@ export class ReactGrid extends Component<Props, State> {
         else {
             const tags = this.getTags().then(tag=> {this.setState({tags : tag})})
             let tag = this.state.tags.map(x => x.name)
+            console.log(tag)
             return tag
         }
     }
@@ -104,10 +110,11 @@ export class ReactGrid extends Component<Props, State> {
 
     public render(): ReactNode {
         const filteredRows = this.getRows(this.state.rows, this.state.filters);
+        console.log("FilteredRows:", filteredRows)
         const columns = [
-            { key: "displayName", name: "Name", editable: false, filterable: true, filterRenderer: Filters.AutoCompleteFilter},
-            { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: Filters.AutoCompleteFilter},
-            { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: Filters.MultiSelectFilter}
+            { key: "displayName", name: "Name", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
+            { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
+            { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: AutoCompleteFilter}
         ];
         const handleFilterChange = (filter: any) => {
             const newFilters = { ...this.state.filters };
