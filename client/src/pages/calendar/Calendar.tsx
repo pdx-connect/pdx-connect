@@ -11,9 +11,11 @@ import BigCalendar, {
   EventWrapperProps
 } from "react-big-calendar";
 import moment from "moment";
+import SweetAlert from "react-bootstrap-sweetalert";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./Calendar.css";
+// import { any } from 'prop-types';
 const localizer = BigCalendar.momentLocalizer(moment);
 
 interface Props {}
@@ -81,7 +83,6 @@ const events = [
   }
 ];
 
-
 export class Calendar extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -89,11 +90,66 @@ export class Calendar extends Component<Props, State> {
       events: events,
       style: "",
       height: "100vh",
-      alert: null 
+      alert: null
     };
   }
 
-  addNewEvent(e: any, slotInfo:any) {
+  hideAlert = () => {
+    this.setState({
+      alert: null
+    });
+  };
+
+  alertCustom() {
+    <SweetAlert title="Here's a message!" onConfirm={this.hideAlert} />;
+  }
+
+  addNewEventAlert(slotInfo: any) {
+    this.setState({
+      alert: (
+        <SweetAlert
+          input
+          showCancel
+          style={{ display: "block", marginTop: "-100px" }}
+          title="Enter Event"
+          onConfirm={e => this.addNewEvent(e, slotInfo)}
+          onCancel={() => this.hideAlert()}
+          confirmBtnBsStyle="info"
+          cancelBtnBsStyle="danger"
+        />
+      )
+    });
+  }
+
+//   addNewEventAlert = (slotInfo: any) => {
+//     const getAlert = () => (
+//         <SweetAlert
+//         warning
+//         showCancel
+//         confirmBtnText="Yes!"
+//         confirmBtnBsStyle="danger"
+//         cancelBtnBsStyle="default"
+//         title="Are you sure you want to delete this project?"
+//         onConfirm={() => this.deleteFile()}
+//         // onCancel={() => this.onCancelDelete()}
+//         >
+//         You will not be able to recover this project!
+//     </SweetAlert>)
+//     this.setState({
+//         alert: getAlert()
+//     });
+    // this.setState({
+    //     alert: ( <
+    //         SweetAlert success title = "Woot!"
+    //         onConfirm = {
+    //             () => this.hideAlert()
+    //         } >
+    //         Hello world!
+    //         </SweetAlert>
+    //     )
+//     // });
+//   };
+  addNewEvent = (e: any, slotInfo: any) => {
     var newEvents = this.state.events;
     newEvents.push({
       title: e,
@@ -104,49 +160,43 @@ export class Calendar extends Component<Props, State> {
       alert: null,
       events: newEvents
     });
-  }
-//   addNewEventAlert(slotInfo: any) {
-//     this.setState({
-//       alert: (
-//         <SweetAlert
-//           input
-//           showCancel
-//           style={{ display: "block", marginTop: "-100px" }}
-//           title="Input something"
-//           onConfirm={e => this.addNewEvent(e, slotInfo)}
-//           onCancel={() => this.hideAlert()}
-//           confirmBtnBsStyle="info"
-//           cancelBtnBsStyle="danger"
-//         />
-//       )
-//     });
-//   }
+  };
 
   /**
    * @override
    */
   public render(): ReactNode {
-      
     return (
       <div className="rbc-calendar">
+        {this.state.alert}
         <BigCalendar
           selectable
           localizer={localizer}
           events={this.state.events}
           startAccessor="start"
           endAccessor="end"
-        //   onSelectSlot={slotInfo => this.addNewEventAlert(slotInfo)}
+          //   onSelectSlot={slotInfo => this.addNewEventAlert(slotInfo)}
+          onSelectSlot={slotInfo => {
+            const start = slotInfo.start;
+            const end = slotInfo.end;
+            const slots = slotInfo.slots;
+            console.log(start, end, slots);
+            this.addNewEventAlert(slotInfo);
+            // this.alertCustom();
+          }}
         />
       </div>
     );
   }
 }
 
-        {/* <BigCalendar
+{
+  /* <BigCalendar
           events={this.state.events}
           views={allViews}
           step={60}
           showMultiDayTimes
           defaultDate={new Date(2015, 3, 1)}
           localizer={localizer}
-        /> */}
+        /> */
+}

@@ -2,6 +2,7 @@
   "extends": "../../tsconfig-base.json",
   "compilerOptions": {
     "outDir": "../.build",
+    "noImplicitAny": false,
     "target": "es5",
     "lib": [
       "dom",
