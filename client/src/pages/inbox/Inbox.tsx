@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
-import {ConversationEntry} from "../Home";
+import {Message, ConversationEntry} from "../Home";
 import "./Inbox.css";
 
 interface Props {
@@ -177,24 +177,17 @@ export class Inbox extends Component<Props, State> {
 
     private readonly onSubmit = (e: any) => {
         e.preventDefault();
-
-
-
-        //
-        // Message sending code goes here
-        //
-
         
-        //this.props.sendMessage(this.state.textField, );
-
-
-
+        //
+        // Message code goes here
+        //
+        this.props.sendMessage(this.state.textField, this.state.currentConversation, null);        
 
         console.log(this.state.textField);
         this.setState({textField: ""});
         //this.props.onSendMessage(this.state.textField)
     }
-    
+
     private readonly getInbox = () => {
         let rows = [];
         for (let i=0; i<this.props.conversations.length; i++) {
@@ -225,7 +218,6 @@ export class Inbox extends Component<Props, State> {
     private readonly getMessages = () => {
         let rows = [];
         for (let i=0; i<this.props.conversations[this.state.currentConversation].entries.length; i++) {
-            //if (this.props.conversations[0].entries[i].userID == 6) {
             if (this.props.conversations[0].entries[i].userID == this.props.userID) {
                  rows.push(
                     <Row key={i} className="my-message">
@@ -248,7 +240,8 @@ export class Inbox extends Component<Props, State> {
      * @override
      */
     public render(): ReactNode {
-
+        console.log("Test in inbox");
+        console.log(this.props.conversations);
             /* 
             
             == Default view of inbox page ==

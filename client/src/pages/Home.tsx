@@ -129,12 +129,13 @@ export class Home extends Page<Props, State> {
         this.logUserOut().then();
     };
 
-
     private readonly getMessages = () => {
         if (this.socket && this.socket.current) {
+            console.log("Test in home");
+            console.log(this.socket.current.state.messages);
             return this.socket.current.state.messages;
         } else {
-            return () => {};
+            return [];
         }
     };
 
@@ -205,7 +206,7 @@ export class Home extends Page<Props, State> {
 
         return (
         <Container fluid className="home">
-            <Socket ref={this.socket}></Socket>
+            <Socket ref={this.socket}/>
             <Row className="topRow">
                 <Sidebar displayName={this.state.displayName} updateHistory={this.updateHistory}/>
                 <Col sm={1} md={1} className="topLeft"></Col>
@@ -256,7 +257,7 @@ export class Home extends Page<Props, State> {
                                 />
                                 <Route path="/calendar" component={Calendar} />
                                 <Route path="/listings" component={Listings} />
-                                <Route path="/inbox" component={Inbox} conversations={this.getMessages} sendMessage={this.getSendMessages} getMoreMessages={this.getGetMoreMessages} userID={this.state.userID} />
+                                <Route path="/inbox" component={Inbox} conversations={this.getMessages()} sendMessage={this.getSendMessages()} getMoreMessages={this.getGetMoreMessages()} userID={this.state.userID}/>
                                 <Route
                                     path="/search-results"
                                     render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}
