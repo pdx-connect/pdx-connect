@@ -40,7 +40,7 @@ export class Socket {
         //this.getUnreadMessages();
         //Put in Home
         
-        // Establish behavior of connection
+        // Establish behavior of connection 
         this.socket.onopen = () => {
             // When a message is received, do...
             if( this.socket != null ) { // TODO: this check is a hacky work around

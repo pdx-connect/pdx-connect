@@ -193,50 +193,75 @@ export class Inbox extends Component<Props, State> {
 
     private readonly getInbox = () => {
         let rows = [];
-        for (let i=0; i<this.props.conversations.length; i++) {
-            if (i == this.state.currentConversation) {
-                rows.push(
-                    <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="open-conversation">
-                        <Col key={i} sm={12}>
-                            Message from: user {this.props.conversations[i].entries[0].userID}
-                            Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
-                        </Col>
-                    </Row>
-                );
+        if (this.props.conversations != null) {
+            for (let i=0; i<this.props.conversations.length; i++) {
+                if (i == this.state.currentConversation) {
+                    rows.push(
+                        <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="open-conversation">
+                            <Col key={i} sm={12}>
+                                Message from: user {this.props.conversations[i].entries[0].userID}
+                                Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
+                            </Col>
+                        </Row>
+                    );
+                }
+                else {
+                    rows.push(
+                        <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="conversation">
+                            <Col key={i} sm={12}>
+                                Message from: user {this.props.conversations[i].entries[0].userID}
+                                Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
+                            </Col>
+                        </Row>
+                    );
+                }
             }
-            else {
-                rows.push(
-                    <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="conversation">
-                        <Col key={i} sm={12}>
-                            Message from: user {this.props.conversations[i].entries[0].userID}
-                            Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
-                        </Col>
-                    </Row>
-                );
-            }
+        } else {
+            rows.push(
+            <Row key={0} className="no-message">
+                <Col key={0} sm={12}>No conversations</Col>
+            </Row>);
         }
         return rows;
     }
 
     private readonly getMessages = () => {
         let rows = [];
-        for (let i=0; i<this.props.conversations[this.state.currentConversation].entries.length; i++) {
-            if (this.props.conversations[0].entries[i].userID == this.props.userID) {
-                 rows.push(
-                    <Row key={i} className="my-message">
-                        <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
-                    </Row>
+        if (this.props.conversations != null) {
+            for (let i=0; i<this.props.conversations[this.state.currentConversation].entries.length; i++) {
+                if (this.props.conversations[0].entries[i].userID == this.props.userID) {
+                    rows.push(
+                        <Row key={i} className="my-message">
+                            <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
+                        </Row>
+                    );
+                }
+                else {
+                    rows.push(
+                        <Row key={i} className="other-message">
+                            <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
+                        </Row>
                 );
+                }
             }
-            else {
-                rows.push(
-                    <Row key={i} className="other-message">
-                        <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
-                    </Row>
-              );
-            }
+        } else {
+            rows.push(
+            <Row key={0} className="no-message">
+                <Col key={0} sm={12}>No messages</Col>
+            </Row>);
         }
         return rows;
+    }
+
+    /**
+     * @override
+     */
+    public shouldComponentUpdate(nextProps: Props, nextState: State) {
+        if (nextProps != this.props) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -245,6 +270,7 @@ export class Inbox extends Component<Props, State> {
     public render(): ReactNode {
         console.log("Test in inbox");
         console.log(this.props.conversations);
+        console.log(this.props.userID);
             /* 
             
             == Default view of inbox page ==
@@ -259,9 +285,8 @@ export class Inbox extends Component<Props, State> {
                 else 
                     print message left side
             */
-
-            let conversations = this.getInbox();
-            let messages = this.getMessages();
+        let messages = this.getMessages();
+        let conversations = this.getInbox();
 
         return (
 

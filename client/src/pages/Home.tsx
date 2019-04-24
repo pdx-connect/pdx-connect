@@ -204,7 +204,7 @@ export class Home extends Page<Props, State> {
             "/search-results": SearchResults
         };
         let messages = []
-        //let messages = Object.keys(this.socket.current.state.messages);
+        //let messages = Object.keys(this.socket.current.state.messages); 
         let notifications = Object.keys(this.state.alerts);
 
         const title: { [key: string]: any } = {
