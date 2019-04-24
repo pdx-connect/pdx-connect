@@ -14,8 +14,10 @@ import moment from "moment";
 import SweetAlert from "react-bootstrap-sweetalert";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import "./Calendar.css";
-// import { any } from 'prop-types';
+import "./style/Calendar.css";
+
+import * as EventService from "./services/EventService";
+
 const localizer = BigCalendar.momentLocalizer(moment);
 
 interface Props {}
@@ -87,7 +89,7 @@ export class Calendar extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      events: events,
+      events: EventService.getEvents(),
       style: "",
       height: "100vh",
       alert: null
@@ -99,10 +101,6 @@ export class Calendar extends Component<Props, State> {
       alert: null
     });
   };
-
-  alertCustom() {
-    <SweetAlert title="Here's a message!" onConfirm={this.hideAlert} />;
-  }
 
   addNewEventAlert(slotInfo: any) {
     this.setState({
@@ -121,44 +119,40 @@ export class Calendar extends Component<Props, State> {
     });
   }
 
-//   addNewEventAlert = (slotInfo: any) => {
-//     const getAlert = () => (
-//         <SweetAlert
-//         warning
-//         showCancel
-//         confirmBtnText="Yes!"
-//         confirmBtnBsStyle="danger"
-//         cancelBtnBsStyle="default"
-//         title="Are you sure you want to delete this project?"
-//         onConfirm={() => this.deleteFile()}
-//         // onCancel={() => this.onCancelDelete()}
-//         >
-//         You will not be able to recover this project!
-//     </SweetAlert>)
-//     this.setState({
-//         alert: getAlert()
-//     });
-    // this.setState({
-    //     alert: ( <
-    //         SweetAlert success title = "Woot!"
-    //         onConfirm = {
-    //             () => this.hideAlert()
-    //         } >
-    //         Hello world!
-    //         </SweetAlert>
-    //     )
-//     // });
-//   };
+  //   addNewEventAlert = (slotInfo: any) => {
+  //     const getAlert = () => (
+  //         <SweetAlert
+  //         warning
+  //         showCancel
+  //         confirmBtnText="Yes!"
+  //         confirmBtnBsStyle="danger"
+  //         cancelBtnBsStyle="default"
+  //         title="Are you sure you want to delete this project?"
+  //         onConfirm={() => this.deleteFile()}
+  //         // onCancel={() => this.onCancelDelete()}
+  //         >
+  //         You will not be able to recover this project!
+  //     </SweetAlert>)
+  //     this.setState({
+  //         alert: getAlert()
+  //     });
+  // this.setState({
+  //     alert: ( <
+  //         SweetAlert success title = "Woot!"
+  //         onConfirm = {
+  //             () => this.hideAlert()
+  //         } >
+  //         Hello world!
+  //         </SweetAlert>
+  //     )
+  //     // });
+  //   };
   addNewEvent = (e: any, slotInfo: any) => {
     var newEvents = this.state.events;
-    newEvents.push({
-      title: e,
-      start: slotInfo.start,
-      end: slotInfo.end
-    });
+    EventService.addEvent(e, slotInfo.start, slotInfo.end);
     this.setState({
       alert: null,
-      events: newEvents
+      events: EventService.getEvents(),
     });
   };
 
@@ -175,28 +169,11 @@ export class Calendar extends Component<Props, State> {
           events={this.state.events}
           startAccessor="start"
           endAccessor="end"
-          //   onSelectSlot={slotInfo => this.addNewEventAlert(slotInfo)}
           onSelectSlot={slotInfo => {
-            const start = slotInfo.start;
-            const end = slotInfo.end;
-            const slots = slotInfo.slots;
-            console.log(start, end, slots);
             this.addNewEventAlert(slotInfo);
-            // this.alertCustom();
           }}
         />
       </div>
     );
   }
-}
-
-{
-  /* <BigCalendar
-          events={this.state.events}
-          views={allViews}
-          step={60}
-          showMultiDayTimes
-          defaultDate={new Date(2015, 3, 1)}
-          localizer={localizer}
-        /> */
 }
