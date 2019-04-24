@@ -1,22 +1,24 @@
 import * as React from "react";
 import {Component, ReactNode, useState} from "react";
-import ReactDataGrid from 'react-data-grid';
+//import ReactDataGrid from 'react-data-grid';
 import "./SearchResults.css"
 import { Container, Row, Col } from "react-bootstrap";
-import { Toolbar, Data, Filters } from "react-data-grid-addons";
+//import { Toolbar, Data, Filters } from "react-data-grid-addons";
+import "./ReactGrid"
+import { ReactGrid } from "./ReactGrid";
 
 interface Props {
     finalSearchField: string;
 }
 
 interface State {
-    rows: [];
+    /*rows: [];
     tags: {
         id: number;
         name: string;
-    }[];
+    }[];*/
 }
-let tag: {
+/*let tag: {
     id: number;
     name: string;
 }[] = []
@@ -42,6 +44,7 @@ const handleFilterChange = (filter: any) => (filters: any) => {
     } else {
         delete newFilters[filter.column.key];
     }
+    console.log("Newfilters:", newFilters)
     return newFilters;
 };
 
@@ -62,6 +65,7 @@ function getValidFilterValues(rows : any, columnId : any) {
 }
 
 function getRows(rows: any, filters: any) {
+    console.log("Getrows:", filters)
     return selectors.getRows({ rows, filters });
 }
 
@@ -80,7 +84,8 @@ function ReactGrid({ rows } : { rows : any}) {
             getValidFilterValues={columnKey => getValidFilterValues(rows, columnKey)}
         />
     );
-}
+}*/
+
 /**
  * 
  */
@@ -88,10 +93,10 @@ export class SearchResults extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);
-        this.state = {rows: [], tags: []}
+        //this.state = {rows: [], tags: []}
     }
 
-    private readonly enterKeyPressed = (e: any) => {
+    /*private readonly enterKeyPressed = (e: any) => {
         if (e.keyCode === 13) {
             e.preventDefault();
             if (this.props.finalSearchField != null) {
@@ -100,18 +105,17 @@ export class SearchResults extends Component<Props, State> {
             const tags = this.getTags
             tag = this.state.tags
         }
-    };
+    };*/
 
     /**
      * @override
      */
-    public componentDidMount(){
+    /*public componentDidMount(){
         document.addEventListener('keydown', this.enterKeyPressed);
         if (this.props.finalSearchField != null) {
             const results = this.getResults(1, this.props.finalSearchField)
         }
-        const tags = this.getTags
-        console.log("Tags:", this.state.tags)
+        const tags = this.getTags().then(tags=>console.log("Tags:",tags))
         tag = this.state.tags
     }
 
@@ -147,9 +151,10 @@ export class SearchResults extends Component<Props, State> {
             tags: data
         });
         return data
-    };
+    };*/
 
 
+    //<ReactGrid searchBy={1} searchField={this.props.finalSearchField}></ReactGrid>
     /**
      * @override
      */
@@ -159,7 +164,7 @@ export class SearchResults extends Component<Props, State> {
                 <Row className="toprow">
                     <Col sm={8} md={8} className="resultsFor">Search results by username for: {this.props.finalSearchField}</Col>
                 </Row>
-                <ReactGrid rows={this.state.rows}></ReactGrid>
+                <ReactGrid searchBy={1} searchField={this.props.finalSearchField}></ReactGrid>
             </Container>
         );
     }
