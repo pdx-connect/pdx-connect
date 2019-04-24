@@ -109,9 +109,7 @@ export class Oobe extends Component<Props, State> {
     };
 
     private readonly createProfile = async (): Promise<boolean> => {
-        const data = await postJSON("/api/user/oobe", {
-        });
-
+        const data = await postJSON("/api/user/oobe", {});
         return 'success' in data;
     };
 
@@ -122,17 +120,16 @@ export class Oobe extends Component<Props, State> {
         return 'success' in data;
     };
 
-   private readonly setPersonalization = async (profile: boolean, tags: boolean, miscellaneous: boolean, messages: boolean, comments: boolean): Promise<boolean>  => {
-    const data = await postJSON("/api/user/personalization", {
-        isPublic: profile,
+    private readonly setPersonalization = async (profile: boolean, tags: boolean, miscellaneous: boolean, messages: boolean, comments: boolean): Promise<boolean> => {
+        const data = await postJSON("/api/user/personalization", {
+            isPublic: profile,
             isTags: tags,
             isMiscellaneous: miscellaneous,
             isDirectMessage: messages,
             isProfileComment: comments
-    });
-
-    return 'success' in data;
-};
+        });
+        return 'success' in data;
+    };
 
     private readonly finalize = async () => {
         if (await this.createProfile()) {
