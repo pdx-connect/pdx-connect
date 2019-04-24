@@ -8,10 +8,10 @@ import {CalendarEvent} from "../../entity/CalendarEvent";
 
 export function route(app: Express, db: Connection) {
     app.get("/api/user/name", async (request: Request, response: Response) => {
-        const user: User|undefined = request.user;
+        const user: User | undefined = request.user;
         response.send(JSON.stringify({
             name: user != null ? user.displayName : void 0,
-            userID: user != null ? user.id: void 0,
+            userID: user != null ? user.id : void 0,
         }));
     });
     // Post the user name to the database.
@@ -26,7 +26,6 @@ export function route(app: Express, db: Connection) {
             await user.save();
             response.send(JSON.stringify({
                 success: true
-                //error: ""
             }));
         } else {
             response.send(JSON.stringify({
@@ -34,21 +33,10 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
-
     // Get user profiles from userIDs
-    app.post("/api/user/profilesfromids", async (request: Request, response: Response) => {
+    app.get("/api/user/profiles", async (request: Request, response: Response) => {
         // Establish user and body, temp user object
-        const user: User|undefined = request.user;
-        const body: {userID: number}[] = request.body;
-        // Define array used to store/send information
-        let profiles: {
-            userID: number
-            userName: string|null
-            major: string|null
-            onCampus: boolean|null
-            description: string|null
-            tags: string[]|null
-        }[] = [];
+        const user: User | undefined = request.user;
         // Handle user not logged in
         if (user == null) {
             response.send(JSON.stringify({
@@ -57,99 +45,52 @@ export function route(app: Express, db: Connection) {
             return;
         }
         // Handle bad body
-        if (body == null) {
-            response.send(JSON.stringify({
-                error: "Improper request format"
-            }));
+        if (!Array.isArray(request.body)) {
+            response.sendStatus(400);
             return;
         }
-        for (let i = 0; i < body.length; ++i) {
-            let fromDB: UserProfile|undefined = await UserProfile.findOne({
-                where: {
-                    userID: body[i].userID
-                }
-            });
-            // Push either the username or undefined, depending on query results 
-            if (fromDB != null) {
-                let majorTag: Tag|null = await fromDB.major;
-                let major: string|null = null;
-                let tagsObjs: Tag[]|null = await fromDB.interests;
-                let tags: string[]|null = [];
-                if (majorTag != null) {
-                    major = majorTag.name
-                }
-                if (tagsObjs != null) {
-                    for (let i = 0; i < tagsObjs.length; ++i) {
-                        tags.push(tagsObjs[i].name);
-                    }
-                }
-                profiles.push({
-                    userID: fromDB.userID, 
-                    userName: (await fromDB.user).displayName,
-                    major: major,
-                    onCampus: fromDB.isOnCampus,
-                    description: fromDB.description, 
-                    tags: tags
-                });
-            } else {
-                profiles.push({
-                    userID: body[i].userID, 
-                    userName: null,
-                    major: null,
-                    onCampus: null,
-                    description: null,
-                    tags: null
-                });
-            }
-        }
-        // Send result
-        response.send(JSON.stringify(profiles));
-    });
-    /*
-    // Get user names from userIDs
-    app.post("/api/user/namesfromids", async (request: Request, response: Response) => {
-        // Establish user and body, temp user object
-        const user: User|undefined = request.user;
-        const body: {userID: number}[] = request.body;
-        let fromDB: User|undefined = undefined;
+        const body: unknown[] = request.body;
+        const userIDs: number[] = body.filter((id): id is number => typeof id === "number");
         // Define array used to store/send information
-        let names: {
-            userID: number
-            userName: string|undefined
-        }[] = [];
-        // Handle user not logged in
-        if (user == null) {
-            response.send(JSON.stringify({
-                error: "Not logged in."
-            }));
-            return;
+        interface JsonProfile {
+            displayName: string;
+            description: string|null;
+            major: string|null;
+            onCampus: boolean|null;
+            tags: string[];
         }
-        // Handle bad body
-        if (body == null) {
-            response.send(JSON.stringify({
-                error: "Improper request format"
-            }));
-            return;
-        }
-        // Iterate over every requested userID
-        for (let i = 0; i < body.length; ++i) {
-            fromDB = await User.findOne({
+        const profiles: (JsonProfile | undefined)[] = await Promise.all(userIDs.map(async (userID: number) => {
+            const profile: UserProfile | undefined = await UserProfile.findOne({
                 where: {
-                    id: body[i].userID
+                    userID: userID
                 }
             });
-            // Push either the username or undefined, depending on query results
-            if (fromDB != null) {
-                names.push({userID: fromDB.id, userName: fromDB.displayName});
-            } else {
-                names.push({userID: body[i].userID, userName: undefined});
+            if (profile == null) {
+                return void 0;
+            }
+            const user: User = await profile.user;
+            const majorTag: Tag|null = await profile.major;
+            const majorName: string|null = majorTag != null ? majorTag.name : null;
+            const tags: Tag[] = await profile.interests;
+            const tagNames: string[] = tags.map(t => t.name);
+            return {
+                displayName: user.displayName,
+                description: profile.description,
+                major: majorName,
+                onCampus: profile.isOnCampus,
+                tags: tagNames
+            };
+        }));
+        const profileMap: { [userID: number]: JsonProfile } = {};
+        for (let i = 0; i < userIDs.length; i++) {
+            const profile: JsonProfile | undefined = profiles[i];
+            if (profile != null) {
+                profileMap[userIDs[i]] = profile;
             }
         }
-        // Send result
-        response.send(JSON.stringify(names));
+        // Send profile map
+        response.send(JSON.stringify(profileMap));
     });
-    */
-
     app.get("/api/user/oobe", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         response.send(JSON.stringify({
