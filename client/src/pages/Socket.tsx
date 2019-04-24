@@ -94,7 +94,7 @@ export class Socket extends Component<Props, State> {
     };
 
     // Get more messages for a particular conversation, update messages state elemtn
-    private readonly getMoreMessages = async (conversationID: number) => {
+    public readonly getMoreMessages = async (conversationID: number) => {
         let conversation: ConversationEntry;
         let alreadyHave: number = 0;
         let lastSeen: number = 0;
@@ -192,7 +192,7 @@ export class Socket extends Component<Props, State> {
     };
 
         // Send a message to the server, insert it into our message log
-    private readonly sendMessage = (msg: string, conversationID: number|null, userID:number[]|null) => {
+    public readonly sendMessage = (msg: string, conversationID: number|null, userID:number[]|null) => {
         let tempMessages: ConversationEntry[] = this.state.messages;
         let found = false;
         if (this.socket == null) {

@@ -2,17 +2,14 @@ import * as React from "react";
 import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 import {ConversationEntry} from "../Home";
-
-//import {ConversationEntry} from "./Home";
-
 import "./Inbox.css";
 
-
 interface Props {
-    sendMessage: (conversationID: number, msg: string) => void;
+    sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => void;
     getMoreMessages: (conversationID: number) => void;
     seenRecent: (conversationID: number, time: number) => void;
     conversations: ConversationEntry[];
+    userID: number;
 }
 
 interface State {
@@ -20,153 +17,150 @@ interface State {
     textField: string;
 }
 
-const conversations = [
-    {   
-        conversationID: 100,
-        lastSeen: 1555011969, // epoch
-        messages: [
-            {
-                userID: 6,
-                timeSent: 1555011169,
-                text: "I am David!",
-                seen: false
-            },
-            {
-                userID: 4,
-                timeSent: 1555011175,
-                text: "I am Daniel!",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011179,
-                text: "Whats up?",
-                seen: false
-            },
-            {
-                userID: 4,
-                timeSent: 1555011186,
-                text: "Nothing much",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011197,
-                text: "Are you actually Daniel?",
-                seen: false
-            },
-            {
-                userID: 4,
-                timeSent: 1555011201,
-                text: "Nah I'm David lol",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011210,
-                text: "Ah, you got me for a sec",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011220,
-                text: "Ayyyyyyyyyyyyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            }
-        ]
-    },
-    {   
-        conversationID: 101,
-        lastSeen: 1555011959, // epoch
-        messages: [
-            {
-                userID: 4,
-                timeSent: 1555011169,
-                text: "I am user 1",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011175,
-                text: "I am user 2",
-                seen: false
-            }
-        ]
-    },
-    {   
-        conversationID: 102,
-        lastSeen: 1555011969, // epoch
-        messages: [
-            {
-                userID: 4,
-                timeSent: 1555011169,
-                text: "Hello world",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011175,
-                text: "ayee",
-                seen: false
-            }
-        ]
-    }
-];
+// const conversations = [
+//     {   
+//         conversationID: 100,
+//         lastSeen: 1555011969, // epoch
+//         messages: [
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011169,
+//                 text: "I am David!",
+//                 seen: false
+//             },
+//             {
+//                 userID: 4,
+//                 timeSent: 1555011175,
+//                 text: "I am Daniel!",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011179,
+//                 text: "Whats up?",
+//                 seen: false
+//             },
+//             {
+//                 userID: 4,
+//                 timeSent: 1555011186,
+//                 text: "Nothing much",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011197,
+//                 text: "Are you actually Daniel?",
+//                 seen: false
+//             },
+//             {
+//                 userID: 4,
+//                 timeSent: 1555011201,
+//                 text: "Nah I'm David lol",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011210,
+//                 text: "Ah, you got me for a sec",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011220,
+//                 text: "Ayyyyyyyyyyyyyyyy",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011225,
+//                 text: "Ayyyyyy",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011225,
+//                 text: "Ayyyyyy",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011225,
+//                 text: "Ayyyyyy",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011225,
+//                 text: "Ayyyyyy",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011225,
+//                 text: "Ayyyyyy",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011225,
+//                 text: "Ayyyyyy",
+//                 seen: false
+//             },            {
+//                 userID: 6,
+//                 timeSent: 1555011225,
+//                 text: "Ayyyyyy",
+//                 seen: false
+//             },            {
+//                 userID: 6,
+//                 timeSent: 1555011225,
+//                 text: "Ayyyyyy",
+//                 seen: false
+//             },            {
+//                 userID: 6,
+//                 timeSent: 1555011225,
+//                 text: "Ayyyyyy",
+//                 seen: false
+//             }
+//         ]
+//     },
+//     {   
+//         conversationID: 101,
+//         lastSeen: 1555011959, // epoch
+//         messages: [
+//             {
+//                 userID: 4,
+//                 timeSent: 1555011169,
+//                 text: "I am user 1",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011175,
+//                 text: "I am user 2",
+//                 seen: false
+//             }
+//         ]
+//     },
+//     {   
+//         conversationID: 102,
+//         lastSeen: 1555011969, // epoch
+//         messages: [
+//             {
+//                 userID: 4,
+//                 timeSent: 1555011169,
+//                 text: "Hello world",
+//                 seen: false
+//             },
+//             {
+//                 userID: 6,
+//                 timeSent: 1555011175,
+//                 text: "ayee",
+//                 seen: false
+//             }
+//         ]
+//     }
+// ];
 
-/**
- * 
- */
 export class Inbox extends Component<Props, State> {
     
     constructor(props: Props) {
@@ -190,6 +184,10 @@ export class Inbox extends Component<Props, State> {
         // Message sending code goes here
         //
 
+        
+        //this.props.sendMessage(this.state.textField, );
+
+
 
 
         console.log(this.state.textField);
@@ -199,13 +197,13 @@ export class Inbox extends Component<Props, State> {
     
     private readonly getInbox = () => {
         let rows = [];
-        for (let i=0; i<conversations.length; i++) {
+        for (let i=0; i<this.props.conversations.length; i++) {
             if (i == this.state.currentConversation) {
                 rows.push(
                     <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="open-conversation">
                         <Col key={i} sm={12}>
-                            Message from: user {conversations[i].messages[0].userID}
-                            Preview: {conversations[i].messages[conversations[i].messages.length-1].text}
+                            Message from: user {this.props.conversations[i].entries[0].userID}
+                            Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
                         </Col>
                     </Row>
                 );
@@ -214,8 +212,8 @@ export class Inbox extends Component<Props, State> {
                 rows.push(
                     <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="conversation">
                         <Col key={i} sm={12}>
-                            Message from: user {conversations[i].messages[0].userID}
-                            Preview: {conversations[i].messages[conversations[i].messages.length-1].text}
+                            Message from: user {this.props.conversations[i].entries[0].userID}
+                            Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
                         </Col>
                     </Row>
                 );
@@ -226,18 +224,19 @@ export class Inbox extends Component<Props, State> {
 
     private readonly getMessages = () => {
         let rows = [];
-        for (let i=0; i<conversations[this.state.currentConversation].messages.length; i++) {
-            if (conversations[0].messages[i].userID == 6) {
+        for (let i=0; i<this.props.conversations[this.state.currentConversation].entries.length; i++) {
+            //if (this.props.conversations[0].entries[i].userID == 6) {
+            if (this.props.conversations[0].entries[i].userID == this.props.userID) {
                  rows.push(
                     <Row key={i} className="my-message">
-                        <Col key={i} sm={12}> {conversations[this.state.currentConversation].messages[i].text}</Col>
+                        <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
                     </Row>
                 );
             }
             else {
                 rows.push(
                     <Row key={i} className="other-message">
-                        <Col key={i} sm={12}> {conversations[this.state.currentConversation].messages[i].text}</Col>
+                        <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
                     </Row>
               );
             }
@@ -282,7 +281,7 @@ export class Inbox extends Component<Props, State> {
                 <div className="text-box">
                     <Form onSubmit={(e: any) => this.onSubmit(e)}>
                         <Row>
-                            <Col><Form.Control onChange={(e: any) => this.onChange(e)} type="text" value={this.state.textField} placeholder="Enter message..."/></Col>
+                            <Col><Form.Control className="textField" onChange={(e: any) => this.onChange(e)} type="text" value={this.state.textField} placeholder="Enter message..."/></Col>
                             <Col><Button variant="primary" type="submit">Send</Button></Col>
                         </Row>
                     </Form>
