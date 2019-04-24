@@ -90,11 +90,10 @@ export class Socket extends Component<Props, State> {
         }
         // Update messages, this should force rerender to components which use messages
         this.setState({messages: conversations});
-        console.log(conversations);
     };
 
     // Get more messages for a particular conversation, update messages state elemtn
-    private readonly getMoreMessages = async (conversationID: number) => {
+    public readonly getMoreMessages = async (conversationID: number) => {
         let conversation: ConversationEntry;
         let alreadyHave: number = 0;
         let lastSeen: number = 0;
@@ -192,7 +191,7 @@ export class Socket extends Component<Props, State> {
     };
 
         // Send a message to the server, insert it into our message log
-    private readonly sendMessage = (msg: string, conversationID: number|null, userID:number[]|null) => {
+    public readonly sendMessage = (msg: string, conversationID: number|null, userID:number[]|null) => {
         let tempMessages: ConversationEntry[] = this.state.messages;
         let found = false;
         if (this.socket == null) {
@@ -276,6 +275,7 @@ export class Socket extends Component<Props, State> {
         this.socket = new WebSocket("ws://localhost:9999");
         // Get unread messages from before we were connected
         this.getUnreadMessages();
+        console.log(this.state.messages);
 
         // Establish behavior of connection
         this.socket.onopen = () => {
@@ -339,7 +339,6 @@ export class Socket extends Component<Props, State> {
      * @override
      */
     public render(): ReactNode {
-        console.log(this.state.messages);
         return null;
     }
 }
