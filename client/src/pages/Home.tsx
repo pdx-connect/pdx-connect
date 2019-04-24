@@ -50,6 +50,7 @@ interface State {
     showOobe: boolean;
     finalSearchField: string;
     userID: null | number;
+    conversations: ConversationEntry[]|null
 }
 
 /**
@@ -66,12 +67,13 @@ export class Home extends Page<Props, State> {
             displayName: "",
             showOobe: false,
             finalSearchField: "",
-            userID: null
+            userID: null, 
+            conversations: null
         };
-        this.socket = React.createRef();
+        this.socket = null;
     }
 
-    protected socket: React.RefObject<Socket>;
+    protected socket: Socket|null;
     
     private readonly getUserProfileData = async () => {
         const data = await getJSON("/api/user/name");
@@ -128,39 +130,53 @@ export class Home extends Page<Props, State> {
         this.logUserOut().then();
     };
 
-    private readonly getMessages = () => {
-        if (this.socket && this.socket.current) {
-            console.log("Test in home");
-            console.log(this.socket.current.state.messages);
-            return this.socket.current.state.messages;
-        } else {
-            return [];
-        }
-    };
+    // private readonly getMessages = () => {
+    //     if (this.socket) {
+    //         return this.socket.current.state.messages;
+    //     } else {
+    //         return [];
+    //     }
+    // };
 
     private readonly getSendMessages = () => {
-        if (this.socket && this.socket.current) {
-            return this.socket.current.sendMessage;
+        if (this.socket) {
+            return this.socket.sendMessage;
         } else { 
             return () => {};
         }
     }
 
     private readonly getGetMoreMessages = () => {
-        if (this.socket && this.socket.current) {
-            return this.socket.current.getMoreMessages;
+        if (this.socket) {
+            return this.socket.getMoreMessages;
         } else {
             return () => {};
         }
+    }
+
+    private readonly getSeenRecent = () => {
+        if (this.socket) {
+            return this.socket.seenRecent;
+        } else {
+            return () => {};
+        }
+    }
+
+    private readonly updateMessages = (messages: ConversationEntry[]) => {
+        this.setState({conversations: messages});
     }
     
     /**
      * @override
      */
-    public componentDidMount() {
+    public async componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
         this.getUserOOBE().then();
         this.getUserProfileData().then();
+        this.socket = new Socket(this.updateMessages);
+        await this.socket.getUnreadMessages();
+        console.log("In home component did mount");
+        console.log(this.state.conversations);
     }
     
     /**
@@ -188,9 +204,7 @@ export class Home extends Page<Props, State> {
             "/search-results": SearchResults
         };
         let messages = []
-        if (this.socket && this.socket.current) {
-            messages = Object.keys(this.socket.current.state.messages);
-        }
+        //let messages = Object.keys(this.socket.current.state.messages);
         let notifications = Object.keys(this.state.alerts);
 
         const title: { [key: string]: any } = {
@@ -205,7 +219,6 @@ export class Home extends Page<Props, State> {
 
         return (
         <Container fluid className="home">
-            <Socket ref={this.socket}/>
             <Row className="topRow">
                 <Sidebar displayName={this.state.displayName} updateHistory={this.updateHistory}/>
                 <Col sm={1} md={1} className="topLeft"></Col>
@@ -256,7 +269,7 @@ export class Home extends Page<Props, State> {
                                 />
                                 <Route path="/calendar" component={Calendar} />
                                 <Route path="/listings" component={Listings} />
-                                <Route path="/inbox" component={Inbox} conversations={this.getMessages()} sendMessage={this.getSendMessages()} getMoreMessages={this.getGetMoreMessages()} userID={this.state.userID}/>
+                                <Route path="/inbox" component={Inbox} conversations={this.state.conversations} sendMessage={this.getSendMessages()} getMoreMessages={this.getGetMoreMessages()} seenRecent={this.getSeenRecent()} userID={this.state.userID}/>
                                 <Route
                                     path="/search-results"
                                     render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}

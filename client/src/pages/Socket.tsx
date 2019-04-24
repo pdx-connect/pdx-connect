@@ -21,35 +21,75 @@ export interface ConversationEntry {
     entries: Message[];
 }
 
-interface State {
-    messages: ConversationEntry[];
-    alerts: object;
-    messageCount: number;
-    notificationCount: number;
-}
-
-interface Props {
-    ref: React.RefObject<Socket>
-}
-
 /**
  *
  */
-export class Socket extends Component<Props, State> {
+export class Socket {
 
     private socket: WebSocket|null = null;
+    private messages: ConversationEntry[];
+    private updateMessages: (messages: ConversationEntry[]) => void;
+
     
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            messages: [],
-            alerts: {},
-            messageCount: 0, 
-            notificationCount: 0,
+    constructor(updateMessages: (messages: ConversationEntry[]) => void) {
+        this.messages = [];
+        this.updateMessages = updateMessages;
+
+        this.socket = new WebSocket("ws://localhost:9999");
+        // Get unread messages from before we were connected
+        //this.getUnreadMessages();
+        //Put in Home
+        
+        // Establish behavior of connection
+        this.socket.onopen = () => {
+            // When a message is received, do...
+            if( this.socket != null ) { // TODO: this check is a hacky work around
+                this.socket.onmessage = (msg: MessageEvent) => {
+                    let conversation: ConversationEntry;
+                    let message: Message;
+                    let data = msg.data;
+                    if (typeof data !== "object") {
+                        // TODO throw an error
+                        console.log("error in socket.onmessage");
+                        return;
+                    }
+                    data = JSON.parse(data);
+                    let lastSeen: number = 0;
+                    let conversationID: number = data.conversationID;
+                    let msgFromServer: ServerMessage = data.message;
+                    if (conversationID == null || msgFromServer == null) {
+                        // TODO throw an error
+                        console.log("error in socket.onmessage")
+                        return;
+                    }
+                    message = {
+                        userID: msgFromServer.from,
+                        timeSent: msgFromServer.timeSent,
+                        text: msgFromServer.content,
+                        seen: false,
+                    }
+                    for (let i = 0; i < this.messages.length; ++i) {
+                        if (this.messages[i].conversationID == conversationID ){
+                            lastSeen = this.messages[i].lastSeen;
+                            break;
+                        }
+                    }
+                    conversation = {
+                        conversationID: conversationID,
+                        lastSeen: lastSeen,
+                        entries: [message]
+                    }
+                    this.addToConversation(conversation);
+                };
+                this.socket.onerror = (error) => {
+                };
+                this.socket.onclose = (closed) => {
+                };
+            }
         };
     }
 
-    private readonly getUnreadMessages = async () => {
+    public readonly getUnreadMessages = async () => {
         let conversations: ConversationEntry[] = [];
 
         const response: Response = await fetch("/api/messages/backlog", {
@@ -89,7 +129,8 @@ export class Socket extends Component<Props, State> {
             });
         }
         // Update messages, this should force rerender to components which use messages
-        this.setState({messages: conversations});
+        this.messages = conversations;
+        this.updateMessages(this.messages);
     };
 
     // Get more messages for a particular conversation, update messages state elemtn
@@ -99,10 +140,10 @@ export class Socket extends Component<Props, State> {
         let lastSeen: number = 0;
     
         // Search for the conversation, get the number of existing messages
-        for (let i = 0; i < this.state.messages.length; ++i) {
-            if (this.state.messages[i].conversationID == conversationID) {
-                alreadyHave = this.state.messages[i].entries.length;
-                lastSeen = this.state.messages[i].lastSeen;
+        for (let i = 0; i < this.messages.length; ++i) {
+            if (this.messages[i].conversationID == conversationID) {
+                alreadyHave = this.messages[i].entries.length;
+                lastSeen = this.messages[i].lastSeen;
                 break;
             }
         }
@@ -155,7 +196,7 @@ export class Socket extends Component<Props, State> {
 
     // Update the messages state element to include new messages
     private readonly addToConversation = (newMessages: ConversationEntry) => {
-        let tempMessages: ConversationEntry[] = this.state.messages;
+        let tempMessages: ConversationEntry[] = this.messages;
         let length = tempMessages.length;
         let foundAt = -1;
 
@@ -187,12 +228,13 @@ export class Socket extends Component<Props, State> {
             tempMessages.push(newMessages);
         }
         // Update the state of the this component
-        this.setState({messages: tempMessages});
+        this.messages = tempMessages;
+        this.updateMessages(this.messages);
     };
 
         // Send a message to the server, insert it into our message log
     public readonly sendMessage = (msg: string, conversationID: number|null, userID:number[]|null) => {
-        let tempMessages: ConversationEntry[] = this.state.messages;
+        let tempMessages: ConversationEntry[] = this.messages;
         let found = false;
         if (this.socket == null) {
             // TODO send error
@@ -221,7 +263,7 @@ export class Socket extends Component<Props, State> {
         }
     };
 
-    private readonly seenRecent = (conversationID: number, time: number) => {
+    public readonly seenRecent = (conversationID: number, time: number) => {
         // Verify socket
         if (this.socket == null) {
             // TODO throw an error?
@@ -229,7 +271,7 @@ export class Socket extends Component<Props, State> {
             return;
         }
         // Update the local log of messages
-        let tempMessages: ConversationEntry[] = this.state.messages;
+        let tempMessages: ConversationEntry[] = this.messages;
         let found = false;
         for (let i = 0; i < tempMessages.length; ++i) {
             if (tempMessages[i].conversationID == conversationID) {
@@ -255,90 +297,4 @@ export class Socket extends Component<Props, State> {
             content: time
         }));
     };
-
-    private readonly startConversation = async (userIDs: number[]) => {
-        let response = await fetch("/api/messages/start", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                userIDs: userIDs
-            })
-        });
-    }
-
-    /**
-     * @override
-     */
-    public componentDidMount() {
-        this.socket = new WebSocket("ws://localhost:9999");
-        // Get unread messages from before we were connected
-        this.getUnreadMessages();
-        console.log(this.state.messages);
-
-        // Establish behavior of connection
-        this.socket.onopen = () => {
-            // When a message is received, do...
-            if( this.socket != null ) { // TODO: this check is a hacky work around
-                this.socket.onmessage = (msg: MessageEvent) => {
-                    let conversation: ConversationEntry;
-                    let message: Message;
-                    let data = msg.data;
-                    if (typeof data !== "object") {
-                        // TODO throw an error
-                        console.log("error in socket.onmessage");
-                        return;
-                    }
-                    data = JSON.parse(data);
-                    let lastSeen: number = 0;
-                    let conversationID: number = data.conversationID;
-                    let msgFromServer: ServerMessage = data.message;
-                    if (conversationID == null || msgFromServer == null) {
-                        // TODO throw an error
-                        console.log("error in socket.onmessage")
-                        return;
-                    }
-                    message = {
-                        userID: msgFromServer.from,
-                        timeSent: msgFromServer.timeSent,
-                        text: msgFromServer.content,
-                        seen: false,
-                    }
-                    for (let i = 0; i < this.state.messages.length; ++i) {
-                        if (this.state.messages[i].conversationID == conversationID ){
-                            lastSeen = this.state.messages[i].lastSeen;
-                            break;
-                        }
-                    }
-                    conversation = {
-                        conversationID: conversationID,
-                        lastSeen: lastSeen,
-                        entries: [message]
-                    }
-                    this.addToConversation(conversation);
-                };
-                this.socket.onerror = (error) => {
-                };
-                this.socket.onclose = (closed) => {
-                };
-            }
-        };
-    };
-
-    /**
-     * @override
-     */
-    public componentWillUnmount() {
-        if(this.socket != null) {
-            this.socket.close();
-        }
-    }
-
-    /***
-     * @override
-     */
-    public render(): ReactNode {
-        return null;
-    }
 }
