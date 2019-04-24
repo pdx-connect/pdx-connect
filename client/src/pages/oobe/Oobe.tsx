@@ -2,16 +2,16 @@ import * as React from "react";
 import {Component, ReactElement, ReactNode} from "react";
 import {Container, Row, Col} from "react-bootstrap";
 import {FaArrowAltCircleRight, FaArrowAltCircleLeft} from "react-icons/fa";
-import {ActionMeta, ValueType} from "react-select/lib/types";
+import {ValueType} from "react-select/lib/types";
 import {OptionType} from "../../components/types";
-
-import "./oobe.css";
 
 import {Welcome} from './Welcome';
 import {About} from './About';
 import {Personalization, Personalizations} from './Personalization';
 import {Finalize} from './Finalize';
 import {getJSON, postJSON} from "../../util/json";
+
+import "./oobe.css";
 
 interface Props {
     onHide: () => void;
@@ -134,40 +134,22 @@ export class Oobe extends Component<Props, State> {
         }
     };
 
-    private readonly handleInterestChange = (value: ValueType<OptionType>, action: ActionMeta) => {
-        let selectedInterests: OptionType[];
-        if (value == null) {
-            selectedInterests = [];
-        } else if (Array.isArray(value)) {
-            selectedInterests = value;
-        } else {
-            selectedInterests = [value];
-        }
-        this.setState({selectedInterests});
+    private readonly handleInterestChange = (value: ValueType<OptionType>) => {
+        this.setState({
+            selectedInterests: OptionType.resolve(value)
+        });
     };
 
-    private readonly handleCommuterChange = (value: ValueType<OptionType>, action: ActionMeta) => {
-        let selectedCommuterStatus: OptionType[];
-        if (value == null) {
-            selectedCommuterStatus = [];
-        } else if (Array.isArray(value)) {
-            selectedCommuterStatus = value;
-        } else {
-            selectedCommuterStatus = [value];
-        }
-        this.setState({selectedCommuterStatus});
+    private readonly handleCommuterChange = (value: ValueType<OptionType>) => {
+        this.setState({
+            selectedCommuterStatus: OptionType.resolve(value)
+        });
     };
 
-    private readonly handleMajorChange = (value: ValueType<OptionType>, action: ActionMeta) => {
-        let selectedMajor: OptionType[];
-        if (value == null) {
-            selectedMajor = [];
-        } else if (Array.isArray(value)) {
-            selectedMajor = value;
-        } else {
-            selectedMajor = [value];
-        }
-        this.setState({selectedMajor});
+    private readonly handleMajorChange = (value: ValueType<OptionType>) => {
+        this.setState({
+            selectedMajor: OptionType.resolve(value)
+        });
     };
         
     private readonly handlePersonalizationCheck = (checked: boolean,
@@ -286,8 +268,8 @@ export class Oobe extends Component<Props, State> {
      */
     public componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
-        this.getTags();
-        this.getMajors();
+        this.getTags().then();
+        this.getMajors().then();
     }
     
     /**
