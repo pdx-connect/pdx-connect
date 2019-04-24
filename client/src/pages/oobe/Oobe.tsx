@@ -199,11 +199,11 @@ export class Oobe extends Component<Props, State> {
                     }
                 }
 
-                //if(this.state.selectedCommuterStatus[0].value === 'true')
-                //    await this.setCommuterStatus(true);
+                if(this.state.selectedCommuterStatus[0].value === 'true')
+                    await this.setCommuterStatus(true);
 
-                //if(this.state.selectedCommuterStatus[0].value === 'false')
-                //    await this.setCommuterStatus(false);
+                if(this.state.selectedCommuterStatus[0].value === 'false')
+                    await this.setCommuterStatus(false);
 
                 if (this.state.selectedMajor != null) {
                     
