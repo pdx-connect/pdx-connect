@@ -109,10 +109,7 @@ export class Oobe extends Component<Props, State> {
     };
 
     private readonly createProfile = async (): Promise<boolean> => {
-        const response: Response = await fetch("/api/user/oobe", {
-            method: 'POST'
-        });
-        const data = await response.json();
+        const data = await postJSON("/api/user/oobe", {});
         return 'success' in data;
     };
 
@@ -151,6 +148,8 @@ export class Oobe extends Component<Props, State> {
                         if (await this.setInterests(selectedInterests)) {
                             this.props.onHide();
                         }
+                    } else {
+                        this.props.onHide();
                     }
                 }
             }
