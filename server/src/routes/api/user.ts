@@ -300,7 +300,7 @@ export function route(app: Express, db: Connection) {
                 const tag: Tag | undefined =  await Tag.findOne({where: {id: id}});
 
                 if (tag != null) {
-                    profile.major = tag;
+                    profile.major = Promise.resolve(tag);
                     await profile.save();
                     // Send success response
                     response.send(JSON.stringify({
