@@ -31,7 +31,7 @@ export function route(app: Express, db: Connection) {
                                userID: user.id,
                                displayName: user.displayName,
                                major: await major_tag.name,
-                               tags: "Food"
+                               tags: "Science Museums Portland"
                            };
                        }
                    }
@@ -39,7 +39,7 @@ export function route(app: Express, db: Connection) {
                        userID: user.id,
                        displayName: user.displayName,
                        major: "Not set",
-                       tags: "Language, Portland, Books"
+                       tags: "Language"
                    };
                }))
            } else {
