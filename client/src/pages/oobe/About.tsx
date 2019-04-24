@@ -28,18 +28,17 @@ export class About extends Component<Props, any> {
             <Row>
                 <Col sm={12} className="about-select">
                     <Select
-                    options={tags}
-                    value={selectedOptions}
-                    onChange={handleInterestChange}
-                    isMulti={true}
-                    placeholder={'interests'}
-                    className={'react-select-drop-down'}
-                    classNamePrefix={'react-select'}
+                        options={tags}
+                        value={selectedOptions}
+                        onChange={handleInterestChange}
+                        isMulti={true}
+                        placeholder={'interests'}
+                        className={'react-select-drop-down'}
+                        classNamePrefix={'react-select'}
                     />
-                </Col>   
-            
+                </Col>
                 <Col sm={12} className="about-select">
-                        <Select
+                    <Select
                         options={commuterStatus}
                         value={selectedOptions}
                         onChange={handleCommuterChange}
@@ -47,11 +46,10 @@ export class About extends Component<Props, any> {
                         placeholder={'commuter status'}
                         className={'react-select-drop-down'}
                         classNamePrefix={'react-select'}
-                        />
+                    />
                 </Col>
-
                 <Col sm={12} className="about-select">
-                        <Select
+                    <Select
                         options={majors}
                         value={selectedOptions}
                         onChange={handleMajorChange}
@@ -59,7 +57,7 @@ export class About extends Component<Props, any> {
                         placeholder={'major'}
                         className={'react-select-drop-down'}
                         classNamePrefix={'react-select'}
-                        />
+                    />
                 </Col>   
             </Row>
         </Container>;

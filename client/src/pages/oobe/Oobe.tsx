@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Component, ReactNode} from "react";
+import {Component, ReactElement, ReactNode} from "react";
 import {Container, Row, Col} from "react-bootstrap";
 import {FaArrowAltCircleRight, FaArrowAltCircleLeft} from "react-icons/fa";
 import {ActionMeta, ValueType} from "react-select/lib/types";
@@ -38,6 +38,45 @@ interface State {
  */
 export class Oobe extends Component<Props, State> {
 
+    private readonly title: { [key: number]: string } = {
+        1: "welcome",
+        2: "about you",
+        3: "personalization",
+        4: "profile complete"
+    };
+    
+    private readonly content: { [key: number]: (() => ReactElement) } = {
+        1: () => <Welcome />,
+        2: () => {
+            const tags: OptionType[] = this.state.tags.map(t => {
+                return {
+                    value: t.id.toString(),
+                    label: t.name
+                };
+            });
+            const commuterStatus: OptionType[] = [
+                { value: 'true', label: 'On Campus'},
+                { value: 'false', label: 'Off Campus'}
+            ];
+            const majors: OptionType[] = this.state.majors.map(t => {
+                return {
+                    value: t.id.toString(),
+                    label: t.name
+                };
+            });
+            return <About tags={tags}
+                          handleInterestChange={this.handleInterestChange}
+                          majors={majors}
+                          handleMajorChange={this.handleMajorChange}
+                          commuterStatus={commuterStatus}
+                          handleCommuterChange={this.handleCommuterChange}
+                          selectedOptions={[]} />;
+        },
+        3: () => <Personalization personalizations={this.state.personalizations}
+                                  handlePersonalizationCheck={this.handlePersonalizationCheck} />,
+        4: () => <Finalize finalize={this.finalize} />
+    };
+    
     /**
      * Creates the register page.
      */
@@ -263,51 +302,13 @@ export class Oobe extends Component<Props, State> {
      * @override
      */
     public render(): ReactNode {
-
-        const content: { [key: number]: any } = {
-            1: Welcome,
-            2: About,
-            3: Personalization,
-            4: Finalize
-        };
-
-        const CurrentContent = content[this.state.step];
-        
-        const title: { [key: number]: string } = {
-            1: "welcome",
-            2: "about you",
-            3: "personalization",
-            4: "profile complete"
-        };
-
-        const tags: OptionType[] = this.state.tags.map(t => {
-            return {
-                value: t.id.toString(),
-                label: t.name
-            };
-        });
-
-        const commuterStatus: OptionType[] = [
-            { value: 'true', label: 'On Campus'},
-            { value: 'false', label: 'Off Campus'}
-        ];
-
-        const majors: OptionType[] = this.state.majors.map(t => {
-            return {
-                value: t.id.toString(),
-                label: t.name
-            };
-        });
-
-
         return (
             <Container fluid className="oobe">
                 <Row className="title alignCenter">
                     <Col sm={12}><h1>pdx connect</h1></Col>
                 </Row>
-
                 <Row className="subTitle">
-                    <Col sm={12} className="alignCenter"><h3>{title[this.state.step]}</h3></Col>
+                    <Col sm={12} className="alignCenter"><h3>{this.title[this.state.step]}</h3></Col>
                 </Row>
                 <Row>
                     <Col sm={3} className="directionalButtons">
@@ -315,20 +316,7 @@ export class Oobe extends Component<Props, State> {
                             <FaArrowAltCircleLeft className="leftButton" size="4vw" onClick={this.prev}/>: null}
                     </Col>
                     <Col sm={6}>
-                        <CurrentContent
-                            handleInterestChange={this.handleInterestChange}
-                            handleCommuterChange={this.handleCommuterChange}
-                            handleMajorChange={this.handleMajorChange}
-                            handlePersonalizationCheck={this.handlePersonalizationCheck}
-                            tags={tags}
-                            majors={majors}
-                            commuterStatus={commuterStatus}
-                            selectedInterests={this.state.selectedInterests}
-                            selectedCommuterStatus={this.state.selectedCommuterStatus}
-                            selectedMajors={this.state.selectedMajor}
-                            personalizations={this.state.personalizations}
-                            finalize={this.finalize}
-                        />
+                        {this.content[this.state.step]()}
                     </Col>
                     <Col sm={3} className="directionalButtons">
                         {this.state.step != 4? <FaArrowAltCircleRight className="rightButton" size="4vw" onClick={this.next}/>: null} 
