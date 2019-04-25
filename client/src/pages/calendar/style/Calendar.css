@@ -2,6 +2,10 @@
   min-height: 500px;
 } */
 
+.main-content{
+  background-color: lightyellow;
+}
+
 .rbc-calendar {
   min-height: 500px;
   background-color: white;
@@ -35,7 +39,8 @@
 .rbc-event-label,
 .rbc-row-segment .rbc-event-content,
 .rbc-show-more {
-  background-color:yellowgreen; /* remove later */
+  color: lightyellow;
+  background-color: rgb(102, 151, 38); /* remove later */
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;

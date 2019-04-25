@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Component, ReactNode } from "react";
+import { Container, Row, Col, Form, Button, Modal, Nav } from "react-bootstrap";
 import BigCalendar, {
   BigCalendarProps,
   Navigate,
@@ -16,6 +17,7 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./style/Calendar.css";
 
+import NavBar from "./NavBar";
 import * as EventService from "./services/EventService";
 
 const localizer = BigCalendar.momentLocalizer(moment);
@@ -28,62 +30,6 @@ interface State {
   height: any;
   alert: any;
 }
-var today = new Date();
-var y = today.getFullYear();
-var m = today.getMonth();
-var d = today.getDate();
-
-declare const allViews: View[];
-
-const events = [
-  {
-    title: "All Day Event",
-    allDay: true,
-    start: new Date(y, m, 1),
-    end: new Date(y, m, 1),
-    color: "default"
-  },
-  {
-    title: "Meeting",
-    start: new Date(y, m, d - 1, 10, 30),
-    end: new Date(y, m, d - 1, 11, 30),
-    allDay: false,
-    color: "green"
-  },
-  {
-    title: "Lunch",
-    start: new Date(y, m, d + 7, 12, 0),
-    end: new Date(y, m, d + 7, 14, 0),
-    allDay: false,
-    color: "red"
-  },
-  {
-    title: "Nud-pro Launch",
-    start: new Date(y, m, d - 2),
-    end: new Date(y, m, d - 2),
-    allDay: true,
-    color: "azure"
-  },
-  {
-    title: "Birthday Party",
-    start: new Date(y, m, d + 1, 19, 0),
-    end: new Date(y, m, d + 1, 22, 30),
-    allDay: false,
-    color: "azure"
-  },
-  {
-    title: "Team C meeting",
-    start: new Date(y, m, 21),
-    end: new Date(y, m, 22),
-    color: "orange"
-  },
-  {
-    title: "Click for Google",
-    start: new Date(y, m, 21),
-    end: new Date(y, m, 22),
-    color: "orange"
-  }
-];
 
 export class Calendar extends Component<Props, State> {
   constructor(props: Props) {
@@ -147,12 +93,13 @@ export class Calendar extends Component<Props, State> {
   //     )
   //     // });
   //   };
+
   addNewEvent = (e: any, slotInfo: any) => {
     var newEvents = this.state.events;
     EventService.addEvent(e, slotInfo.start, slotInfo.end);
     this.setState({
       alert: null,
-      events: EventService.getEvents(),
+      events: EventService.getEvents()
     });
   };
 
@@ -161,18 +108,21 @@ export class Calendar extends Component<Props, State> {
    */
   public render(): ReactNode {
     return (
-      <div className="rbc-calendar">
-        {this.state.alert}
-        <BigCalendar
-          selectable
-          localizer={localizer}
-          events={this.state.events}
-          startAccessor="start"
-          endAccessor="end"
-          onSelectSlot={slotInfo => {
-            this.addNewEventAlert(slotInfo);
-          }}
-        />
+      <div className="main-content">
+        {/* <NavBar />   */}
+        <div className="rbc-calendar">
+          {this.state.alert}
+          <BigCalendar
+            selectable
+            localizer={localizer}
+            events={this.state.events}
+            startAccessor="start"
+            endAccessor="end"
+            onSelectSlot={slotInfo => {
+              this.addNewEventAlert(slotInfo);
+            }}
+          />
+        </div>
       </div>
     );
   }
