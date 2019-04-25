@@ -362,7 +362,18 @@ export class Profile extends Component<Props, State> {
                             />
                        </Col>
                        
-                       <Col sm={4} className="edit"></Col>
+                       <Col sm={4} className="edit">
+                       {this.state.disabled['commuter']?
+                            <div>
+                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('commuter')}/>
+                            </div>
+                                :
+                            <div>
+                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('commuter')}></FaSave>
+                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('commuter')}></FaUndoAlt>
+                            </div>
+                            }
+                       </Col>
                    </Row>
 
                    {/* Interests */}

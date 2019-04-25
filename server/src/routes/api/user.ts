@@ -193,39 +193,56 @@ export function route(app: Express, db: Connection) {
         }
     });
 
-    // Manage the user's commuter status
-    // Post major data to the database. Currently TODO
-    app.post("/api/user/on_campus", async (request: Request, response: Response) => {
-        // Parse the request body
-        if (typeof request.body !== "number") {
-            response.sendStatus(400);
-            return;
-        }
-        const body: any = request.body;
+    // // Manage the user's commuter status
+    // // Post major data to the database. Currently TODO
+    // app.post("/api/user/on_campus", async (request: Request, response: Response) => {
+    //     // Parse the request body
+    //     if (typeof request.body !== "number") {
+    //         response.sendStatus(400);
+    //         return;
+    //     }
+    //     const body: any = request.body;
 
-        const user: User|undefined = request.user;
+    //     const user: User|undefined = request.user;
 
-        if (user != null) {
-            const profile: UserProfile|undefined = await user.profile;
-            // Show name
-            if (profile != null) {
-                    // TODO
-                    
-            } else {
-                // Send error response (profile has not been set up)
-                response.send(JSON.stringify({
-                    error: "Profile has not been set up."
-                }));
-            }
-        } else {
-            // User is not logged in
-            response.send(JSON.stringify({
-                error: "Not logged in."
-            }));
-        }
-    });
+    //     if (user != null) {
+    //         const profile: UserProfile|undefined = await user.profile;
+    //         // Find a major whose ID matches what is selected.
+    //         if (profile != null) {
+    //             // const incomingTag: Tag | undefined = await Tag.findOne({
+    //             //     where: {
+    //             //         id: incomingMajor
+    //             //     }
+    //             // });
+                
+    //             // // Tag should not be null
+    //             // if (incomingTag != null) {
+    //             //     profile.major = Promise.resolve(incomingTag);
+    //             //     await profile.save();
+    //             //     // Send success response
+    //             //     response.send(JSON.stringify({
+    //             //         success: true
+    //             //     }));
+    //             // } else {
+    //             //     // Send error response
+    //             //     response.send(JSON.stringify({
+    //             //         error: "Invalid ID for major tag."
+    //             //     }));
+    //             // }
 
-    // Manage user interests
+    //         } else {
+    //             // Send error response (profile has not been set up)
+    //             response.send(JSON.stringify({
+    //                 error: "Profile has not been set up."
+    //             }));
+    //         }
+    //     } else {
+    //         // User is not logged in
+    //         response.send(JSON.stringify({
+    //             error: "Not logged in."
+    //         }));
+    //     }
+    // });
     app.post("/api/user/interests", async (request: Request, response: Response) => {
         // Parse the request body
         if (typeof request.body !== "object") {
@@ -329,6 +346,50 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify(events));
         } else {
             response.send(JSON.stringify("Not logged in."));
+        }
+    });
+     // Post major data to the database. 
+     app.post("/api/user/on_campus", async (request: Request, response: Response) => {
+        // Parse the request body
+        // It should be an object.
+        if (typeof request.body !== "object") {
+            response.sendStatus(400);
+            return;
+        }
+
+        // Get the request and the major.
+        const body: any = request.body;
+        const isOnCampus: boolean = body.commuterStatus;
+
+        // The incoming major should be a number.
+        if (typeof isOnCampus !== "boolean") {
+            response.sendStatus(400);
+            return;
+        }
+
+        const user: User|undefined = request.user;
+
+        if (user != null) {
+            const profile: UserProfile|undefined = await user.profile;
+            // Find a major whose ID matches what is selected.
+            if (profile != null) {
+                profile.isOnCampus = isOnCampus;
+                await profile.save();
+                // Send success response
+                response.send(JSON.stringify({
+                    success: true
+                }));
+            } else {
+                // Send error response (profile has not been set up)
+                response.send(JSON.stringify({
+                    error: "Profile has not been set up."
+                }));
+            }
+        } else {
+            // User is not logged in
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
         }
     });
 }
