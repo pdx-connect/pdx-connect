@@ -5,6 +5,7 @@ import {route as tags} from "./tags";
 import {route as settings} from "./settings";
 import {route as search} from "./search";
 import {route as listing} from "./listing";
+import {route as events} from "./events";
 import {registerPublicPath} from "../authentication";
 
 registerPublicPath("/api");
@@ -15,4 +16,5 @@ export function route(app: Express, db: Connection) {
     settings(app, db);
     search(app, db);
     listing(app, db);
+    events(app, db);
 }
