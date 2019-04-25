@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "../.build",
     "noImplicitAny": false,
+    "strictNullChecks": false,
     "target": "es5",
     "lib": [
       "dom",
