@@ -4,6 +4,7 @@ import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Page} from "../Page";
 import {RouteComponentProps} from "react-router";
 import { FaEdit, FaRedo, FaCheck} from 'react-icons/fa';
+import {postJSON} from "../util/json";
 
 import "./Reset.css";
 
@@ -112,47 +113,26 @@ export class Reset extends Page<Props, State> {
     };
 
     private static async serverReset(email: string): Promise<boolean> {
-        const response: Response = await fetch("/reset", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email
-            })
+        const data = await postJSON("/reset", {
+            email: email
         });
-        const data = await response.json();
         return 'success' in data;
     }
 
     private static async serverVerify(email: string, verificationCode: string): Promise<boolean> {
-        const response: Response = await fetch("/reset/verify", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email,
-                verificationCode: verificationCode
-            })
+        const data = await postJSON("/reset/verify", {
+            email: email,
+            verificationCode: verificationCode
         });
-        const data = await response.json();
         return 'success' in data;
     }
 
     private static async serverConfirm(email: string, verificationCode: string, newPassword: string) {
-        const response: Response = await fetch("/reset/confirm", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email,
-                verificationCode: verificationCode,
-                newPassword: newPassword
-            })
+        const data = await postJSON("/reset/confirm", {
+            email: email,
+            verificationCode: verificationCode,
+            newPassword: newPassword
         });
-        const data = await response.json();
         return 'success' in data;
     }
     

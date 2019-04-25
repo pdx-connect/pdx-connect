@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Component} from "react";
 import {Container, Row, Col, Button} from "react-bootstrap";
-import "./Profile.css";
+import "./oobe.css";
 
 interface Props {
     finalize: () => void;
