@@ -2,7 +2,6 @@ import * as React from "react";
 import {Component, ReactNode, useState} from "react";
 import "./SearchResults.css"
 import { Container, Row, Col } from "react-bootstrap";
-import "./ReactGrid"
 import { ReactGrid } from "./ReactGrid";
 
 interface Props {

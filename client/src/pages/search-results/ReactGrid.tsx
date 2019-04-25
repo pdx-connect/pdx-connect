@@ -3,6 +3,7 @@ import {Component, ReactNode} from "react";
 import ReactDataGrid from 'react-data-grid';
 import "./SearchResults.css"
 import { Toolbar, Data, Filters } from "react-data-grid-addons"
+import {getJSON, postJSON} from "../../util/json"
 
 interface Props {
     //1 is user, 2 for events, 3 for calendar
@@ -72,13 +73,7 @@ export class ReactGrid extends Component<Props, State> {
     }
 
     private readonly getTags = async () => {
-        const response: Response = await fetch("/api/tags", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        const data = await response.json();
+        const data = await getJSON("/api/tags");
         if (!Array.isArray(data)) {
             // Not logged in, throw exception
             throw data;
@@ -90,17 +85,10 @@ export class ReactGrid extends Component<Props, State> {
     };
 
     private readonly getResults = async (searchBy: number, displayName: string) => {
-        const response: Response = await fetch("/api/search/profile", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                searchBy: searchBy,
-                displayName: displayName
-            })
+        const data = await postJSON("/api/search/profile", {
+            searchBy: searchBy,
+            displayName: displayName
         });
-        const data = await response.json(); 
         this.setState({rows: data.users})
         return data
     }
