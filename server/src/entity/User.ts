@@ -3,6 +3,7 @@ import {UserEmail} from "./UserEmail";
 import {randomBytes} from "crypto";
 import {hash} from "bcrypt";
 import {UserProfile} from "./UserProfile";
+import {CalendarEvent} from "./CalendarEvent";
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -42,7 +43,10 @@ export class User extends BaseEntity {
     
     @OneToOne(type => UserProfile, profile => profile.user)
     readonly profile!: Promise<UserProfile|undefined>;
-    
+
+    @OneToMany(type => CalendarEvent, events => events.user)
+    readonly events!: Promise<CalendarEvent[]>;
+
     @Column({
         name: "deactivated",
         comment: "Users should never be deleted, only deactivated"
@@ -68,8 +72,9 @@ export class User extends BaseEntity {
             this.emails = Promise.resolve([]);
             this.password = password;
             this.creationDate = new Date();
-            this.deactivated = false;
             this.profile = Promise.resolve(void 0);
+            this.events = Promise.resolve([]);
+            this.deactivated = false;
         }
     }
     
