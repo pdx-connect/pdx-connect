@@ -25,6 +25,8 @@ export class CalendarEvent extends BaseEntity {
 
     @Column({
         name: "user_id",
+        type: "int",
+        width: 10,
         unsigned: true
     })
     readonly userID!: number;
@@ -80,7 +82,15 @@ export class CalendarEvent extends BaseEntity {
     
     @OneToMany(type => CalendarEventComment, comment => comment.event)
     readonly comments!: Promise<CalendarEventComment[]>;
-
+    
+    @Column({
+        name: "deleted",
+        type: "tinyint",
+        width: 1,
+        unsigned: true
+    })
+    deleted!: boolean;
+    
     /**
      * Internal constructor.
      */
@@ -99,6 +109,7 @@ export class CalendarEvent extends BaseEntity {
             this.end = end != null ? end : null;
             this.tags = Promise.resolve([]);
             this.comments = Promise.resolve([]);
+            this.deleted = false;
         }
     }
 

@@ -22,6 +22,7 @@ export class CalendarEventComment extends BaseEntity {
     @Column({
         name: "event_id",
         type: "int",
+        width: 10,
         unsigned: true
     })
     readonly eventID!: number;
@@ -35,6 +36,7 @@ export class CalendarEventComment extends BaseEntity {
     @Column({
         name: "user_id",
         type: "int",
+        width: 10,
         unsigned: true
     })
     readonly userID!: number;
