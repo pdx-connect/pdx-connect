@@ -1,9 +1,10 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import ReactDataGrid from 'react-data-grid';
-import "./SearchResults.css"
-import { Toolbar, Data, Filters } from "react-data-grid-addons"
-import {getJSON, postJSON} from "../../util/json"
+import { Toolbar, Data, Filters } from "react-data-grid-addons";
+import {getJSON, postJSON} from "../../util/json";
+
+import "./SearchResults.css";
 
 interface Props {
     //1 is user, 2 for events, 3 for calendar
@@ -26,15 +27,16 @@ const {
 } = Filters;
 
 export class ReactGrid extends Component<Props, State> {
-    constructor(props : Props) {
-      super(props);
-      this.state = {
-        rows: [],
-        tags: [{id: 1, name: ""}],
-        filters: {}
-      };
-    }
 
+    constructor(props: Props) {
+        super(props);
+        this.state = {
+            rows: [],
+            tags: [{id: 1, name: ""}],
+            filters: {}
+        };
+    }
+    
     private readonly enterKeyPressed = (e: any) => {
         if (e.keyCode === 13) {
             e.preventDefault();
@@ -61,8 +63,8 @@ export class ReactGrid extends Component<Props, State> {
                 });
         }
         else {
-            const tags = this.getTags().then(tag=> {this.setState({tags : tag})})
-            let tag = this.state.tags.map(x => x.name)
+            const tags = this.getTags().then(tag=> {this.setState({tags : tag})});
+            let tag = this.state.tags.map(x => x.name);
             return tag
         }
     }
@@ -89,9 +91,9 @@ export class ReactGrid extends Component<Props, State> {
             searchBy: searchBy,
             displayName: displayName
         });
-        this.setState({rows: data.users})
+        this.setState({rows: data.users});
         return data
-    }
+    };
 
     public render(): ReactNode {
         const filteredRows = this.getRows(this.state.rows, this.state.filters);

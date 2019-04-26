@@ -4,119 +4,103 @@ import {User} from "../../entity/User";
 import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
 
+interface UserData {
+    userID: number;
+    displayName: string;
+    major: string;
+    tags?: string;
+}
+
+function toTagString(tags: Tag[]) {
+    let str = "Tags: ";
+    for (let i = 0; i < tags.length; ++i) {
+        str = str.concat(tags[i].name);
+        if (i < tags.length - 1) {
+            str = str.concat(", ");
+        }
+    }
+    return str;
+}
 
 export function route(app: Express, db: Connection) {
    app.post("/api/search/profile", async (request: Request, response: Response) => {
-       var USERS: Object[]|undefined = undefined;
-
+       let json: UserData[];
+       
        if(request.body.searchBy === 1)     // Search by display name
        {
-           if (request.body.displayName != null) {
-               // Search the DB to find all users with this displayName
-               const users: User[] = await User.find({
+           if (typeof request.body.displayName !== "string") {
+               response.sendStatus(400);
+               return;
+           }
+           // Search the DB to find all users with this displayName
+           const users: User[] = await User.find({
+               where: {
+                   displayName: Like("%" + request.body.displayName + "%")
+               }
+           });
+
+           // Create an array of user(s) containing their ID, displayName, major
+           json = await Promise.all(users.map(async user => {
+               const userProfile: UserProfile|undefined = await user.profile;
+               let majorString = "Not Set";
+               let tagsString = "Tags: Not Set";
+               if (userProfile != null) {
+                   const majorTag: Tag | null = await userProfile.major;
+                   const interestTags: Tag[] = await userProfile.interests;
+                   if (majorTag != null) {
+                       majorString = majorTag.name;
+                   }
+                   if (interestTags.length > 0) {
+                       tagsString = toTagString(interestTags);
+                   }
+               }
+               return {
+                   userID: user.id,
+                   displayName: user.displayName,
+                   major: majorString,
+                   tags: tagsString
+               };
+           }));
+       }
+       else if(request.body.searchBy === 2)    // Search by major
+       {
+           if (typeof request.body.major !== "string") {
+               response.sendStatus(400);
+               return;
+           }
+           // Found the tag id of the corresponding tag
+           const majorTag: Tag|undefined = await Tag.findOne({
+               where: {
+                   name: request.body.major
+               }
+           });
+           if (majorTag != null) {
+               // Search the DB to find all users with this major
+               const userProfiles: UserProfile[] = await UserProfile.find({
                    where: {
-                       displayName: Like("%" + request.body.displayName + "%")
+                       major: majorTag.id
                    }
                });
 
                // Create an array of user(s) containing their ID, displayName, major
-               USERS = await Promise.all(users.map(async user => {
-                   const user_profile: UserProfile|undefined = await user.profile;
-
-                   if(user_profile != undefined){
-                       const major_tag: Tag|undefined|null = await user_profile.major;
-                       const user_tags: Tag[] = await user_profile.interests;
-
-                       if(major_tag != null){
-                           if(user_tags && user_tags.length){
-                                let tags_modified = "Tags: "
-                                for(var i = 0; i < user_tags.length; ++i){
-                                    tags_modified = tags_modified.concat(await user_tags[i].name)
-                                    if(i < user_tags.length - 1){
-                                        tags_modified = tags_modified.concat(", ")
-                                    }
-                                }
-                                return {
-                                   userID: user.id,
-                                   displayName: user.displayName,
-                                   major: await major_tag.name,
-                                   tags: await tags_modified
-                                }
-                           }
-                           return {
-                               userID: user.id,
-                               displayName: user.displayName,
-                               major: await major_tag.name,
-                               tags: "Tags: Not Set"
-                           };
-                       }
-                       else if(user_tags && user_tags.length){
-                            let tags_modified = "Tags: "
-                            for(var i = 0; i < user_tags.length; ++i){
-                                tags_modified = tags_modified.concat(await user_tags[i].name)
-                                if(i < user_tags.length - 1){
-                                    tags_modified = tags_modified.concat(", ")
-                                }
-                            }
-                            return{
-                                userID: user.id,
-                                displayName: user.displayName,
-                                major: "Not Set",
-                                tags: await tags_modified
-                           }
-                       }
-                   }
+               json = await Promise.all(userProfiles.map(async userProfile => {
+                   const user: User = await userProfile.user;
                    return {
                        userID: user.id,
                        displayName: user.displayName,
-                       major: "Not Set",
-                       tags: "Tags: Not Set"
+                       major: majorTag.name
                    };
                }))
            } else {
-               response.sendStatus(400);
+               json = [];
            }
-
-       }
-       else if(request.body.searchBy === 2)    // Search by major
-       {
-           if (request.body.major != null) {
-               // Found the tag id of the coressponding tag
-               const Major: Tag|undefined = await Tag.findOne({
-                   where: {
-                       name: request.body.major
-                   }
-               });
-
-               if(Major != undefined)
-               {
-                   // Search the DB to find all users with this major
-                   const user_profiles: UserProfile[] = await UserProfile.find({
-                       where: {
-                           major: Major.id
-                       }
-                   });
-
-                   // Create an array of user(s) containing their ID, displayName, major
-                   USERS = await Promise.all(user_profiles.map(async user_profile => {
-                       const user: User = await user_profile.user;
-
-                       return {
-                           userID: user_profile.userID,
-                           displayName: user.displayName,
-                           major: await user_profile.major
-                       };
-                   }))
-               }
-           } else {
-               response.sendStatus(400);
-           }
+       } else {
+           json = [];
        }
 
        response.send(JSON.stringify({
            // Send back the array of found user(s)
-           users: USERS
+           users: json
        }));
-
    });
 }
