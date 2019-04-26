@@ -247,6 +247,8 @@ export class Socket {
                 //TODO throw error
                 return;
             }
+            console.log("In sendMessages")
+            console.log(msg);
             // Get a conversationID from the server
             this.socket.send(JSON.stringify({
                 type: "new",
@@ -256,7 +258,7 @@ export class Socket {
             // If the conversation does exist..
         } else {
             this.socket.send(JSON.stringify({
-            type: "message", 
+            type: "message",
             conversationID: conversationID,
             content: msg
             }));
