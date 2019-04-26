@@ -17,6 +17,7 @@ interface Props {
 
 interface State {
     currentConversation: number;
+    currentConversationID: number;
     textField: string;
 }
 
@@ -173,20 +174,28 @@ export class Inbox extends Component<Props, State> {
         super(props);
         this.state = {
             currentConversation: 0,
+            currentConversationID: this.props.conversations[0].conversationID,
             textField: "",
         }
     }
 
     private readonly onChange = (e: any) => {
+        e.preventDefault();
         this.setState({textField: e.target.value});
     }
 
     private readonly onSubmit = (e: any) => {
         e.preventDefault();
 
+<<<<<<< HEAD
         this.props.sendMessage(this.state.textField, this.state.currentConversation, null);        
+=======
+        this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
+        console.log("Sending message!", this.state.textField, this.state.currentConversationID);       
+>>>>>>> 586e9a669ca9be5a3312dcca11b578c0e4e60616
 
         this.setState({textField: ""});
+        
         //this.props.onSendMessage(this.state.textField)
     }
 
@@ -196,7 +205,7 @@ export class Inbox extends Component<Props, State> {
             for (let i=0; i<this.props.conversations.length; i++) {
                 if (i == this.state.currentConversation) {
                     rows.push(
-                        <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="open-conversation">
+                        <Row key={i} onClick={()=> this.setState({currentConversation: i, currentConversationID: this.props.conversations[i].conversationID})} className="open-conversation">
                             <Col key={i} sm={12}>
                                 Message from: user {this.props.conversations[i].entries[0].userID}
                                 Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
@@ -206,7 +215,7 @@ export class Inbox extends Component<Props, State> {
                 }
                 else {
                     rows.push(
-                        <Row key={i} onClick={()=> this.setState({currentConversation: i})} className="conversation">
+                        <Row key={i} onClick={()=> this.setState({currentConversation: i, currentConversationID: this.props.conversations[i].conversationID})} className="conversation">
                             <Col key={i} sm={12}>
                                 Message from: user {this.props.conversations[i].entries[0].userID}
                                 Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
