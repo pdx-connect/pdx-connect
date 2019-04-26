@@ -4,7 +4,7 @@ import {User} from "../../entity/User";
 import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
 import {Listing} from "../../entity/Listing";
-import {ListingComments} from "../../entity/ListingComments";
+import {ListingComment} from "../../entity/ListingComment";
 
 
 interface xxx {

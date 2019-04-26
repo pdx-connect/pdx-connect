@@ -1,10 +1,10 @@
-import {BaseEntity, Column, Entity, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToOne} from "typeorm";
+import {BaseEntity, Column, Entity, PrimaryGeneratedColumn, JoinColumn, ManyToOne} from "typeorm";
 import {User} from "./User";
 import {Listing} from "./Listing";
 
 @Entity("listing_comments")
-export class ListingComments extends BaseEntity {
-
+export class ListingComment extends BaseEntity {
+    
     @PrimaryGeneratedColumn({
         name: "comment_id",
         type: "int",
@@ -13,26 +13,31 @@ export class ListingComments extends BaseEntity {
     })
     readonly id!: number;
 
-   // listing_id
-   @JoinColumn({
-    name: "listing_id"
+    @Column({
+        name: "listing_id",
+        type: "int",
+        width: 10,
+        unsigned: true
     })
-    @ManyToOne(type => Listing, {
-        onDelete: "RESTRICT",
-        onUpdate: "CASCADE"
-    })
-    listingID!: number;
+    readonly listingID!: number;
 
     @JoinColumn({
         name: "listing_id"
     })
-    @OneToOne(type => Listing, {
+    @ManyToOne(type => Listing, listing => listing.comments, {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE"
     })
     readonly listing!: Promise<Listing>;
 
-    // user_id
+    @Column({
+        name: "user_id",
+        type: "int",
+        width: 10,
+        unsigned: true
+    })
+    readonly userID!: number;
+    
     @JoinColumn({
         name: "user_id"
     })
@@ -40,19 +45,8 @@ export class ListingComments extends BaseEntity {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE"
     })
-    userID!: number;
-
-    // Based on the user id, match its user profile
-    @JoinColumn({
-        name: "user_id"
-    })
-    @OneToOne(type => User, user => user.profile, {
-        onDelete: "RESTRICT",
-        onUpdate: "CASCADE"
-    })
     readonly user!: Promise<User>;
-
-
+    
     @Column({
         name: "time_posted",
         type: "datetime",
@@ -68,20 +62,19 @@ export class ListingComments extends BaseEntity {
         comment: "The content of the comment",
     })
     content!: string;
-
-
+    
     /**
      * Internal constructor.
      */
     constructor();
 
     /**
-     * Creates a new message in conversation from user
+     * Creates a new listing comment posted by the given user
      * @param listing
      * @param user
      * @param content
      */
-    constructor(listing?: Listing, user?: User, content?: string);
+    constructor(listing: Listing, user: User, content: string);
     
     constructor(listing?: Listing, user?: User, content?: string) {
         super();
