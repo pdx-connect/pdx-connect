@@ -1,6 +1,7 @@
 /node_modules
 /dist
 /.build
-*.js
-*.js.map
-*.d.ts
+/*.js
+/*.js.map
+/*.d.ts
+/src/pages/calendar/workingFile.tsx
