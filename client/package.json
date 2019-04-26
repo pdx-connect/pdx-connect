@@ -17,6 +17,7 @@
     "react": "^16.8.4",
     "react-big-calendar": "^0.20.4",
     "react-bootstrap": "^1.0.0-beta.5",
+    "react-bootstrap-sweetalert": "^4.4.1",
     "react-burger-menu": "^2.6.5",
     "react-data-grid": "^6.1.0",
     "react-data-grid-addons": "^6.1.0",
@@ -49,7 +50,7 @@
   "scripts": {
     "clean": "run-p -cs clean:*",
     "bundle": "run-s -cs clean tsc webpack",
-    "clean:js": "shx rm -rf ./.build ./src/**/*.js ./src/**/*.js.map ./src/**/*.d.ts ./*.js ./*.js.map ./*.d.ts ./*.tsbuildinfo",
+    "clean:js": "shx rm -rf ./.build ./*.js ./*.js.map ./*.d.ts ./*.tsbuildinfo",
     "clean:dist": "shx rm -rf ./dist",
     "tsc": "tsc -b .",
     "webpack": "webpack --mode production"
