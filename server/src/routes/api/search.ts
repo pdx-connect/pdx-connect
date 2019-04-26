@@ -8,6 +8,18 @@ interface UserData {
     userID: number;
     displayName: string;
     major: string;
+    tags?: string;
+}
+
+function toTagString(tags: Tag[]) {
+    let str = "Tags: ";
+    for (let i = 0; i < tags.length; ++i) {
+        str = str.concat(tags[i].name);
+        if (i < tags.length - 1) {
+            str = str.concat(", ");
+        }
+    }
+    return str;
 }
 
 export function route(app: Express, db: Connection) {
@@ -16,7 +28,7 @@ export function route(app: Express, db: Connection) {
        
        if(request.body.searchBy === 1)     // Search by display name
        {
-           if (request.body.displayName == null) {
+           if (typeof request.body.displayName !== "string") {
                response.sendStatus(400);
                return;
            }
@@ -30,26 +42,29 @@ export function route(app: Express, db: Connection) {
            // Create an array of user(s) containing their ID, displayName, major
            json = await Promise.all(users.map(async user => {
                const userProfile: UserProfile|undefined = await user.profile;
+               let majorString = "Not Set";
+               let tagsString = "Tags: Not Set";
                if (userProfile != null) {
                    const majorTag: Tag | null = await userProfile.major;
+                   const interestTags: Tag[] = await userProfile.interests;
                    if (majorTag != null) {
-                       return {
-                           userID: user.id,
-                           displayName: user.displayName,
-                           major: majorTag.name
-                       };
+                       majorString = majorTag.name;
+                   }
+                   if (interestTags.length > 0) {
+                       tagsString = toTagString(interestTags);
                    }
                }
                return {
                    userID: user.id,
                    displayName: user.displayName,
-                   major: ""
+                   major: majorString,
+                   tags: tagsString
                };
            }));
        }
        else if(request.body.searchBy === 2)    // Search by major
        {
-           if (request.body.major == null) {
+           if (typeof request.body.major !== "string") {
                response.sendStatus(400);
                return;
            }
