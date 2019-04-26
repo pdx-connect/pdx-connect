@@ -50,7 +50,7 @@
   "scripts": {
     "clean": "run-p -cs clean:*",
     "bundle": "run-s -cs clean tsc webpack",
-    "clean:js": "shx rm -rf ./.build ./src/**/*.js ./src/**/*.js.map ./src/**/*.d.ts ./*.js ./*.js.map ./*.d.ts ./*.tsbuildinfo",
+    "clean:js": "shx rm -rf ./.build ./*.js ./*.js.map ./*.d.ts ./*.tsbuildinfo",
     "clean:dist": "shx rm -rf ./dist",
     "tsc": "tsc -b .",
     "webpack": "webpack --mode production"

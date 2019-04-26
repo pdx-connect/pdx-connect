@@ -56,7 +56,7 @@ export class Calendar extends Component<Props, State> {
           showCancel
           style={{ display: "block", marginTop: "-100px" }}
           title="Enter Event"
-          onConfirm={e => this.addNewEvent(e, slotInfo)}
+          onConfirm={(e: any) => this.addNewEvent(e, slotInfo)}
           onCancel={() => this.hideAlert()}
           confirmBtnBsStyle="info"
           cancelBtnBsStyle="danger"
