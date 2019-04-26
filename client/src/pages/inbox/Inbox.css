@@ -83,3 +83,8 @@
     border-radius: 10px;
     float: right;
 }
+
+.textField
+{
+    width: 300px;
+}
