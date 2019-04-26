@@ -3,12 +3,19 @@ import {Connection, Like} from "typeorm";
 import {User} from "../../entity/User";
 import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
+import {CalendarEvent} from "../../entity/CalendarEvent"
 
 interface UserData {
     userID: number;
     displayName: string;
     major: string;
     tags?: string;
+}
+
+interface ListingData {
+    title: string;
+    startDate: string;
+    description: string;
 }
 
 function toTagString(tags: Tag[]) {
@@ -24,8 +31,7 @@ function toTagString(tags: Tag[]) {
 
 export function route(app: Express, db: Connection) {
    app.post("/api/search/profile", async (request: Request, response: Response) => {
-       let json: UserData[];
-       
+       let json : any
        if(request.body.searchBy === 1)     // Search by display name
        {
            if (typeof request.body.displayName !== "string") {
@@ -62,39 +68,43 @@ export function route(app: Express, db: Connection) {
                };
            }));
        }
-       else if(request.body.searchBy === 2)    // Search by major
+       else if(request.body.searchBy === 2)    // Search by listing
        {
-           if (typeof request.body.major !== "string") {
+            if (typeof request.body.title !== "string") {
                response.sendStatus(400);
                return;
-           }
-           // Found the tag id of the corresponding tag
-           const majorTag: Tag|undefined = await Tag.findOne({
-               where: {
-                   name: request.body.major
-               }
-           });
-           if (majorTag != null) {
-               // Search the DB to find all users with this major
-               const userProfiles: UserProfile[] = await UserProfile.find({
-                   where: {
-                       major: majorTag.id
-                   }
-               });
-
-               // Create an array of user(s) containing their ID, displayName, major
-               json = await Promise.all(userProfiles.map(async userProfile => {
-                   const user: User = await userProfile.user;
-                   return {
-                       userID: user.id,
-                       displayName: user.displayName,
-                       major: majorTag.name
-                   };
-               }))
-           } else {
-               json = [];
-           }
-       } else {
+            }
+            json = [{title : "Event 1", startDate: "May", description: "Test"},
+                    {title : "Event 2", startDate: "June", description: "Other"}]
+       }
+       else if(request.body.searchBy === 3)    // Search by event
+       {
+            if(typeof request.body.title !== "string") {
+                response.sendStatus(400);
+                return;
+            }
+            const events: CalendarEvent[] = await CalendarEvent.find({
+                where: {
+                    title: Like("%" + request.body.title + "%")
+                }
+            });
+            json = await Promise.all(events.map(async event => {
+                let description = "Not Set";
+                let start : Date
+                if (event.description != null) {
+                    description = event.description;
+                }
+                if (event.start != null) {
+                    start = event.start;
+                }
+                return {
+                    title: event.title,
+                    description: event.description,
+                    startDate: event.start,
+                };
+            }));
+       }
+       else {
            json = [];
        }
 

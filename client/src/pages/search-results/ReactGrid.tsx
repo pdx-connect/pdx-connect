@@ -19,6 +19,7 @@ interface State {
         name: string;
     }[];
     filters: any;
+    reset: any;
 }
 
 const {
@@ -33,7 +34,8 @@ export class ReactGrid extends Component<Props, State> {
         this.state = {
             rows: [],
             tags: [{id: 1, name: ""}],
-            filters: {}
+            filters: {},
+            reset: 0
         };
     }
     
@@ -43,6 +45,7 @@ export class ReactGrid extends Component<Props, State> {
             if (this.props.searchField != null) {
                 const results = this.getResults(this.props.searchBy, this.props.searchField).then();
             }
+            this.setState({reset: this.state.reset + 1})
         }
     };
 
@@ -63,7 +66,7 @@ export class ReactGrid extends Component<Props, State> {
                 });
         }
         else {
-            const tags = this.getTags().then(tag=> {this.setState({tags : tag})});
+            this.getTags().then(tag=> {this.setState({tags : tag})});
             let tag = this.state.tags.map(x => x.name);
             return tag
         }
@@ -86,10 +89,11 @@ export class ReactGrid extends Component<Props, State> {
         return data
     };
 
-    private readonly getResults = async (searchBy: number, displayName: string) => {
+    private readonly getResults = async (searchBy: number, searchString: string) => {
         const data = await postJSON("/api/search/profile", {
             searchBy: searchBy,
-            displayName: displayName
+            displayName: searchString,
+            title: searchString
         });
         this.setState({rows: data.users});
         return data
@@ -97,11 +101,21 @@ export class ReactGrid extends Component<Props, State> {
 
     public render(): ReactNode {
         const filteredRows = this.getRows(this.state.rows, this.state.filters);
-        const columns = [
-            { key: "displayName", name: "Name", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
-            { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
-            { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: AutoCompleteFilter}
-        ];
+        let columns : any
+        if (this.props.searchBy == 1){
+            columns = [
+                { key: "displayName", name: "Name", editable: false, filterable: true},
+                { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
+                { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: MultiSelectFilter}
+            ];
+        }
+        if (this.props.searchBy == 2 || this.props.searchBy == 3){
+            columns = [
+                { key: "title", name: "Title", editable: false, filterable: true},
+                { key: "startDate", name: "Start Date", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
+                { key: "description", name: "Description", editable: false, filterable: true}
+            ];
+        }
         const handleFilterChange = (filter: any) => {
             const newFilters = { ...this.state.filters };
             if (filter.filterTerm) {
@@ -113,17 +127,19 @@ export class ReactGrid extends Component<Props, State> {
         };
 
         return (
-            <ReactDataGrid
-                columns={columns}
-                rowGetter={i => filteredRows[i]}
-                rowsCount={this.state.rows.length}
-                rowHeight={40}
-                minHeight={500}
-                toolbar={<Toolbar enableFilter={true} />}
-                onAddFilter={filter => this.setState({filters : handleFilterChange(filter) })}
-                onClearFilters={() => this.setState({filters : {}})}
-                getValidFilterValues={columnKey => this.getValidFilterValues(this.state.rows, columnKey)}
-            />
+            <div key={this.state.reset}>
+                <ReactDataGrid
+                    columns={columns}
+                    rowGetter={i => filteredRows[i]}
+                    rowsCount={this.state.rows.length}
+                    rowHeight={40}
+                    minHeight={500}
+                    toolbar={<Toolbar enableFilter={true} />}
+                    onAddFilter={filter => this.setState({filters : handleFilterChange(filter) })}
+                    onClearFilters={() => this.setState({filters : {}})}
+                    getValidFilterValues={columnKey => this.getValidFilterValues(this.state.rows, columnKey)}
+                />
+            </div>
         );
     }
 }
