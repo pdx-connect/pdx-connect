@@ -1,0 +1,28 @@
+.listings {
+
+}
+
+.categoryCol {
+    height: 600px;
+    background-color: lightgray;
+}
+
+.listingCol {
+    height: 600px;
+}
+
+
+.createButton {
+    padding-bottom: 5%;
+    cursor: pointer;
+}
+
+.myListingCheckbox {
+
+}
+
+
+.theListing:hover {
+    text-decoration: underline;
+    color: lightseagreen;
+}
