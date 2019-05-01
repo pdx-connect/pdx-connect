@@ -45,6 +45,7 @@ export class Socket {
             // When a message is received, do...
             if( this.socket != null ) { // TODO: this check is a hacky work around
                 this.socket.onmessage = (msg: MessageEvent) => {
+                    console.log("On message triggered")
                     let conversation: ConversationEntry;
                     let message: Message;
                     let data = msg.data;
@@ -54,6 +55,7 @@ export class Socket {
                         return;
                     }
                     data = JSON.parse(data);
+                    console.log("Data:", data);
                     let lastSeen: number = 0;
                     let conversationID: number = data.conversationID;
                     let msgFromServer: ServerMessage = data.message;
@@ -247,8 +249,6 @@ export class Socket {
                 //TODO throw error
                 return;
             }
-            console.log("In sendMessages")
-            console.log(msg);
             // Get a conversationID from the server
             this.socket.send(JSON.stringify({
                 type: "new",
@@ -257,6 +257,8 @@ export class Socket {
             }));
             // If the conversation does exist..
         } else {
+            console.log("Right before message send")
+            console.log(msg);    
             this.socket.send(JSON.stringify({
             type: "message",
             conversationID: conversationID,

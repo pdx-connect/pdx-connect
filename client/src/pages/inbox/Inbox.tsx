@@ -187,12 +187,7 @@ export class Inbox extends Component<Props, State> {
     private readonly onSubmit = (e: any) => {
         e.preventDefault();
 
-<<<<<<< HEAD
-        this.props.sendMessage(this.state.textField, this.state.currentConversation, null);        
-=======
         this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
-        console.log("Sending message!", this.state.textField, this.state.currentConversationID);       
->>>>>>> 586e9a669ca9be5a3312dcca11b578c0e4e60616
 
         this.setState({textField: ""});
         
