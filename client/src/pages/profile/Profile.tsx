@@ -25,7 +25,7 @@ interface SubState {
         value: string;
         label: string;
     }[];
-    commuter: string;
+    commuterStatus: boolean;
     comm_status: {
         value: string;
         label: string;
@@ -42,6 +42,7 @@ interface State extends SubState {
     selectedOptions: OptionType[];
     selectedMajors: OptionType[];
     selectedInterests: OptionType[];
+    selectedStatus: OptionType[];
 }
 
 
@@ -56,7 +57,7 @@ export class Profile extends Component<Props, State> {
             displayName: "",
             major: "",
             majors: [],
-            commuter: "",
+            commuterStatus: false,
             comm_status: [],
             interests: [],
             optInEmail: "",
@@ -66,7 +67,7 @@ export class Profile extends Component<Props, State> {
                 'displayName': false,
                 'major': false,
                 'majors': false,
-                'commuter': false,
+                'commuterStatus': false,
                 'comm_status': false,
                 'interests': false,
                 'optInEmail': false,
@@ -77,7 +78,7 @@ export class Profile extends Component<Props, State> {
                 'displayName': true,
                 'major': true,
                 'majors': true,
-                'commuter': true,
+                'commuterStatus': true,
                 'comm_status': true,
                 'interests': true,
                 'optInEmail': true,
@@ -87,6 +88,7 @@ export class Profile extends Component<Props, State> {
             selectedOptions: [],
             selectedMajors: [],
             selectedInterests: [],
+            selectedStatus: [],
         };
     }
 
@@ -192,6 +194,36 @@ export class Profile extends Component<Props, State> {
         this.setState({selectedInterests});
     };
 
+    // New function to handle change in commuter status
+    private readonly handleCommuterChange = (value: ValueType<OptionType>, action: ActionMeta) => {
+        let selectedStatus: OptionType[];
+        if (value == null) {
+            selectedStatus = [];
+        } else if (Array.isArray(value)) {
+            selectedStatus = value;
+        } else {
+            selectedStatus = [value];
+        }
+        //console.log(value)
+        this.setState({selectedStatus});
+        console.log(selectedStatus)
+
+        // Is the student on campus?
+        // This currently uses a hardcoded value specified
+        // in the render function.
+        if (selectedStatus[0].value == 'on campus') {
+            this.setState({
+                commuterStatus: true
+            });
+        }
+        else {
+            this.setState({
+                commuterStatus: false
+            });
+        }
+        
+    };
+
     private readonly toggle = (e: keyof SubState, state?: boolean) => {
         let updatedDisabled = this.state.disabled;
         updatedDisabled[e] = state != null ? state : !updatedDisabled[e];
@@ -244,8 +276,11 @@ export class Profile extends Component<Props, State> {
                 }
                 break;
             }
-            case "commuter": {
-                const data = await postJSON("/api/user/on_campus", this.state.comm_status);
+            case "commuterStatus": {
+                console.log(this.state.commuterStatus)
+                const data = await postJSON("/api/user/on_campus", {
+                    commuterStatus: this.state.commuterStatus
+                });
                 if (!('success' in data)) {
                     this.error(e, true);
                     return;
@@ -359,18 +394,19 @@ export class Profile extends Component<Props, State> {
                        <Col sm={4}>
                             <Select 
                                 options={commuterOptions} 
+                                onChange={this.handleCommuterChange}
                             />
                        </Col>
                        
                        <Col sm={4} className="edit">
-                       {this.state.disabled['commuter']?
+                       {this.state.disabled['commuterStatus']?
                             <div>
-                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('commuter')}/>
+                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('commuterStatus')}/>
                             </div>
                                 :
                             <div>
-                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('commuter')}></FaSave>
-                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('commuter')}></FaUndoAlt>
+                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('commuterStatus')}></FaSave>
+                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('commuterStatus')}></FaUndoAlt>
                             </div>
                             }
                        </Col>
