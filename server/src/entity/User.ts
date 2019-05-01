@@ -4,6 +4,7 @@ import {randomBytes} from "crypto";
 import {hash} from "bcrypt";
 import {UserProfile} from "./UserProfile";
 import {CalendarEvent} from "./CalendarEvent";
+import {Listing} from "./Listing";
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -44,8 +45,11 @@ export class User extends BaseEntity {
     @OneToOne(type => UserProfile, profile => profile.user)
     readonly profile!: Promise<UserProfile|undefined>;
 
-    @OneToMany(type => CalendarEvent, events => events.user)
+    @OneToMany(type => CalendarEvent, event => event.user)
     readonly events!: Promise<CalendarEvent[]>;
+
+    @OneToMany(type => Listing, listing => listing.user)
+    readonly listings!: Promise<Listing[]>;
 
     @Column({
         name: "deactivated",
