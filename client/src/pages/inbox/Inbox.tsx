@@ -3,6 +3,7 @@ import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
 import "./Inbox.css";
+import { number } from 'prop-types';
 
 
 interface Props {
@@ -14,7 +15,7 @@ interface Props {
 }
 
 interface State {
-    currentConversation: number;
+    currentConversationIndex: number;
     currentConversationID: number;
     textField: string;
 }
@@ -27,7 +28,7 @@ export class Inbox extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            currentConversation: 0,
+            currentConversationIndex: 0,
             currentConversationID: this.props.conversations[0].conversationID,
             textField: "",
         }
@@ -46,17 +47,40 @@ export class Inbox extends Component<Props, State> {
 
         console.log(this.state.textField);
         this.setState({textField: ""});
-        
+
         //this.props.onSendMessage(this.state.textField)
+    }
+
+    private readonly getParticipents = () => {
+        let rows = [];
+
+        var participents: number[] = [];
+
+        if (this.props.conversations != null) {
+            for (let i=0; i<this.props.conversations[this.state.currentConversationIndex].entries.length; i++) {
+                if (participents.indexOf(this.props.conversations[this.state.currentConversationIndex].entries[i].userID) == -1) {
+                    participents.push(this.props.conversations[this.state.currentConversationIndex].entries[i].userID);
+                }         
+            }
+        }
+        if (this.props.conversations != null) {
+            rows.push("Participent IDs: ")
+            for (let i=0; i<participents.length; i++) {
+                rows.push(participents[i]);
+                if (i != participents.length-1)
+                    rows.push(", ");
+            }
+        }
+        return rows;
     }
 
     private readonly getInbox = () => {
         let rows = [];
         if (this.props.conversations != null) {
             for (let i=0; i<this.props.conversations.length; i++) {
-                if (i == this.state.currentConversation) {
+                if (i == this.state.currentConversationIndex) {
                     rows.push(
-                        <Row key={i} onClick={()=> this.setState({currentConversation: i, currentConversationID: this.props.conversations[i].conversationID})} className="open-conversation">
+                        <Row key={i} onClick={()=> this.setState({currentConversationIndex: i, currentConversationID: this.props.conversations[i].conversationID})} className="open-conversation">
                             <Col key={i} sm={12}>
                                 Message from: user {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
                                 Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}
@@ -66,7 +90,7 @@ export class Inbox extends Component<Props, State> {
                 }
                 else {
                     rows.push(
-                        <Row key={i} onClick={()=> this.setState({currentConversation: i, currentConversationID: this.props.conversations[i].conversationID})} className="conversation">
+                        <Row key={i} onClick={()=> this.setState({currentConversationIndex: i, currentConversationID: this.props.conversations[i].conversationID})} className="conversation">
                             <Col key={i} sm={12}>
                                 Message from: user {this.props.conversations[i].entries[0].userID}
                                 Preview: {this.props.conversations[i].entries[0].text}
@@ -88,20 +112,21 @@ export class Inbox extends Component<Props, State> {
         let rows = [];
         if (this.props.conversations != null) {
             console.log("Convo 0" ,this.props.conversations[0]) 
-            for (let i=0; i<this.props.conversations[this.state.currentConversation].entries.length; i++) { 
-                if (this.props.conversations[this.state.currentConversation].entries[i].userID == this.props.userID) {
+            for (let i=this.props.conversations[this.state.currentConversationIndex].entries.length-1; i >= 0; i--) { 
+                if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID == this.props.userID) {
                     rows.push(
                         <Row key={i} className="my-message">
-                            <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
+                            <pre>{this.props.userID}</pre> 
+                            <Col className="my-message-bubble" key={i} sm={12}> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
                         </Row>
                     );
                 }
                 else {
                     rows.push(
                         <Row key={i} className="other-message">
-                            <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
+                            <Col className="other-message-bubble" key={i} sm={12}> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
                         </Row>
-                );
+                    );
                 }
             }
         } else {
@@ -145,12 +170,26 @@ export class Inbox extends Component<Props, State> {
                 else 
                     print message left side
             */
-        let messages = this.getMessages();
+        let participents = this.getParticipents();
         let conversations = this.getInbox();
+        let messages = this.getMessages();
 
         return (
 
             <Container fluid className="inbox">
+
+                <div className="compose-message">
+                    <Form onSubmit={(e: any) => this.onSubmit(e)}>
+                        <Row>
+                            <Col sm={12} ><Button className="compose-button" variant="primary" type="submit">Compose Message</Button></Col>
+                        </Row>
+                    </Form>
+                </div>
+
+                <div className="participents">
+                    {participents}
+                </div>
+
                 <div className="conversations">
                     {conversations}
                 </div>
