@@ -59,6 +59,10 @@ export class ReactGrid extends Component<Props, State> {
         const tags = this.getTags().then()
     }
 
+    public componentWillUnmount() {
+        document.removeEventListener('keydown', this.enterKeyPressed);
+    }
+
     private getValidFilterValues(rows : any, columnId : any) {
         if( columnId != "tags") {
             return rows
