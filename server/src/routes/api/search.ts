@@ -113,4 +113,61 @@ export function route(app: Express, db: Connection) {
            users: json
        }));
    });
+
+    app.post("/api/search/finduser", async (request: Request, response: Response) => {
+        let json : any
+        if(request.body.userId)     // If there is a userid to search
+        {
+            // Search the DB to find the user with the userID
+            const users: User[] = await User.find({
+                where: {
+                    id: request.body.userId
+                }
+            });
+ 
+            // Create an array of user(s) containing their ID, displayName, major
+            json = await Promise.all(users.map(async user => {
+                const userProfile: UserProfile|undefined = await user.profile;
+                let majorString = "Not Set";
+                let tagsString = "Tags: Not Set";
+                const creationDate = await user.creationDate
+                const events = await user.events
+                const listings = await user.listings
+                let descString = "Not Set"
+                if (userProfile != null) {
+                    const description: string|null = await userProfile.description
+                    const majorTag: Tag | null = await userProfile.major;
+                    const interestTags: Tag[] = await userProfile.interests;
+                    if (description != null) {
+                        descString = description
+                    }
+                    if (majorTag != null) {
+                        majorString = majorTag.name;
+                    }
+                    if (interestTags.length > 0) {
+                        tagsString = toTagString(interestTags);
+                    }
+                }
+                return {
+                    userID: user.id,
+                    displayName: user.displayName,
+                    major: majorString,
+                    tags: tagsString,
+                    creationDate: creationDate,
+                    events: events,
+                    listings: listings,
+                    description: descString,
+                };
+            }));
+        }
+        else{
+            response.sendStatus(400)
+            return;
+        }
+
+        response.send(JSON.stringify({
+            // Send back the array of found user(s)
+            user: json
+        }));
+    });
 }

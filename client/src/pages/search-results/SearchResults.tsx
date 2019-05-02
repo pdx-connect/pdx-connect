@@ -2,9 +2,7 @@ import * as React from "react";
 import {Component, ReactNode} from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { ReactGrid } from "./ReactGrid";
-
 import "./SearchResults.css";
-import { FaUsers } from 'react-icons/fa';
 
 interface Props {
     finalSearchField: string;

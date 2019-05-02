@@ -20,6 +20,7 @@ interface State {
     }[];
     filters: any;
     reset: any;
+    user: []
 }
 
 const {
@@ -35,7 +36,8 @@ export class ReactGrid extends Component<Props, State> {
             rows: [],
             tags: [{id: 1, name: ""}],
             filters: {},
-            reset: 0
+            reset: 0,
+            user: []
         };
     }
     
@@ -99,6 +101,20 @@ export class ReactGrid extends Component<Props, State> {
         return data
     };
 
+    private readonly getProfile = async (userId: number) => {
+        const data = await postJSON("/api/search/finduser", {
+            userId: userId,
+        });
+        this.setState({user: data.user});
+        return data
+    };
+
+    private onClick(rowIdx: number, row: any) {
+        if (rowIdx != -1) {
+            this.getProfile(row["userID"]).then(userdata => console.log("User:", this.state.user))
+        }
+    }
+
     public render(): ReactNode {
         const filteredRows = this.getRows(this.state.rows, this.state.filters);
         let columns : any
@@ -138,6 +154,7 @@ export class ReactGrid extends Component<Props, State> {
                     onAddFilter={filter => this.setState({filters : handleFilterChange(filter) })}
                     onClearFilters={() => this.setState({filters : {}})}
                     getValidFilterValues={columnKey => this.getValidFilterValues(this.state.rows, columnKey)}
+                    onRowClick={(rowIdx, row) => this.onClick(rowIdx, row)}
                 />
             </div>
         );
