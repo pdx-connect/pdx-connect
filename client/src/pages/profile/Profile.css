@@ -60,3 +60,70 @@
 {
     margin-bottom: 2%;
 }
+
+.profile-right-container
+{
+    background-color: #f2f2f2;
+    border-radius: 5px;
+    border: solid thin #e0e0e0;
+}
+
+.nav.profile-nav a.nav-link
+{
+    color: #9fc1c0;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}
+
+.nav.profile-nav a.nav-link:hover
+{
+    color: #297d7d;
+}
+
+.profile-content
+{
+    padding-top: 3%;
+}
+
+.profile-user-img
+{
+    background-color: #9fc1c0;
+    border: medium solid white;
+    height: 150px;
+    width: 150px;
+    border-radius: 50%;
+    display: inline-block;
+    text-align: center;
+}
+
+.profile-user-img-placeholder
+{
+    margin-top: 8%;
+}
+
+.profile-display-name
+{
+    color: #565656;
+    text-transform: capitalize;
+    font-size: 2vw;
+}
+
+.profile-user-profile-table td, .profile-user-profile-img-table td
+{
+    border-top: none;
+}
+
+.profile-user-profile-table tr:nth-child(odd)
+{
+    color: #297d7d;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}
+
+.profile-user-profile-table tr:nth-child(even)
+{
+    color: #297d7d;
+    text-indent: 5%;
+}

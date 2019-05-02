@@ -130,15 +130,6 @@ export class Home extends Page<Props, State> {
         const messages = Object.keys(this.state.messages);
         const notifications = Object.keys(this.state.alerts);
 
-        const title: { [key: string]: string } = {
-            "/": '',
-            "/profile": 'profile',
-            "/calendar": 'calendar',
-            "/listings": 'listings',
-            "/inbox": 'inbox',
-            "/search-results": 'search results'
-        };
-
         return (
         <Container fluid className="home">
             <Row className="topRow">
@@ -179,9 +170,6 @@ export class Home extends Page<Props, State> {
             </Row>
             <Row className="main">
                 <Col sm={10} md={10} className="mainContent">
-                    <Row>
-                        <Col sm={10} md={11} className="pageTitle"> {title[this.props.history.location.pathname]} </Col>
-                    </Row>
                     <Row>
                         <Col sm={10} md={11} className="component">
                             <Switch>
