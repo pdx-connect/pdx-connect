@@ -43,18 +43,18 @@ export function route(app: Express, db: Connection) {
             return;
         }
         const user: User = req.user;
-        socket.on("open", async () => {
-            console.log("Before user check");
-            if (user == null) {
-                socket.close();
-            }
-            // Add the connection
-            cw.push({
-                socket: socket,
-                user: user.id
-            })
-            console.log("In on open: ", connectionsWrapper.connections);
-        });
+        console.log("Before user check");
+        if (user == null) {
+            socket.close();
+            return;
+        }
+        // Add the connection
+        cw.push({
+            socket: socket,
+            user: user.id
+        })
+        console.log("In root route: ", connectionsWrapper.connections);
+
         // Define event handlers
         socket.on("message", async (msg: ws.Data) => {
             // Validate message type and structure
@@ -193,11 +193,8 @@ export function route(app: Express, db: Connection) {
         // on Close
         socket.on("close", () => {
             // Remove from list of active connections
-            connectionsWrapper.connections.filter( (value, index, arr) => {
-                return value == {
-                    socket: socket,
-                    user: user.id
-                }
+            connectionsWrapper.connections = connectionsWrapper.connections.filter( (value, index, arr) => {
+                return value.socket == socket && value.user == user.id;
             })
             return;
         });

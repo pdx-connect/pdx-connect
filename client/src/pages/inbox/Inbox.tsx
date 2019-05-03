@@ -10,160 +10,16 @@ import "./Inbox.css";
 interface Props {
     sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => void;
     getMoreMessages: (conversationID: number) => void;
-    seenRecent: (conversationID: number, time: number) => void;
+    seenRecent: (conversationID: number, time: Date) => void;
     conversations: ConversationEntry[];
     userID: number;
 }
 
 interface State {
-    currentConversation: number;
-    currentConversationID: number;
+    currentConversation?: number;
+    currentConversationID?: number;
     textField: string;
 }
-
-const conversations = [
-    {   
-        conversationID: 100,
-        lastSeen: 1555011969, // epoch
-        messages: [
-            {
-                userID: 6,
-                timeSent: 1555011169,
-                text: "I am David!",
-                seen: false
-            },
-            {
-                userID: 4,
-                timeSent: 1555011175,
-                text: "I am Daniel!",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011179,
-                text: "Whats up?",
-                seen: false
-            },
-            {
-                userID: 4,
-                timeSent: 1555011186,
-                text: "Nothing much",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011197,
-                text: "Are you actually Daniel?",
-                seen: false
-            },
-            {
-                userID: 4,
-                timeSent: 1555011201,
-                text: "Nah I'm David lol",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011210,
-                text: "Ah, you got me for a sec",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011220,
-                text: "Ayyyyyyyyyyyyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            },            {
-                userID: 6,
-                timeSent: 1555011225,
-                text: "Ayyyyyy",
-                seen: false
-            }
-        ]
-    },
-    {   
-        conversationID: 101,
-        lastSeen: 1555011959, // epoch
-        messages: [
-            {
-                userID: 4,
-                timeSent: 1555011169,
-                text: "I am user 1",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011175,
-                text: "I am user 2",
-                seen: false
-            }
-        ]
-    },
-    {   
-        conversationID: 102,
-        lastSeen: 1555011969, // epoch
-        messages: [
-            {
-                userID: 4,
-                timeSent: 1555011169,
-                text: "Hello world",
-                seen: false
-            },
-            {
-                userID: 6,
-                timeSent: 1555011175,
-                text: "ayee",
-                seen: false
-            }
-        ]
-    }
-];
 
 /**
  * 
@@ -173,8 +29,6 @@ export class Inbox extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            currentConversation: 0,
-            currentConversationID: this.props.conversations[0].conversationID,
             textField: "",
         }
     }
@@ -187,8 +41,9 @@ export class Inbox extends Component<Props, State> {
     private readonly onSubmit = (e: any) => {
         e.preventDefault();
 
-        this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
-
+        if (this.state.currentConversationID) {
+            this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
+        }
         this.setState({textField: ""});
         
         //this.props.onSendMessage(this.state.textField)
@@ -229,6 +84,9 @@ export class Inbox extends Component<Props, State> {
     }
 
     private readonly getMessages = () => {
+        if (this.state.currentConversation == null) {
+            return [];
+        }
         let rows = [];
         if (this.props.conversations != null) {
             for (let i=0; i<this.props.conversations[this.state.currentConversation].entries.length; i++) {
