@@ -82,7 +82,7 @@ export class Inbox extends Component<Props, State> {
                     rows.push(
                         <Row key={i} onClick={()=> this.setState({currentConversationIndex: i, currentConversationID: this.props.conversations[i].conversationID})} className="open-conversation">
                             <Col key={i} sm={12}>
-                                Message from: user {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
+                                Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
                                 Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}
                             </Col>
                         </Row>
@@ -92,7 +92,7 @@ export class Inbox extends Component<Props, State> {
                     rows.push(
                         <Row key={i} onClick={()=> this.setState({currentConversationIndex: i, currentConversationID: this.props.conversations[i].conversationID})} className="conversation">
                             <Col key={i} sm={12}>
-                                Message from: user {this.props.conversations[i].entries[0].userID}
+                                Message from: User {this.props.conversations[i].entries[0].userID}
                                 Preview: {this.props.conversations[i].entries[0].text}
                             </Col>
                         </Row>
@@ -111,12 +111,11 @@ export class Inbox extends Component<Props, State> {
     private readonly getMessages = () => {
         let rows = [];
         if (this.props.conversations != null) {
-            console.log("Convo 0" ,this.props.conversations[0]) 
+            //console.log("Convo 0" ,this.props.conversations[0])
             for (let i=this.props.conversations[this.state.currentConversationIndex].entries.length-1; i >= 0; i--) { 
                 if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID == this.props.userID) {
                     rows.push(
                         <Row key={i} className="my-message">
-                            <pre>{this.props.userID}</pre> 
                             <Col className="my-message-bubble" key={i} sm={12}> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
                         </Row>
                     );
@@ -128,6 +127,15 @@ export class Inbox extends Component<Props, State> {
                         </Row>
                     );
                 }
+
+                // if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID != this.props.userID) {
+                //     rows.push(
+                //         <Row key={i} className="message-bubble-name-tag">
+                //             <Col key={i}>UserID: {this.props.conversations[this.state.currentConversationIndex].entries[i].userID}</Col>
+                //         </Row>
+                //     );
+                // }
+
             }
         } else {
             rows.push(
