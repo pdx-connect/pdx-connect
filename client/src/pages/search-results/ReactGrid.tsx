@@ -3,10 +3,10 @@ import {Component, ReactNode} from "react";
 import ReactDataGrid from 'react-data-grid';
 import { Toolbar, Data, Filters } from "react-data-grid-addons";
 import {getJSON, postJSON} from "../../util/json";
-
 import "./SearchResults.css";
+import { RouteChildrenProps } from 'react-router';
 
-interface Props {
+interface Props extends RouteChildrenProps{
     //1 is user, 2 for events, 3 for calendar
     searchBy: number;
     searchField: string;
@@ -114,8 +114,11 @@ export class ReactGrid extends Component<Props, State> {
     };
 
     private onClick(rowIdx: number, row: any) {
-        if (rowIdx != -1) {
-            this.getProfile(row["userID"]).then(userdata => console.log("User:", this.state.user))
+        if (rowIdx != -1 && this.props.searchBy == 1) {
+            let userID = row["userID"]
+            let profileString = "/profile/" + userID
+            this.props.history.push(profileString)
+            //this.getProfile(row["userID"]).then(userdata => console.log("User:", this.state.user))
         }
     }
 
@@ -133,7 +136,8 @@ export class ReactGrid extends Component<Props, State> {
             columns = [
                 { key: "title", name: "Title", editable: false, filterable: true},
                 { key: "startDate", name: "Start Date", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
-                { key: "description", name: "Description", editable: false, filterable: true}
+                { key: "description", name: "Description", editable: false, filterable: true},
+                { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: MultiSelectFilter}
             ];
         }
         const handleFilterChange = (filter: any) => {

@@ -3,8 +3,9 @@ import {Component, ReactNode} from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { ReactGrid } from "./ReactGrid";
 import "./SearchResults.css";
+import { RouteChildrenProps } from 'react-router';
 
-interface Props {
+interface Props extends RouteChildrenProps{
     finalSearchField: string;
 }
 
@@ -49,22 +50,19 @@ export class SearchResults extends Component<Props, State> {
     public render(): ReactNode {
         return (
             <Container fluid className="searchResults">
-                <Row className="toprow">
-                    <Col sm={8} md={8} className="resultsFor">Search results by username for: {this.props.finalSearchField}</Col>
-                </Row>
                 <Row className="radiorow">
                     <form className="form-inline">
-                        <Col sm={3} md={3}>
+                        <Col sm={4}>
                         <label>Search by Users:
                             <input className="form-check-input" id="1" type="radio" name="selected" onChange={this.handleChange} defaultChecked></input>
                         </label>
                         </Col>
-                        <Col sm={5} md={5}>
+                        <Col sm={4}>
                         <label>Search by Listing:
                             <input className="form-check-input" id="2" type="radio" name="selected" onChange={this.handleChange}></input>
                         </label>
                         </Col>
-                        <Col sm={3} md={3}>
+                        <Col sm={4}>
                         <label>Search by Event:
                             <input className="form-check-input" id="3" type="radio" name="selected" onChange={this.handleChange}></input>
                         </label>
@@ -72,7 +70,7 @@ export class SearchResults extends Component<Props, State> {
                     </form>
                 </Row>
                 <div key={this.state.reset}>
-                    <ReactGrid searchBy={this.state.searchBy} searchField={this.props.finalSearchField}></ReactGrid>
+                    <ReactGrid searchBy={this.state.searchBy} searchField={this.props.finalSearchField} history={this.props.history} match={this.props.match} location={this.props.location}></ReactGrid>
                 </div>
             </Container>
         );
