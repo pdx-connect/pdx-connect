@@ -4,20 +4,20 @@ import {Component, ReactNode} from "react";
 
 interface ServerMessage {
     from: number;
-    timeSent: number;
+    timeSent: Date;
     content: string;
 }
 
 export interface Message {
     userID: number;
-    timeSent: number;
+    timeSent: Date;
     text: string;
     seen: boolean;
 }
 
 export interface ConversationEntry {
     conversationID: number;
-    lastSeen: number;
+    lastSeen: Date;
     entries: Message[];
 }
 
@@ -45,21 +45,24 @@ export class Socket {
             // When a message is received, do...
             if( this.socket != null ) { // TODO: this check is a hacky work around
                 this.socket.onmessage = (msg: MessageEvent) => {
+                    console.log("On message triggered")
                     let conversation: ConversationEntry;
                     let message: Message;
                     let data = msg.data;
-                    if (typeof data !== "object") {
+                    console.log(data);
+                    if (typeof data !== "string") {
                         // TODO throw an error
-                        console.log("error in socket.onmessage");
+                        console.log("error in socket.onmessage - data not object");
                         return;
                     }
                     data = JSON.parse(data);
-                    let lastSeen: number = 0;
+                    console.log("Data:", data);
+                    let lastSeen: Date = new Date();
                     let conversationID: number = data.conversationID;
                     let msgFromServer: ServerMessage = data.message;
                     if (conversationID == null || msgFromServer == null) {
                         // TODO throw an error
-                        console.log("error in socket.onmessage")
+                        console.log("error in socket.onmessage - message fields bads")
                         return;
                     }
                     message = {
@@ -114,7 +117,7 @@ export class Socket {
                 return;
             }
             const conversationID: number = data[i].conversationID;
-            const lastSeen: number = data[i].lastSeen;
+            const lastSeen: Date = data[i].lastSeen;
             const messages: ServerMessage[] = data[i].messages;
             if (conversationID == null || lastSeen == null || messages == null) {
                 // TODO throw error
@@ -137,7 +140,7 @@ export class Socket {
     public readonly getMoreMessages = async (conversationID: number) => {
         let conversation: ConversationEntry;
         let alreadyHave: number = 0;
-        let lastSeen: number = 0;
+        let lastSeen: Date = new Date();
     
         // Search for the conversation, get the number of existing messages
         for (let i = 0; i < this.messages.length; ++i) {
@@ -179,7 +182,7 @@ export class Socket {
         this.addToConversation(conversation);
     };
 
-    private readonly convertMessages = (messages: ServerMessage[], lastSeen: number) => {
+    private readonly convertMessages = (messages: ServerMessage[], lastSeen: Date) => {
         let toReturn: Message[] = [];
 
         for(let i = 0; i < messages.length; ++i) {
@@ -207,12 +210,15 @@ export class Socket {
                 break;
             }
         }
+        console.log("Found at index: ", foundAt);
         // If the user entry exists, add the messages
         if (foundAt >= 0) {
             length = newMessages.entries.length;
             for(let i = length-1; i <= 0; --i) {
                 // Ignore messages which are already in the log
-                if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
+                if (tempMessages[foundAt].entries.length == 0) {
+                    tempMessages[foundAt].entries.unshift(newMessages.entries[i]);
+                } else if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
                     continue;
                 } else if ( newMessages.entries[i].timeSent == tempMessages[foundAt].entries[0].timeSent 
                             &&  newMessages.entries[i].userID == tempMessages[foundAt].entries[0].userID 
@@ -255,15 +261,17 @@ export class Socket {
             }));
             // If the conversation does exist..
         } else {
+            console.log("Right before message send")
+            console.log(msg);    
             this.socket.send(JSON.stringify({
-            type: "message", 
+            type: "message",
             conversationID: conversationID,
             content: msg
             }));
         }
     };
 
-    public readonly seenRecent = (conversationID: number, time: number) => {
+    public readonly seenRecent = (conversationID: number, time: Date) => {
         // Verify socket
         if (this.socket == null) {
             // TODO throw an error?

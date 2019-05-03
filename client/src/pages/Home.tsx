@@ -24,20 +24,20 @@ interface Props extends RouteComponentProps {
 
 interface ServerMessage {
     from: number;
-    timeSent: number;
+    timeSent: Date;
     content: string;
 }
 
 export interface Message {
     userID: number;
-    timeSent: number;
+    timeSent: Date;
     text: string;
     seen: boolean;
 }
 
 export interface ConversationEntry {
     conversationID: number;
-    lastSeen: number;
+    lastSeen: Date;
     entries: Message[];
 }
 
@@ -50,7 +50,7 @@ interface State {
     showOobe: boolean;
     finalSearchField: string;
     userID: null | number;
-    conversations: ConversationEntry[]|null
+    conversations: ConversationEntry[]
 }
 
 /**
@@ -68,7 +68,7 @@ export class Home extends Page<Props, State> {
             showOobe: false,
             finalSearchField: "",
             userID: null, 
-            conversations: null
+            conversations: []
         };
         this.socket = null;
     }
@@ -128,14 +128,6 @@ export class Home extends Page<Props, State> {
     
     private readonly logout = () => {
         this.logUserOut().then();
-    };
-
-    private readonly getMessages = () => {
-        if (this.state.conversations) {
-            return this.state.conversations;
-        } else {
-            return [];
-        }
     };
 
     private readonly getSendMessages = () => {
@@ -270,7 +262,7 @@ export class Home extends Page<Props, State> {
                                 <Route path="/calendar" component={Calendar} />
                                 <Route path="/listings" component={Listings} />
                                 <Route path="/inbox" 
-                                       render={(props) => <Inbox {...props} conversations={this.getMessages()} 
+                                       render={(props) => <Inbox {...props} conversations={this.state.conversations} 
                                                                             sendMessage={this.getSendMessages()} 
                                                                             getMoreMessages={this.getGetMoreMessages()} 
                                                                             seenRecent={this.getSeenRecent()} 
