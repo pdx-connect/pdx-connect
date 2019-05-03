@@ -16,7 +16,7 @@ import {Oobe} from "./oobe/Oobe";
 import {getJSON} from "../util/json";
 
 import "./Home.css";
-import { getEnabledCategories } from 'trace_events';
+
 
 interface Props extends RouteComponentProps {
     
