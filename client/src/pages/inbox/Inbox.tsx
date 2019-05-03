@@ -42,7 +42,7 @@ export class Inbox extends Component<Props, State> {
     private readonly onSubmit = (e: any) => {
         e.preventDefault();
 
-        if (this.state.currentConversationID) {
+        if (this.state.currentConversationID && this.state.textField != "") {
             this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
         }
         this.setState({textField: ""});

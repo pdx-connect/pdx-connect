@@ -87,6 +87,7 @@ export class Socket {
                 this.socket.onerror = (error) => {
                 };
                 this.socket.onclose = (closed) => {
+                    console.log("Connection Closed");
                 };
             }
         };
@@ -200,11 +201,10 @@ export class Socket {
     // Update the messages state element to include new messages
     private readonly addToConversation = (newMessages: ConversationEntry) => {
         let tempMessages: ConversationEntry[] = this.messages;
-        let length = tempMessages.length;
         let foundAt = -1;
 
         // See whether an entry for the conversation exists exists
-        for(let i = 0; i < length; ++i) {
+        for(let i = 0; i < tempMessages.length; ++i) {
             if (tempMessages[i].conversationID == newMessages.conversationID) {
                 foundAt = i;
                 break;
@@ -213,9 +213,11 @@ export class Socket {
         console.log("Found at index: ", foundAt);
         // If the user entry exists, add the messages
         if (foundAt >= 0) {
-            length = newMessages.entries.length;
-            for(let i = length-1; i <= 0; --i) {
+            for(let i = newMessages.entries.length-1; i >= 0; --i) {
                 // Ignore messages which are already in the log
+                console.log("New messages length: ", newMessages.entries.length);
+                console.log("Temp messages length: ", tempMessages[foundAt].entries.length);
+                console.log("Indexing new messaged with: ", i);
                 if (tempMessages[foundAt].entries.length == 0) {
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i]);
                 } else if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {

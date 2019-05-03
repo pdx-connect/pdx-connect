@@ -45,6 +45,7 @@ export function route(app: Express, db: Connection) {
         const user: User = req.user;
         console.log("Before user check");
         if (user == null) {
+            console.log("Closing due to invalid user id")
             socket.close();
             return;
         }
@@ -59,6 +60,7 @@ export function route(app: Express, db: Connection) {
         socket.on("message", async (msg: ws.Data) => {
             // Validate message type and structure
             if (typeof msg != "string" ) {
+                console.log("Closing because message not string")
                 socket.close();
                 return;
             }
@@ -187,6 +189,7 @@ export function route(app: Express, db: Connection) {
         // On error
         socket.on("error", (error) => {
             // TODO maybe send error?
+            console.log("Closing because of socket error")
             socket.close();
             return;
         });
@@ -196,6 +199,7 @@ export function route(app: Express, db: Connection) {
             connectionsWrapper.connections = connectionsWrapper.connections.filter( (value, index, arr) => {
                 return value.socket == socket && value.user == user.id;
             })
+            console.log("Connection closing for some reason")
             return;
         });
     });
