@@ -24,7 +24,6 @@ class connectionsWrapper {
     }
 
     public readonly length = () => {
-        console.log("Wrapped Array: ", connectionsWrapper.connections);
         return connectionsWrapper.connections.length;
     }
 
@@ -43,7 +42,6 @@ export function route(app: Express, db: Connection) {
             return;
         }
         const user: User = req.user;
-        console.log("Before user check");
         if (user == null) {
             console.log("Closing due to invalid user id")
             socket.close();
@@ -54,7 +52,6 @@ export function route(app: Express, db: Connection) {
             socket: socket,
             user: user.id
         })
-        console.log("In root route: ", connectionsWrapper.connections);
 
         // Define event handlers
         socket.on("message", async (msg: ws.Data) => {
@@ -131,16 +128,11 @@ export function route(app: Express, db: Connection) {
                         conversationID: conversation.id
                     }
                 });
-                console.log("Before participant search");
-                console.log(participants.length)
-                console.log(cw.length())
                 // Find connections to all logged-on participants
                 for( let i = 0; i < participants.length; ++i ) {
                     for ( let j = 0; j < cw.length(); ++j ) {
-                        console.log("Looking for participants");
                         // If this connection matches a participant, and isn't the sender..
                         if (cw.index(j).user == participants[i].userID) {
-                            console.log("Participant found");
                             cw.index(j).socket.send(JSON.stringify({
                                 conversationID: conversationID,
                                 message: {
