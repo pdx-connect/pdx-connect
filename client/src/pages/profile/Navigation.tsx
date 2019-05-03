@@ -29,9 +29,10 @@ export class Navigation extends Component<Props, State> {
         return (
             <Row>
                 <Nav className="flex-column profile-nav">
+                    <Nav.Link onClick={() => this.props.updateHistory("/profile")}>Profile</Nav.Link>
+                    <Nav.Link className="indent" onClick={() => this.props.updateHistory("/profile/edit")}>Edit</Nav.Link>
                     <Nav.Link onClick={() => this.props.updateHistory("/profile/events")}>Events</Nav.Link>
                     <Nav.Link onClick={() => this.props.updateHistory("/profile/listings")}>Listings</Nav.Link>
-                    <Nav.Link onClick={() => this.props.updateHistory("/profile/personal")}>Personal</Nav.Link>
                 </Nav>
             </Row>
         );

@@ -49,7 +49,7 @@ interface State extends SubState {
 /**
  * 
  */
-export class Personal extends Component<Props, State> {
+export class Edit extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);

@@ -4,7 +4,7 @@ import {RouteComponentProps, Redirect, Route, Switch} from "react-router";
 import {Container, Row, Col} from "react-bootstrap";
 import {Navigation} from "./Navigation";
 import {ProfileContent} from "./ProfileContent";
-import {Personal} from "./Personal";
+import {Edit} from "./Edit";
 import {Events} from "./Events";
 import {Listings} from "./Listings";
 
@@ -50,8 +50,8 @@ export class Profile extends Component<Props, State> {
                     <Switch>
                     <Route exact path="/profile" component={ProfileContent} />
                         <Route
-                            path="/profile/personal"
-                            render={props => <Personal {...props} updateDisplayName={this.props.updateDisplayName} />}
+                            path="/profile/edit"
+                            render={props => <Edit {...props} updateDisplayName={this.props.updateDisplayName} />}
                         />
                         <Route path="/profile/events" component={Events} />
                         <Route path="/profile/listings" component={Listings} />
