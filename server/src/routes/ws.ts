@@ -133,14 +133,18 @@ export function route(app: Express, db: Connection) {
                     for ( let j = 0; j < cw.length(); ++j ) {
                         // If this connection matches a participant, and isn't the sender..
                         if (cw.index(j).user == participants[i].userID) {
-                            cw.index(j).socket.send(JSON.stringify({
-                                conversationID: conversationID,
-                                message: {
-                                    from: newMessage.userID,
-                                    timeSent: newMessage.timeSent,
-                                    content: newMessage.content
-                                }
-                            }));
+                            try{
+                                cw.index(j).socket.send(JSON.stringify({
+                                    conversationID: conversationID,
+                                    message: {
+                                        from: newMessage.userID,
+                                        timeSent: newMessage.timeSent,
+                                        content: newMessage.content
+                                    }
+                                }));
+                            } catch {
+                                cw.index(j).socket.close();
+                            }
                         }
                     }
                 }
@@ -160,14 +164,18 @@ export function route(app: Express, db: Connection) {
                 for (let i = 0; i < participants.length; ++i) {
                     for (let j = 0; j < cw.length(); ++j) {
                         if (cw.index(j).user == participants[i].userID) {
-                            cw.index(j).socket.send(JSON.stringify({
-                                conversationID: conversationID,
-                                message: {
-                                    from: newMessage.userID,
-                                    timeSend: newMessage.timeSent,
-                                    content: newMessage.content,
-                                }
-                            }))
+                            try {
+                                cw.index(j).socket.send(JSON.stringify({
+                                    conversationID: conversationID,
+                                    message: {
+                                        from: newMessage.userID,
+                                        timeSend: newMessage.timeSent,
+                                        content: newMessage.content,
+                                    }
+                                }));
+                            } catch {
+                                cw.index(j).socket.close();
+                            }
                         }
                     }
                 }

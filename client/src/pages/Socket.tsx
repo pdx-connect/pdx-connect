@@ -215,18 +215,22 @@ export class Socket {
         if (foundAt >= 0) {
             for(let i = newMessages.entries.length-1; i >= 0; --i) {
                 // Ignore messages which are already in the log
-                console.log("New messages length: ", newMessages.entries.length);
-                console.log("Temp messages length: ", tempMessages[foundAt].entries.length);
-                console.log("Indexing new messaged with: ", i);
+                // console.log("New messages length: ", newMessages.entries.length);
+                // console.log("Temp messages length: ", tempMessages[foundAt].entries.length);
+                // console.log("Indexing new messaged with: ", i);
                 if (tempMessages[foundAt].entries.length == 0) {
+                    console.log("No messages found");
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i]);
                 } else if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
+                    console.log("Message timestamp overlap");
                     continue;
                 } else if ( newMessages.entries[i].timeSent == tempMessages[foundAt].entries[0].timeSent 
                             &&  newMessages.entries[i].userID == tempMessages[foundAt].entries[0].userID 
                             &&  newMessages.entries[i].text == tempMessages[foundAt].entries[0].text ) {
+                    console.log("Message the same");
                     continue;
                 } else { 
+                    console.log("Message added to conversation");
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i])
                 }
             }
