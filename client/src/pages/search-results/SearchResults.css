@@ -29,3 +29,7 @@
 {
     white-space: normal !important;
 }
+
+.form-inline{
+    width: 100%
+}
