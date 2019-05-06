@@ -20,6 +20,7 @@ interface State {
     currentConversationIndex?: number;
     currentConversationID?: number;
     textField: string;
+    composingNewConvo: boolean;
 }
 
 /**
@@ -31,6 +32,7 @@ export class Inbox extends Component<Props, State> {
         super(props);
         this.state = {
             textField: "",
+            composingNewConvo: false,
         }
     }
 
@@ -53,6 +55,14 @@ export class Inbox extends Component<Props, State> {
             this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
         }
         this.setState({textField: ""});
+    }
+    /*
+    *   On enter of compose button, a new conversation window is rendered
+    *   
+    */
+    private readonly onCompose = () => {
+        
+    
     }
 
     /* 
@@ -131,6 +141,7 @@ export class Inbox extends Component<Props, State> {
     *                   (right window of inbox)
     */
     private readonly getMessages = () => {
+
         if (this.state.currentConversationIndex == null) {
             return [];
         }
@@ -141,23 +152,18 @@ export class Inbox extends Component<Props, State> {
                 if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID == this.props.userID) {
                     rows.push(
                         <Row key={i} className="my-message">
-                            <Col className="my-message-bubble" key={i} sm={12}> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
+                            <Col className="my-message-bubble" key={i} sm="auto"> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
                         </Row>
                     );
                 }
                 else {
                     rows.push(
                         <Row key={i} className="other-message">
-                            <Col className="other-message-bubble" key={i} sm={12}> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
+                            <Col className="other-message-bubble" key={i} sm="auto"> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
+                            <Col className="message-bubble-name-tag" key={i} sm={12}>UserID: {this.props.conversations[this.state.currentConversationIndex].entries[i].userID}</Col>
                         </Row>
                     );
-                    if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID != this.props.userID) {
-                        rows.push(
-                            <Row key={i} className="message-bubble-name-tag">
-                                <Col key={i}>UserID: {this.props.conversations[this.state.currentConversationIndex].entries[i].userID}</Col>
-                            </Row>
-                        );
-                    }
+
                 }
 
             }
