@@ -34,11 +34,18 @@ export class Inbox extends Component<Props, State> {
         }
     }
 
+    /*
+    *   Message textfield state is updated on each keystroke
+    */
     private readonly onChange = (e: any) => {
         e.preventDefault();
         this.setState({textField: e.target.value});
     }
 
+    /*
+    *   On send or ENTER key, sendMessage() broadcasts to socket
+    *   message is sent
+    */
     private readonly onSubmit = (e: any) => {
         e.preventDefault();
 
@@ -46,10 +53,15 @@ export class Inbox extends Component<Props, State> {
             this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
         }
         this.setState({textField: ""});
-
-        //this.props.onSendMessage(this.state.textField)
     }
 
+    /* 
+    *   getMessages:    renders the participants of a conversation,
+    *                   only renders/opens one conversation at a time,
+    *                   Otherwise, converastion composer is default
+    *                   and this field is open for adding users to the conversation
+    *                   (right-top window of inbox)
+    */
     private readonly getParticipents = () => {
         let rows = [];
 
@@ -73,6 +85,11 @@ export class Inbox extends Component<Props, State> {
         return rows;
     }
 
+    /* 
+    *   getInbox:   renders the selectable list of conversations the user is a part of, 
+    *               along with a prewview of the lastest message
+    *               (left window of inbox)
+    */
     private readonly getInbox = () => {
         let rows = [];
         if (this.props.conversations != null) {
@@ -107,6 +124,12 @@ export class Inbox extends Component<Props, State> {
         return rows;
     }
 
+    /* 
+    *   getMessages:    renders the messages box of a conversation,
+    *                   only renders/opens one conversation at a time,
+    *                   Otherwise, converastion composer is default
+    *                   (right window of inbox)
+    */
     private readonly getMessages = () => {
         if (this.state.currentConversationIndex == null) {
             return [];
@@ -128,15 +151,14 @@ export class Inbox extends Component<Props, State> {
                             <Col className="other-message-bubble" key={i} sm={12}> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
                         </Row>
                     );
+                    if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID != this.props.userID) {
+                        rows.push(
+                            <Row key={i} className="message-bubble-name-tag">
+                                <Col key={i}>UserID: {this.props.conversations[this.state.currentConversationIndex].entries[i].userID}</Col>
+                            </Row>
+                        );
+                    }
                 }
-
-                // if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID != this.props.userID) {
-                //     rows.push(
-                //         <Row key={i} className="message-bubble-name-tag">
-                //             <Col key={i}>UserID: {this.props.conversations[this.state.currentConversationIndex].entries[i].userID}</Col>
-                //         </Row>
-                //     );
-                // }
 
             }
         } else {
