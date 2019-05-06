@@ -24,7 +24,6 @@ class connectionsWrapper {
     }
 
     public readonly length = () => {
-        console.log("Wrapped Array: ", connectionsWrapper.connections);
         return connectionsWrapper.connections.length;
     }
 
@@ -43,8 +42,8 @@ export function route(app: Express, db: Connection) {
             return;
         }
         const user: User = req.user;
-        console.log("Before user check");
         if (user == null) {
+            console.log("Closing due to invalid user id")
             socket.close();
             return;
         }
@@ -53,12 +52,12 @@ export function route(app: Express, db: Connection) {
             socket: socket,
             user: user.id
         })
-        console.log("In root route: ", connectionsWrapper.connections);
 
         // Define event handlers
         socket.on("message", async (msg: ws.Data) => {
             // Validate message type and structure
             if (typeof msg != "string" ) {
+                console.log("Closing because message not string")
                 socket.close();
                 return;
             }
@@ -129,24 +128,23 @@ export function route(app: Express, db: Connection) {
                         conversationID: conversation.id
                     }
                 });
-                console.log("Before participant search");
-                console.log(participants.length)
-                console.log(cw.length())
                 // Find connections to all logged-on participants
                 for( let i = 0; i < participants.length; ++i ) {
                     for ( let j = 0; j < cw.length(); ++j ) {
-                        console.log("Looking for participants");
                         // If this connection matches a participant, and isn't the sender..
                         if (cw.index(j).user == participants[i].userID) {
-                            console.log("Participant found");
-                            cw.index(j).socket.send(JSON.stringify({
-                                conversationID: conversationID,
-                                message: {
-                                    from: newMessage.userID,
-                                    timeSent: newMessage.timeSent,
-                                    content: newMessage.content
-                                }
-                            }));
+                            try{
+                                cw.index(j).socket.send(JSON.stringify({
+                                    conversationID: conversationID,
+                                    message: {
+                                        from: newMessage.userID,
+                                        timeSent: newMessage.timeSent,
+                                        content: newMessage.content
+                                    }
+                                }));
+                            } catch {
+                                cw.index(j).socket.close();
+                            }
                         }
                     }
                 }
@@ -166,14 +164,18 @@ export function route(app: Express, db: Connection) {
                 for (let i = 0; i < participants.length; ++i) {
                     for (let j = 0; j < cw.length(); ++j) {
                         if (cw.index(j).user == participants[i].userID) {
-                            cw.index(j).socket.send(JSON.stringify({
-                                conversationID: conversationID,
-                                message: {
-                                    from: newMessage.userID,
-                                    timeSend: newMessage.timeSent,
-                                    content: newMessage.content,
-                                }
-                            }))
+                            try {
+                                cw.index(j).socket.send(JSON.stringify({
+                                    conversationID: conversationID,
+                                    message: {
+                                        from: newMessage.userID,
+                                        timeSend: newMessage.timeSent,
+                                        content: newMessage.content,
+                                    }
+                                }));
+                            } catch {
+                                cw.index(j).socket.close();
+                            }
                         }
                     }
                 }
@@ -187,6 +189,7 @@ export function route(app: Express, db: Connection) {
         // On error
         socket.on("error", (error) => {
             // TODO maybe send error?
+            console.log("Closing because of socket error")
             socket.close();
             return;
         });
@@ -196,6 +199,7 @@ export function route(app: Express, db: Connection) {
             connectionsWrapper.connections = connectionsWrapper.connections.filter( (value, index, arr) => {
                 return value.socket == socket && value.user == user.id;
             })
+            console.log("Connection closing for some reason")
             return;
         });
     });
