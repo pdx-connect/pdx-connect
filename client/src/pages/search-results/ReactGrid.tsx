@@ -40,27 +40,19 @@ export class ReactGrid extends Component<Props, State> {
             user: []
         };
     }
-    
-    private readonly enterKeyPressed = (e: any) => {
-        if (e.keyCode === 13) {
-            e.preventDefault();
-            if (this.props.searchField != null) {
-                const results = this.getResults(this.props.searchBy, this.props.searchField).then();
-            }
+
+    public componentDidUpdate(prevProps: Props){
+        if (this.props.searchBy !== prevProps.searchBy || this.props.searchField !== prevProps.searchField) {
+            this.getResults(this.props.searchBy, this.props.searchField).then();
             this.setState({reset: this.state.reset + 1})
         }
-    };
-
-    public componentDidMount(){
-        document.addEventListener('keydown', this.enterKeyPressed);
-        if (this.props.searchField != null) {
-            const results = this.getResults(this.props.searchBy, this.props.searchField).then()
-        }
-        const tags = this.getTags().then()
     }
 
-    public componentWillUnmount() {
-        document.removeEventListener('keydown', this.enterKeyPressed);
+    public componentDidMount(){
+        if (this.props.searchField != null) {
+            this.getResults(this.props.searchBy, this.props.searchField).then()
+        }
+        this.getTags().then()
     }
 
     private getValidFilterValues(rows : any, columnId : any) {
