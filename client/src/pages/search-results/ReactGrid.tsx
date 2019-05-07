@@ -96,12 +96,23 @@ export class ReactGrid extends Component<Props, State> {
     };
 
     private readonly getResults = async (searchBy: number, searchString: string) => {
-        const data = await postJSON("/api/search/profile", {
-            searchBy: searchBy,
-            displayName: searchString,
-            title: searchString
-        });
-        this.setState({rows: data.users});
+        let data: any
+        if (searchBy == 1) { //Search by user
+            data = await postJSON("/api/search/profile", {
+                displayName: searchString
+            });
+        }
+        else if (searchBy == 2) { //Search by listing
+            data = await postJSON("/api/search/listing", {
+                title: searchString
+            });
+        }
+        else if (searchBy == 3) { //Search by event
+            data = await postJSON("/api/search/event", {
+                title: searchString
+            });
+        }
+        this.setState({rows: data.results});
         return data
     };
 
