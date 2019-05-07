@@ -5,11 +5,37 @@ import { FaPlus } from "react-icons/fa";
 import Select from 'react-select';
 import {ValueType} from "react-select/lib/types";
 import {OptionType} from "../../components/types";
-
 import {getJSON, postJSON} from "../../util/json";
+import moment = require('moment');
+
+import List from "@material-ui/core/List";
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Collapse from '@material-ui/core/Collapse';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import { withStyles } from '@material-ui/core/styles';
+
 
 import "./Listings.css";
+import { string } from 'prop-types';
 
+
+// const TAGS = [
+//     [
+//         {id: 0, name: "Major"},
+//         {id: 1, name: "CS"},
+//         {id: 2, name: "EE"}
+//     ], 
+//     [
+//         {id: 3, name: "Commute"}, 
+//         {id: 4, name: "Car"},
+//         {id: 5, name: "Bus"}
+//     ],
+//     [
+//         {id: 6, name: "Other"}
+//     ]
+// ];
 
 
 interface Props {
@@ -29,6 +55,26 @@ interface State {
     description: string;
     anonymous: boolean;
     isFormIncomplete: boolean;
+
+    listings: {
+        id: number,
+        userID: number,
+        username: string,
+        // userProfile: UserProfile|undefined,
+        title: string,
+        description: string,
+        tags: {
+            id: number,
+            name: string
+        }[];
+        anonymous: boolean,
+        timePosted: Date,
+    }[];
+
+    currentViewListing: number;
+    myListings: boolean;
+    myUserID: number;
+    openNested: boolean;
 }
 
 /**
@@ -49,6 +95,11 @@ export class Listings extends Component<Props, State> {
             description: "",
             anonymous: false,
             isFormIncomplete: false,
+            listings: [],
+            currentViewListing: 0,
+            myListings: false,
+            myUserID: 0,
+            openNested: false
         };
     }
 
@@ -65,6 +116,7 @@ export class Listings extends Component<Props, State> {
         this.setState({anonymous: !this.state.anonymous});
     };
 
+    // When user submit to create a new listing
     private readonly processCreation = () => {
         if(this.state.title === "" || this.state.description === "" || this.state.selectedTags.length == 0) {
             this.setState({
@@ -84,6 +136,7 @@ export class Listings extends Component<Props, State> {
         }
     }
 
+    // Send request to create a new listing
     private readonly createListing = async (title: string, description: string, selectedTags: number[], anonymous: boolean) => {
         const data = await postJSON("/api/createListing", {
             title: title,
@@ -91,14 +144,23 @@ export class Listings extends Component<Props, State> {
             selectedTags: selectedTags,
             anonymous: anonymous
         });
+        if (data.success) {
+            alert("success");
+            // Update the listings panel
+            this.loadAllListings();
+            this.createListingsView(); 
+        }
     };
 
 
+    // Open the create listing modal
     private readonly handleShowCreate = () => {
         this.setState({ create: true});
     };
 
+    // When closing the create listing modal
     private readonly handleCloseCreate = () => {
+        // clear out the creating listing form
         this.setState({ 
             create: false,
             isFormIncomplete: false,
@@ -109,8 +171,10 @@ export class Listings extends Component<Props, State> {
         });
     };
 
-    private readonly handleShowView = () => {
+    private readonly handleShowView = (id: number) => (event:any) => {
+        this.setState({ currentViewListing: id});
         this.setState({ view: true});
+        this.loadViewListingModal();
     };
 
     private readonly handleCloseView = () => {
@@ -124,7 +188,26 @@ export class Listings extends Component<Props, State> {
         });
     };
 
+    private readonly handleClickNested = () => {
+        this.setState(state => ({ openNested: !state.openNested }));
+    };
 
+    private readonly showOnlyMyListings = () => {
+        this.setState({
+            myListings: !this.state.myListings
+        });
+    }
+
+    // Load in listings
+    private readonly loadAllListings = async () => {
+        const data = await getJSON("/api/allListings");
+        this.setState({
+            listings: data
+        });
+    };
+
+
+    // Load in tags
     private readonly getTags = async () => {
         const data = await getJSON("/api/tags/majors");
         if (!Array.isArray(data)) {
@@ -136,8 +219,7 @@ export class Listings extends Component<Props, State> {
         });
 
         // Add to a optiontype[] in order for users to select
-        var options: OptionType[];
-        options = [];
+        var options: OptionType[] = [];
         for(let i = 0; i < this.state.tags.length; i++)
         {
             options.push({
@@ -147,21 +229,139 @@ export class Listings extends Component<Props, State> {
         }
         this.setState({
             optionTags: options
-        })      
+        })
     };
 
 
+    // Create the info in left column -> categories
     private readonly createCategories = () => {
         let categories = [];
         for(let i=0; i < this.state.tags.length; i++)
         {
             categories.push(
-                <p key={i}> {this.state.tags[i].name} </p>
+                <p key={i}>{this.state.tags[i].name}</p>
             );
         }
         return categories;
     };
 
+
+    private readonly getCurrentUserId = async () => {
+        const data = await getJSON("/api/user/name");
+        this.setState({
+            myUserID: data.userID
+        });
+    }
+
+    // Create the info in the right column -> listings
+    private readonly createListingsView = () => {
+        let views : any = [];
+       
+        if(this.state.myListings)
+        {
+            for(let i=0; i < this.state.listings.length; i++)
+            {
+                if(this.state.listings[i].userID == this.state.myUserID)
+                    views = this.createListings(i, views);
+            }
+        }
+        else
+        {
+            for(let i=0; i < this.state.listings.length; i++)
+            {
+               views = this.createListings(i, views);
+            }
+        }       
+        return views;
+    }
+
+    // Create the info in the right column -> listings (helper function)
+    private readonly createListings = (i: number, views: any) => {
+        var username: string = this.state.listings[i].username;
+        if(this.state.listings[i].anonymous == true)
+            username = "Anonymous";
+
+        var tags: string[] = [];
+        for(let j = 0; j < this.state.listings[i].tags.length; j++)
+        {
+            tags.push(this.state.listings[i].tags[j].name);
+            if(j+1 < this.state.listings[i].tags.length)
+                tags.push(', ');
+        }
+
+        views.push(
+            <tr className="theListing" onClick={this.handleShowView(this.state.listings[i].id)}>
+                <th>{this.state.listings[i].id}</th>
+                <th>{this.state.listings[i].title}</th>
+                <th>{tags}</th>
+                <th>{username}</th>
+                <th>{moment(this.state.listings[i].timePosted).format("YYYY/MM/DD")}</th>
+                <th></th>
+            </tr>
+        );
+        return views;
+    }
+
+    private readonly loadViewListingModal = () => {
+        var listing: any = [];
+        for(let i = 0; i < this.state.listings.length; i++)
+        {
+            if(this.state.listings[i].id == this.state.currentViewListing)
+                listing = this.state.listings[i];
+        }
+
+        if(listing)
+        {
+            var username: string = listing.username;
+            if(listing.anonymous == true)
+                username = "Anonymous";
+
+            var tags: string[] = [];
+            for(let j = 0; j < listing.tags.length; j++)
+            {
+                tags.push(listing.tags[j].name);
+                if(j+1 < listing.tags.length)
+                    tags.push(', ');
+            }
+
+            let listingModal = [];
+            listingModal.push(
+                <Modal show={this.state.view} onHide={this.handleCloseView}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>{listing.title}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Form.Group>
+                                <Form.Label>{listing.title}</Form.Label>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>{listing.description}</Form.Label>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>{moment(listing.timePosted).format("YYYY/MM/DD")}</Form.Label>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>{username}</Form.Label>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>{tags}</Form.Label>
+                            </Form.Group>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Form>
+                            <Form.Group>
+                                <Button size="sm" variant="light" onClick={() => {} }>Comments</Button>
+                            </Form.Group>
+                        </Form>
+                    </Modal.Footer>
+                </Modal>
+            );
+            return listingModal;
+        }
+        return null;
+    }
 
 
 
@@ -171,6 +371,8 @@ export class Listings extends Component<Props, State> {
     public componentDidMount() {
         // document.addEventListener('keydown', this.enterKeyPressed);
         this.getTags().then();
+        this.loadAllListings();
+        this.getCurrentUserId();
     }
     
     /**
@@ -188,6 +390,7 @@ export class Listings extends Component<Props, State> {
     public render(): ReactNode {
 
         let categories = this.createCategories();
+        let listingViews = this.createListingsView();
 
         return (
             <Container fluid className="listings">
@@ -198,8 +401,8 @@ export class Listings extends Component<Props, State> {
                     <Col md={7}>All Listings</Col>
                     <Col md={3}>
                         <Form>
-                            <Form.Group className="myListingCheckbox">
-                                <Form.Check type="checkbox" label="My Listings" />
+                            <Form.Group>
+                                <Form.Check type="checkbox" label="My Listings" className="myListingCheckbox" onClick={this.showOnlyMyListings}/>
                             </Form.Group>
                         </Form>
                     </Col>
@@ -207,34 +410,22 @@ export class Listings extends Component<Props, State> {
 
                 <Row>
                     <Col sm={2} className="categoryCol">
-                       {categories}
+                       {categories}    
                     </Col>
                     <Col sm={10} className="listingCol">
                         <Table responsive>
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Description</th>
-                                    <th>Date</th>
-                                    <th>Tags</th>
-                                    <th>Author</th>
+                                    <th className="ID">ID</th>
+                                    <th className="Title">Title</th>
+                                    <th className="Tags">Tags</th>
+                                    <th className="Author">Author</th>
+                                    <th className="Date">Date</th>
+                                    <th className="Reply">Reply</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <th className="theListing" onClick={this.handleShowView}>free food here!</th>
-                                    <th>hosting free food event</th>
-                                    <th>04/02/2019</th>
-                                    <th>Food</th>
-                                    <th>Ivan</th>
-                                </tr>
-                                <tr>
-                                    <th>Homework need help!!!</th>
-                                    <th>need a tutor</th>
-                                    <th>04/20/2019</th>
-                                    <th>Computer Science</th>
-                                    <th>yi</th>
-                                </tr>
+                                {listingViews}
                             </tbody>
                         </Table>
                     </Col>
@@ -289,39 +480,8 @@ export class Listings extends Component<Props, State> {
                     </Modal.Footer>
                 </Modal>
 
-                {/* Popup for viewing the listing */}
-                <Modal show={this.state.view} onHide={this.handleCloseView}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>free food here!</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form>
-                            <Form.Group>
-                                <Form.Label>free food here!</Form.Label>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>hosting free food event</Form.Label>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>04/02/2019</Form.Label>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Ivan</Form.Label>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Tags: Food</Form.Label>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Form>
-                            <Form.Group>
-                                <Button size="sm" variant="light" onClick={() => {} }>Comments</Button>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Footer>
-                </Modal>
-
+                {/* Popup for viewing a listing */}
+                {this.state.view? this.loadViewListingModal() : null}
 
             </Container>
         );

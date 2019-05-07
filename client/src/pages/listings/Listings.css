@@ -10,6 +10,7 @@
 
 .listingCol {
     height: 600px;
+    overflow-y: scroll;
 }
 
 
@@ -29,11 +30,24 @@
 }
 
 .myListingCheckbox {
-
+    /* align to the most right */
 }
 
 
 .theListing:hover {
     text-decoration: underline;
     color: lightseagreen;
+}
+
+
+.ID {
+    width: 5%;
+}
+
+.Title {
+    width: 40%;
+}
+
+.nested {
+    text-indent: 10%;
 }
