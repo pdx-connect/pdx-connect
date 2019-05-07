@@ -175,8 +175,8 @@ export class Home extends Page<Props, State> {
                             <Switch>
                                 <Route exact path="/" component={HomeContent} />
                                 <Route
-                                    path="/profile"
-                                    render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} />}
+                                    path="/profile/:userid?"
+                                    render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} userID={this.state.userID}/>}
                                 />
                                 <Route path="/calendar" component={Calendar} />
                                 <Route path="/listings" component={Listings} />
