@@ -7,5 +7,29 @@
 
 .resultsFor
 {
-    color: #b3b3b3
+    color: #b3b3b3;
+}
+
+/*.react-grid-Canvas
+{
+    overflow: hidden !important;
+}*/
+
+.react-grid-Row--even .react-grid-Cell 
+{ 
+    background-color: #b3b3b3; 
+}
+
+.react-grid-HeaderRow
+{
+    color: #9fc1c0
+}
+
+.react-grid-Cell__value
+{
+    white-space: normal !important;
+}
+
+.form-inline{
+    width: 100%
 }

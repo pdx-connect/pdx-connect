@@ -17,6 +17,7 @@ import {getJSON} from "../util/json";
 
 import "./Home.css";
 
+
 interface Props extends RouteComponentProps {
     
 }
@@ -31,6 +32,8 @@ interface State {
     displayName?: string;
     finalSearchField: string;
     userID?: number;
+    windowWidth: number,
+    windowHeight: number,
 }
 
 /**
@@ -47,7 +50,9 @@ export class Home extends Page<Props, State> {
             showMessages: false,
             showNotifications: false,
             showOobe: false,
-            finalSearchField: ""
+            finalSearchField: "",
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
         };
     }
     
@@ -93,7 +98,12 @@ export class Home extends Page<Props, State> {
         if (e.keyCode === 13 && this.state.searchField != "") {
             e.preventDefault();
             if (this.state.searchField != undefined) {
-                this.setState({finalSearchField: this.state.searchField})
+                if (this.state.searchField == "[ALL]") {
+                    this.setState({finalSearchField: ""})
+                }
+                else {
+                    this.setState({finalSearchField: this.state.searchField})
+                }
             }
             this.props.history.push('search-results')
         }
@@ -106,12 +116,20 @@ export class Home extends Page<Props, State> {
     private readonly logout = () => {
         this.logUserOut().then();
     };
+
+    private readonly updateDimensions = () =>{
+        this.setState({ 
+            windowWidth: window.innerWidth, 
+            windowHeight: window.innerHeight
+        });
+    }
     
     /**
      * @override
      */
     public componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
+        window.addEventListener('resize', this.updateDimensions);
         this.getUserOOBE().then();
         this.getUserProfileData().then();
     }
@@ -121,6 +139,7 @@ export class Home extends Page<Props, State> {
      */
     public componentWillUnmount() {
         document.removeEventListener('keydown', this.enterKeyPressed);
+        window.removeEventListener('resize', this.updateDimensions);
     }
 
     /**
@@ -130,22 +149,24 @@ export class Home extends Page<Props, State> {
         const messages = Object.keys(this.state.messages);
         const notifications = Object.keys(this.state.alerts);
 
+        let maxHeight = {maxHeight: (this.state.windowHeight * .80).toString() + "px"};
+
         return (
         <Container fluid className="home">
-            <Row className="topRow">
+            <Row className="home-top-row">
                 <Sidebar displayName={this.state.displayName} updateHistory={this.updateHistory}/>
-                <Col sm={1} md={1} className="topLeft"></Col>
-                <Col sm={4} md={4} className="topCenter">
+                <Col sm={1} md={1} className="home-top-left-col"></Col>
+                <Col sm={4} md={4} className="home-top-center-col">
                     <Form>
-                        <Form.Group className="formBasic">
+                        <Form.Group className="form-basic">
                             <Form.Control type="text" className="generic" placeholder="search" onChange={this.setSearchField} />
                         </Form.Group>
                     </Form>
                 </Col>
-                <Col sm={7} md={7} className="topRight">
-                    <FaSignOutAlt className="logout" onClick={this.logout}/>
-                        <Button size="sm" className="floatRight counter">{messages.length}</Button>
-                        <FaComment className="notifications" onClick={() => this.setState({ showMessages: true })}/>
+                <Col sm={7} md={7} className="home-top-right-col">
+                    <FaSignOutAlt className="home-logout" onClick={this.logout}/>
+                        <Button size="sm" className="float-right home-counter">{messages.length}</Button>
+                        <FaComment className="home-notifications" onClick={() => this.setState({ showMessages: true })}/>
                         <Modal show={this.state.showMessages} onHide={() => this.setState({ showMessages: false })} dialogClassName="messages-modal">
                             <Modal.Header closeButton>
                             <Modal.Title>Messages</Modal.Title>
@@ -155,8 +176,8 @@ export class Home extends Page<Props, State> {
                             </Modal.Footer>
                         </Modal>
 
-                        <Button size="sm" className="floatRight counter">{notifications.length}</Button>
-                    <FaStar className="notifications" onClick={() => this.setState({ showNotifications: true })}/>
+                        <Button size="sm" className="float-right home-counter">{notifications.length}</Button>
+                    <FaStar className="home-notifications" onClick={() => this.setState({ showNotifications: true })}/>
                         <Modal show={this.state.showNotifications} onHide={() => this.setState({ showNotifications: false })} dialogClassName="messages-modal">
                             <Modal.Header closeButton>
                             <Modal.Title>Notifications</Modal.Title>
@@ -168,10 +189,10 @@ export class Home extends Page<Props, State> {
                         
                 </Col>
             </Row>
-            <Row className="main">
-                <Col sm={10} md={10} className="mainContent">
+            <Row className="home-main">
+                <Col sm={10} md={10} className="home-main-content">
                     <Row>
-                        <Col sm={10} md={11} className="component">
+                        <Col sm={10} md={11} className="home-component" style={maxHeight}>
                             <Switch>
                                 <Route exact path="/" component={HomeContent} />
                                 <Route
@@ -190,10 +211,10 @@ export class Home extends Page<Props, State> {
                         </Col>
                     </Row>
                 </Col>
-                <Col sm={2} md={2} className="rightSidebar">Ad Space</Col>
+                <Col sm={2} md={2} className="home-right-sidebar">Ad Space</Col>
             </Row>
 
-            <Modal size="lg" show={this.state.showOobe} onHide={() => this.setState({ showOobe: false })} dialogClassName="oobe-modal" backdrop="static">
+            <Modal size="lg" show={this.state.showOobe} onHide={() => this.setState({ showOobe: false })} dialogClassName="home-oobe-modal" backdrop="static">
                 <Modal.Header><h4>Hey {this.state.displayName}!</h4></Modal.Header>
                 <Modal.Body><Oobe onHide={() => this.setState({ showOobe: false })}/></Modal.Body>
                 <Modal.Footer>

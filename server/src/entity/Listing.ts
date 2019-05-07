@@ -2,23 +2,23 @@ import {
     BaseEntity,
     Column,
     Entity,
+    PrimaryGeneratedColumn,
     JoinColumn,
+    ManyToOne,
     JoinTable,
-    ManyToMany,
-    ManyToOne, OneToMany,
-    PrimaryGeneratedColumn
+    ManyToMany, OneToMany
 } from "typeorm";
 import {User} from "./User";
 import {Tag} from "./Tag";
-import {CalendarEventComment} from "./CalendarEventComment";
+import {ListingComment} from "./ListingComment";
 
-@Entity("event")
-export class CalendarEvent extends BaseEntity {
-    
+@Entity("listing")
+export class Listing extends BaseEntity {
+
     @PrimaryGeneratedColumn({
-        name: "event_id",
+        name: "listing_id",
         type: "int",
-        comment: "Event Id",
+        comment: "The unique ID of a listing",
         unsigned: true
     })
     readonly id!: number;
@@ -34,41 +34,48 @@ export class CalendarEvent extends BaseEntity {
     @JoinColumn({
         name: "user_id"
     })
-    @ManyToOne(type => User, user => user.events, {
+    @ManyToOne(type => User, user => user.listings, {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE"
     })
     readonly user!: Promise<User>;
+    
+    @Column({
+        name: "time_posted",
+        type: "datetime",
+        comment: "The time this listing was posted",
+    })
+    readonly timePosted!: Date;
 
     @Column({
         name: "title",
         type: "varchar",
         length: 255,
+        collation: "utf8mb4_unicode_ci",
+        comment: "The title of the listing"
     })
     title!: string;
 
     @Column({
         name: "description",
         type: "text",
+        collation: "utf8mb4_bin",
+        comment: "The description of the listing",
     })
     description!: string;
-    
+
     @Column({
-        name: "start",
-        type: "datetime"
+        name: "anonymous",
+        type: "tinyint",
+        width: 1,
+        unsigned: true
     })
-    start!: Date;
-    
-    @Column({
-        name: "end",
-        type: "datetime"
-    })
-    end!: Date | null;
+    anonymous!: boolean;
 
     @JoinTable({
-        name: "event_tags",
+        name: "listing_tags",
         joinColumn: {
-            name: "event_id"
+            name: "listing_id"
         },
         inverseJoinColumn: {
             name: "tag_id"
@@ -79,9 +86,9 @@ export class CalendarEvent extends BaseEntity {
         onUpdate: "CASCADE"
     })
     tags!: Promise<Tag[]>;
-    
-    @OneToMany(type => CalendarEventComment, comment => comment.event)
-    readonly comments!: Promise<CalendarEventComment[]>;
+
+    @OneToMany(type => ListingComment, comment => comment.listing)
+    readonly comments!: Promise<ListingComment[]>;
     
     @Column({
         name: "deleted",
@@ -96,21 +103,28 @@ export class CalendarEvent extends BaseEntity {
      */
     constructor();
 
-    constructor(user: User, title: string, description: string, start: Date, end?: Date);
+    /**
+     * Creates a new listing posted by the given user
+     * @param user
+     * @param title
+     * @param description
+     * @param anonymous
+     */
+    constructor(user: User, title: string, description: string, anonymous: boolean);
     
-    constructor(user?: User, title?: string, description?: string, start?: Date, end?: Date) {
+    constructor(user?: User, title?: string, description?: string, anonymous?: boolean) {
         super();
-        if (user != null && title != null && description != null && start != null) {
+        if (user != null && title != null && description != null && anonymous != null) {
             this.userID = user.id;
             this.user = Promise.resolve(user);
+            this.timePosted = new Date();
             this.title = title;
             this.description = description;
-            this.start = start;
-            this.end = end != null ? end : null;
+            this.anonymous = anonymous;
             this.tags = Promise.resolve([]);
             this.comments = Promise.resolve([]);
             this.deleted = false;
         }
     }
-
+    
 }

@@ -343,7 +343,15 @@ export function route(app: Express, db: Connection) {
         const user: User|undefined = request.user;
         if (user != null) {
             const events: CalendarEvent[] = await user.events;
-            response.send(JSON.stringify(events));
+            response.send(JSON.stringify(events.map(e => {
+                return {
+                    id: e.id,
+                    title: e.title,
+                    description: e.description,
+                    start: e.start,
+                    end: e.end
+                };
+            })));
         } else {
             response.send(JSON.stringify("Not logged in."));
         }

@@ -266,24 +266,8 @@ export class HomeContent extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            //width: window.innerWidth,
-            //height: window.innerHeight,
         };
     }
-
-    /*
-    componentDidMount = () => {
-        window.addEventListener('resize', this.updateDimensions);
-    }
-    
-    componentWillUnmount = () => {
-        window.removeEventListener('resize', this.updateDimensions);
-    }
-    
-    updateDimensions = () =>{
-        this.setState = { width: window.innerWidth, height: window.innerHeight };
-    }
-    */
 
     private readonly createEvents = () => {
         let currentEvents = [];
@@ -291,12 +275,12 @@ export class HomeContent extends Component<Props, State> {
         for(let i=0; i < events.length; i++)
         {
             currentEvents.push(
-                <Card key={i} className="event-card">
-                    <Card.Header className="event-header">Title: {events[i].id}</Card.Header>
+                <Card key={i} className="home-content-event-card">
+                    <Card.Header className="home-content-event-header">Title: {events[i].id}</Card.Header>
                     <Card.Body>
                         <Card.Title>{events[i].title}</Card.Title>
-                        <Card.Text className="description">
-                        <span className="description">{events[i].start != null? events[i].start.toLocaleDateString(): ""}</span>
+                        <Card.Text className="home-content-description">
+                        <span className="home-content-description">{events[i].start != null? events[i].start.toLocaleDateString(): ""}</span>
                         </Card.Text>
                         <Button variant="light" className="home-content-button">Go to event</Button>
                     </Card.Body>
@@ -314,11 +298,11 @@ export class HomeContent extends Component<Props, State> {
         for(let i=0; i < listings.length; i++)
         {
             currentListings.push(
-                <Card key={i} className="listing-card">
-                    <Card.Header className="listing-header">{listings[i].id}: {listings[i].title}</Card.Header>
+                <Card key={i} className="home-content-listing-card">
+                    <Card.Header className="home-content-listing-header">{listings[i].id}: {listings[i].title}</Card.Header>
                     <Card.Body>
                         <Card.Title>{listings[i].type}</Card.Title>
-                        <Card.Text className="description">
+                        <Card.Text className="home-content-description">
                             DESCRIPTION: {listings[i].description}
                         </Card.Text>
                         <Button variant="light" className="home-content-button">Go to listing</Button>
@@ -349,11 +333,11 @@ export class HomeContent extends Component<Props, State> {
                 </Row>
 
                 <Row>
-                    <Col sm={6} className="cards">
+                    <Col sm={6} className="home-content-cards">
                         {events}
                     </Col>
 
-                    <Col sm={6} className="cards">
+                    <Col sm={6} className="home-content-cards">
                         {listings}
                     </Col>
                 </Row>

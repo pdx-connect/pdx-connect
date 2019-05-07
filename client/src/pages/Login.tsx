@@ -121,10 +121,10 @@ export class Login extends Page<Props, State> {
     public render(): ReactNode {
 
         const register =
-            <Button size="sm" variant="light" onClick={() => {this.props.history.push('/register')} } className="register">register</Button>;
+            <Button size="sm" variant="light" onClick={() => {this.props.history.push('/register')} } className="login-register">register</Button>;
 
         const password =
-            <Button size="sm" variant="light" onClick={() => {Login.clearLocalStorage(); this.props.history.push('/reset')} } className="password-forgot">password?</Button>;
+            <Button size="sm" variant="light" onClick={() => {Login.clearLocalStorage(); this.props.history.push('/reset')} } className="login-password-forgot">password?</Button>;
 
         const loginButton =
             <Button size="sm" variant="light" onClick={this.nextArrowPressed} className="login-button">login</Button>;
@@ -132,13 +132,13 @@ export class Login extends Page<Props, State> {
 
         return (
             <Container fluid className="login">
-                <Row className="title">
+                <Row className="login-title">
                     <Col sm={12}><h1>pdx connect</h1></Col>
                 </Row>
 
                 <Row>
                     <Col sm={3}></Col>
-                    <Col sm={6} className="notAuthorized">
+                    <Col sm={6} className="login-not-authorized">
                         {this.state.notAuthorized? <span>Credentials Incorrect</span> : null}
                         {this.state.emptyFields? <span> Please enter your credentials </span> : null}
                     </Col>
@@ -148,11 +148,11 @@ export class Login extends Page<Props, State> {
                     <Col sm={3}></Col>
                     <Col sm={6}>
                         <Form>
-                            <Form.Group className="formBasic">
+                            <Form.Group className="form-basic">
                                 <Form.Control type="email" placeholder="email" className="generic" onChange={this.setEmail}/>
                             </Form.Group>
 
-                            <Form.Group className="formBasic">
+                            <Form.Group className="form-basic">
                                 <Form.Control type="password" placeholder="password" className="generic" onChange={this.setPassword}/>
                             </Form.Group>
                         </Form>
@@ -162,7 +162,7 @@ export class Login extends Page<Props, State> {
 
                 <Row>
                     <Col sm={3}></Col>
-                    <Col sm={6} className="regPass">
+                    <Col sm={6} className="login-reg-pass">
                         { loginButton }
                         { register }
                         { password }
