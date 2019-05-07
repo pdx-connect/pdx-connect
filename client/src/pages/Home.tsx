@@ -16,6 +16,7 @@ import {Oobe} from "./oobe/Oobe";
 import {getJSON} from "../util/json";
 
 import "./Home.css";
+import { createBrowserHistory } from 'history';
 
 
 interface Props extends RouteComponentProps {

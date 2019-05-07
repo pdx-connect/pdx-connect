@@ -7,6 +7,7 @@ import {ProfileContent} from "./ProfileContent";
 import {Edit} from "./Edit";
 import {Events} from "./Events";
 import {Listings} from "./Listings";
+import {SearchResults} from "../search-results/SearchResults";
 
 import "./Profile.css";
 
@@ -19,12 +20,8 @@ interface Props {
     userID?: number;
 }
 
-interface SubState {
+interface State {
 }
-
-interface State extends SubState {
-}
-
 
 /**
  * 
@@ -36,25 +33,22 @@ export class Profile extends Component<Props, State> {
         this.state = {
         };
     }
-    
-    componentDidMount() {
-        const { match: { params } } = this.props;
-        console.log('params: ', params);
-    }
 
     private readonly updateHistory = (v: string) => {
         this.props.history.push(v);
     };
 
     public render(): ReactNode {
-
         return (
             <Container fluid className="profile">
             <Row>
                 <Col sm={3} className="profile-left-container"><Navigation updateHistory={this.updateHistory}/></Col>
                 <Col sm={9} className="profile-right-container">
                     <Switch>
-                        <Route exact path="/profile/" component={ProfileContent} />
+                        <Route
+                            exact path="/profile/"
+                            render={props => <ProfileContent {...props} userID={this.props.userID}/>}
+                        />
                         <Route
                             path="/profile/edit"
                             render={props => <Edit {...props} updateDisplayName={this.props.updateDisplayName} />}
