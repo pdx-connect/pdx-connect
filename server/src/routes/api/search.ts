@@ -169,10 +169,12 @@ export function route(app: Express, db: Connection) {
                 const events = await user.events
                 const listings = await user.listings
                 let descString = "Not Set"
+                let commuterString = "Not Set"
                 if (userProfile != null) {
                     const description: string|null = await userProfile.description
                     const majorTag: Tag | null = await userProfile.major;
                     const interestTags: Tag[] = await userProfile.interests;
+                    const commuterStatus: boolean | null = await userProfile.isOnCampus;
                     if (description != null) {
                         descString = description
                     }
@@ -181,6 +183,14 @@ export function route(app: Express, db: Connection) {
                     }
                     if (interestTags.length > 0) {
                         tagsString = toTagString(interestTags);
+                    }
+                    if (commuterStatus != null) {
+                        if (commuterStatus == true) {
+                            commuterString = "On Campus"
+                        }
+                        else {
+                            commuterString = "Off Campus"
+                        }
                     }
                 }
                 return {
@@ -192,6 +202,7 @@ export function route(app: Express, db: Connection) {
                     events: events,
                     listings: listings,
                     description: descString,
+                    commuterStatus: commuterString,
                 };
             }));
         }
