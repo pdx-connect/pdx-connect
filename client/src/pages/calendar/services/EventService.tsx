@@ -1,3 +1,5 @@
+import { getJSON } from '../../../util/json';
+
 var today = new Date();
 var y = today.getFullYear();
 var m = today.getMonth();
@@ -14,9 +16,9 @@ const events = [
   },
   {
     _id: 2,
-    title: "Meeting",
-    start: new Date(y, m, d - 1, 10, 30),
-    end: new Date(y, m, d - 1, 11, 30),
+    title: "Testing time stamp",
+    start: new Date('2019-04-17 02:12:52'),
+    end: new Date('2019-04-17 03:12:52'),
     allDay: false,
     color: "green"
   },
@@ -60,7 +62,7 @@ const events = [
   }
 ];
 
-export function getEvents(){
+export async function getEvents(){
   return events;
 }
 
