@@ -40,7 +40,7 @@ export class Inbox extends Component<Props, State> {
     /*
     *   Message textfield state is updated on each keystroke
     */
-    private readonly onChange = (e: any) => {
+    private readonly onTextFieldChange = (e: any) => {
         e.preventDefault();
         this.setState({textField: e.target.value});
     }
@@ -193,8 +193,8 @@ export class Inbox extends Component<Props, State> {
                             }>
                             <Col key={i} sm={12}>
                                 ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
-                                Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}    
+                                <br></br>Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
+                                <br></br>Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}    
                             </Col>
                         </Row>
                     );
@@ -211,8 +211,8 @@ export class Inbox extends Component<Props, State> {
                             }>
                             <Col key={i} sm={12}>
                                 ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
-                                Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}
+                                <br></br>Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
+                                <br></br>Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}
                             </Col>
                         </Row>
                     );
@@ -248,7 +248,7 @@ export class Inbox extends Component<Props, State> {
             for (let i=this.props.conversations[this.state.currentConversationIndex].entries.length-1; i >= 0; i--) { 
                 if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID == this.props.userID) {
                     rows.push(
-                        <Row key={i} className="my-message">
+                        <Row key={i} className="message-row">
                             <Col className="my-message-bubble" sm="auto">
                                 {this.props.conversations[this.state.currentConversationIndex].entries[i].text}
                             </Col>
@@ -257,7 +257,7 @@ export class Inbox extends Component<Props, State> {
                 }
                 else {
                     rows.push(
-                        <Row key={i} className="other-message">
+                        <Row key={i} className="message-row">
                             <Col className="other-message-bubble" sm="auto">
                                 {this.props.conversations[this.state.currentConversationIndex].entries[i].text}
                             </Col>
@@ -340,7 +340,7 @@ export class Inbox extends Component<Props, State> {
                             <Col>
                                 <Form.Control
                                     className="textField"
-                                    onChange={(e: any) => this.onChange(e)}
+                                    onChange={(e: any) => this.onTextFieldChange(e)}
                                     type="text"
                                     value={this.state.textField}
                                     placeholder="Enter message..."
