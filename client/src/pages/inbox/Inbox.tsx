@@ -13,6 +13,7 @@ interface Props {
     seenRecent: (conversationID: number, time: Date) => void;
     conversations: ConversationEntry[];
     userID: number;
+    getParticipants: (conversationID: number) => Promise<Map<number, string>|undefined>;
 }
 
 interface State {

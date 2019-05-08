@@ -271,6 +271,31 @@ export class Socket {
         }
     };
 
+    public readonly getParticipants = async (conversationID: number) => {
+        const response: Response = await fetch("/api/messages/participants", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({conversationID: conversationID})
+        });
+        const data: {
+            userID: number;
+            displayName: string;
+        }[] = await response.json();
+        if(data.length == null) {
+            // TODO throw an error 
+
+            console.log("error in getUnreadMessages")
+            return;
+        }
+        let participants: Map<number,string> = new Map();
+        for (let i = 0; i < data.length; ++i) {
+            participants.set(data[i].userID, data[i].displayName);
+        }
+        return participants;
+    };
+
     public readonly seenRecent = (conversationID: number, time: Date) => {
         // Verify socket
         if (this.socket == null) {

@@ -65,15 +65,19 @@ export function route(app: Express, db: Connection) {
             let message = JSON.parse(msg);
             let type: string = message.type;
             let conversationID: number = message.conversationID;
-            if ( type == null || conversationID == null ) {
+            if ( type == null ) {
                     // TODO send an error
-                    console.log("Something null")
-                    console.log("Type: ", type);
-                    console.log("conversationID: ", message.conversationID)
+                    console.log("Type null")
                     return;
             }
             // Handle message type cases
             if ( type == "seen") {
+                // Ensure conversationID exists
+                if (conversationID == null) {
+                    // TODO send an error
+                    console.log("ConversationID null");
+                    return;
+                }
                 if ( typeof message.content != "number" ) {
                     // TODO send error
                     return;
@@ -94,6 +98,12 @@ export function route(app: Express, db: Connection) {
                 conversationIn.save();
                 return;
             } else if (type == "message") {
+                // Ensure conversationID exists
+                if (conversationID == null) {
+                    // TODO send an error
+                    console.log("ConversationID null");
+                    return;
+                }
                 // If message type is "message", add message to database and transmit to participants
                 if ( typeof message.content != "string" ) {
                     // TODO send error
@@ -153,7 +163,46 @@ export function route(app: Express, db: Connection) {
                 // Transmit to all logged on participants
     
             } else if (type == "new") {
-                // Do check to see if the conversation exists
+                // Ensure conversationID exists
+                let peopleInConvo: number[] = message.userID;
+                if (peopleInConvo == null) {
+                    // TODO send an error
+                    console.log("UserIDs null"); 
+                    return;
+                }
+                // If the conversation is between two people, try to find a duplicate conversation
+                if (peopleInConvo.length == 2) {
+                    // Find the other user's ID
+                    let targetUser = peopleInConvo[0] ? peopleInConvo[0] != user.id : peopleInConvo[1];
+                    // Get this users conversations participant entities
+                    const myConversationParticipation: ConversationParticipant[] = await ConversationParticipant.find({
+                        where: {
+                            userID: user.id
+                        }
+                    });
+                    // For each conversation participantion, get the conversation, check the number of particpants, 
+                    // and (if the number is two and the second participant is the targe), return the conversationID
+                    for (let i = 0; i < myConversationParticipation.length; ++i) {
+                        let conversation: Conversation = await myConversationParticipation[i].conversation;
+                        if (conversation == null) {
+                            continue;
+                        }
+                        let fromConversation: ConversationParticipant[] = await conversation.participants;
+                        if (fromConversation == null) {
+                            continue;
+                        }
+                        // If the conversation is between two people..
+                        if (fromConversation.length == 2) {
+                            for (let j = 0; j < 2; ++j) {
+                                //.. and the two people are the user and the target, return the conversationID
+                                if (fromConversation[j].userID == targetUser) {
+                                    socket.send(JSON.stringify({conversationID:conversation.id}));
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
                 // If the conversation exists, get ID, 
                 // Otherwise create a new conversation and conversation participants
                 const conversation: Conversation = new Conversation();

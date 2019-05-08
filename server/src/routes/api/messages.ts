@@ -158,4 +158,41 @@ export function route(app: Express, db: Connection) {
         }
         response.send(JSON.stringify(toSend));
     });
+
+    app.post("/api/messages/participants", async (request: Request, response: Response) => {
+        // Verify that the request is valid
+        if (typeof request.user == null) {
+            // TODO send error
+            return;
+        } else if (typeof request.body !== "object") {
+            response.sendStatus(400); // HTTP 400: Bad client request
+            return;
+        }
+        // Get the user and body objects, validate fields
+        const user: User = request.user;
+        const body: any = request.body;
+        if (typeof body.conversationID !== "number") {
+            response.sendStatus(400); // HTTP 400: Bad client request
+            return;
+        }
+        // Define array of userIDs and names to send as response
+        let toSend: {
+            userID: number;
+            displayName: string;
+        }[] = [];
+        // Get the participants and save their IDs and names in toSend
+        const participants: ConversationParticipant[] = await ConversationParticipant.find({
+            where: {
+                userID: user.id
+            }
+        });
+        for (let i = 0; i < participants.length; ++i) {
+            let toAdd: User = await participants[i].user;
+            toSend.push({
+                userID: participants[i].userID,
+                displayName: toAdd.displayName
+            });
+        }
+        response.send(JSON.stringify(toSend));
+    });
 }

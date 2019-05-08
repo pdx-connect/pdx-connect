@@ -17,6 +17,7 @@ import {getJSON} from "../util/json";
 import {Socket} from "./Socket"
 
 import "./Home.css";
+import { number } from 'prop-types';
 
 interface Props extends RouteComponentProps {
     
@@ -136,7 +137,7 @@ export class Home extends Page<Props, State> {
         } else { 
             return () => {};
         }
-    }
+    };
 
     private readonly getGetMoreMessages = () => {
         if (this.socket) {
@@ -144,7 +145,7 @@ export class Home extends Page<Props, State> {
         } else {
             return () => {};
         }
-    }
+    };
 
     private readonly getSeenRecent = () => {
         if (this.socket) {
@@ -152,7 +153,21 @@ export class Home extends Page<Props, State> {
         } else {
             return () => {};
         }
-    }
+    };
+
+    private readonly getGetParticipants = () => {
+        if (this.socket) {
+            return this.socket.getParticipants;
+        } else {
+            return (conversationID: number) => {
+                let promise: Promise<Map<number,string>> = new Promise((resolve, reject) => {
+                    resolve(new Map<number,string>());
+                });
+                return promise;
+//                return new Map<number,string>();
+            };
+        }
+    };
 
     private readonly updateMessages = (messages: ConversationEntry[]) => {
         this.setState({conversations: messages});
@@ -266,7 +281,8 @@ export class Home extends Page<Props, State> {
                                                                             sendMessage={this.getSendMessages()} 
                                                                             getMoreMessages={this.getGetMoreMessages()} 
                                                                             seenRecent={this.getSeenRecent()} 
-                                                                            userID={this.state.userID ? this.state.userID : 0}/>}></Route>
+                                                                            userID={this.state.userID ? this.state.userID : 0}
+                                                                            getParticipants={this.getGetParticipants()}/>}></Route>
                                 <Route
                                     path="/search-results"
                                     render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}
