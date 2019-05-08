@@ -162,13 +162,25 @@ export function route(app: Express, db: Connection) {
                 // Transmit to all logged on participants
     
             } else if (type == "new") {
+                // Define variables for later use
                 let conversation: Conversation|undefined;
-                let makeNew: boolean = true;
                 let participants: ConversationParticipant[] = [];
-                // Ensure conversationID exists
+                let makeNew: boolean = true;
+                // Ensure userIDs exist
                 if (userIDs == null) {
                     // TODO send an error
                     console.log("UserIDs null"); 
+                    return;
+                }
+                // Ensure that this user is in the userIDs 
+                let found = false;
+                for (let i = 0; i < userIDs.length; ++i) {
+                    if (userIDs[i] == user.id) {
+                        found = true;
+                    }
+                }
+                if (found == false) {
+                    //TODO throw an error
                     return;
                 }
                 // If the conversation is between two people, try to find a duplicate conversation
