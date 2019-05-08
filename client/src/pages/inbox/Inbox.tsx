@@ -39,7 +39,7 @@ export class Inbox extends Component<Props, State> {
     /*
     *   Message textfield state is updated on each keystroke
     */
-    private readonly onChange = (e: any) => {
+    private readonly onTextFieldChange = (e: any) => {
         e.preventDefault();
         this.setState({textField: e.target.value});
     }
@@ -192,8 +192,8 @@ export class Inbox extends Component<Props, State> {
                             }>
                             <Col key={i} sm={12}>
                                 ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
-                                Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}    
+                                <br></br>Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
+                                <br></br>Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}    
                             </Col>
                         </Row>
                     );
@@ -210,8 +210,8 @@ export class Inbox extends Component<Props, State> {
                             }>
                             <Col key={i} sm={12}>
                                 ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
-                                Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}
+                                <br></br>Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
+                                <br></br>Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}
                             </Col>
                         </Row>
                     );
@@ -339,7 +339,7 @@ export class Inbox extends Component<Props, State> {
                             <Col>
                                 <Form.Control
                                     className="textField"
-                                    onChange={(e: any) => this.onChange(e)}
+                                    onChange={(e: any) => this.onTextFieldChange(e)}
                                     type="text"
                                     value={this.state.textField}
                                     placeholder="Enter message..."
