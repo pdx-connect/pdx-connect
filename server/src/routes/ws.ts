@@ -64,6 +64,7 @@ export function route(app: Express, db: Connection) {
             let message = JSON.parse(msg);
             let type: string = message.type;
             let conversationID: number = message.conversationID;
+            let userIDs: number[] = message.userIDs;
             if ( type == null ) {
                     // TODO send an error
                     console.log("Type null")
@@ -161,17 +162,19 @@ export function route(app: Express, db: Connection) {
                 // Transmit to all logged on participants
     
             } else if (type == "new") {
+                let conversation: Conversation|undefined;
+                let makeNew: boolean = true;
+                let participants: ConversationParticipant[] = [];
                 // Ensure conversationID exists
-                let peopleInConvo: number[] = message.userID;
-                if (peopleInConvo == null) {
+                if (userIDs == null) {
                     // TODO send an error
                     console.log("UserIDs null"); 
                     return;
                 }
                 // If the conversation is between two people, try to find a duplicate conversation
-                if (peopleInConvo.length == 2) {
+                if (userIDs.length == 2) {
                     // Find the other user's ID
-                    let targetUser = peopleInConvo[0] ? peopleInConvo[0] != user.id : peopleInConvo[1];
+                    let targetUser = userIDs[0] ? userIDs[0] != user.id : userIDs[1];
                     // Get this users conversations participant entities
                     const myConversationParticipation: ConversationParticipant[] = await ConversationParticipant.find({
                         where: {
@@ -181,49 +184,62 @@ export function route(app: Express, db: Connection) {
                     // For each conversation participantion, get the conversation, check the number of particpants, 
                     // and (if the number is two and the second participant is the targe), return the conversationID
                     for (let i = 0; i < myConversationParticipation.length; ++i) {
-                        let conversation: Conversation = await myConversationParticipation[i].conversation;
+                        conversation = await myConversationParticipation[i].conversation;
                         if (conversation == null) {
                             continue;
                         }
-                        let fromConversation: ConversationParticipant[] = await conversation.participants;
-                        if (fromConversation == null) {
+                        participants = await conversation.participants;
+                        if (participants == null) {
                             continue;
                         }
                         // If the conversation is between two people..
-                        if (fromConversation.length == 2) {
+                        if (participants.length == 2) {
                             for (let j = 0; j < 2; ++j) {
-                                //.. and the two people are the user and the target, return the conversationID
-                                if (fromConversation[j].userID == targetUser) {
-                                    socket.send(JSON.stringify({conversationID:conversation.id}));
-                                    return;
+                                //.. and the two people are the user and the target, skip the make conversation step
+                                if (participants[j].userID == targetUser) {
+                                    makeNew = false;
                                 }
                             }
                         }
                     }
+                } 
+                if (makeNew) {
+                    // Otherwise create a new conversation and conversation participants
+                    conversation = new Conversation();
+                    conversation.save();
+                    for (let i = 0; i < userIDs.length; ++i) {
+                        let thisUser: User|undefined = await User.findOne({
+                            where: {
+                                id: userIDs[i]
+                            }
+                        });
+                        if (thisUser != null) {
+                            let newParticipant = new ConversationParticipant(conversation, thisUser);
+                            newParticipant.save();
+                            participants.push(newParticipant);
+                        }
+                    }
                 }
-                // If the conversation exists, get ID, 
-                // Otherwise create a new conversation and conversation participants
-                const conversation: Conversation = new Conversation();
-                const participants: ConversationParticipant[] = [];
                 // Create/save the message
-                let newMessage = new Message(conversation, user, message.content);
-                newMessage.save();
-
-                // Send the message to every participant
-                for (let i = 0; i < participants.length; ++i) {
-                    for (let j = 0; j < cw.length(); ++j) {
-                        if (cw.index(j).user == participants[i].userID) {
-                            try {
-                                cw.index(j).socket.send(JSON.stringify({
-                                    conversationID: conversationID,
-                                    message: {
-                                        from: newMessage.userID,
-                                        timeSend: newMessage.timeSent,
-                                        content: newMessage.content,
-                                    }
-                                }));
-                            } catch {
-                                cw.index(j).socket.close();
+                if (conversation != null) {
+                    let newMessage = new Message(conversation, user, message.content);
+                    newMessage.save();
+                    // Send the message to every participant
+                    for (let i = 0; i < participants.length; ++i) {
+                        for (let j = 0; j < cw.length(); ++j) {
+                            if (cw.index(j).user == participants[i].userID) {
+                                try {
+                                    cw.index(j).socket.send(JSON.stringify({
+                                        conversationID: conversationID,
+                                        message: {
+                                            from: newMessage.userID,
+                                            timeSend: newMessage.timeSent,
+                                            content: newMessage.content,
+                                        }
+                                    }));
+                                } catch {
+                                    cw.index(j).socket.close();
+                                }
                             }
                         }
                     }

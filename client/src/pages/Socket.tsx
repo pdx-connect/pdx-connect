@@ -262,7 +262,7 @@ export class Socket {
             // Get a conversationID from the server
             this.socket.send(JSON.stringify({
                 type: "new",
-                userID: userID,
+                userIDs: userID,
                 content: msg
             }));
             // If the conversation does exist..
