@@ -80,8 +80,8 @@
 }
 
 .home-component {
-    max-height: 600px;
-    overflow-y: scroll;
+    min-height: 600px;
+    overflow-y: auto;
 }
 
 .home-right-sidebar {

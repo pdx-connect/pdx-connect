@@ -150,7 +150,7 @@ export class Home extends Page<Props, State> {
         const messages = Object.keys(this.state.messages);
         const notifications = Object.keys(this.state.alerts);
 
-        let maxHeight = {maxHeight: (this.state.windowHeight * .80).toString() + "px"};
+        let minHeight = {minHeight: (this.state.windowHeight * .80).toString() + "px"};
 
         return (
         <Container fluid className="home">
@@ -193,7 +193,7 @@ export class Home extends Page<Props, State> {
             <Row className="home-main">
                 <Col sm={10} md={10} className="home-main-content">
                     <Row>
-                        <Col sm={10} md={11} className="home-component" style={maxHeight}>
+                        <Col sm={10} md={11} className="home-component" style={minHeight}>
                             <Switch>
                                 <Route exact path="/" component={HomeContent} />
                                 <Route
