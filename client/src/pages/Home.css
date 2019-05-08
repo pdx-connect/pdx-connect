@@ -81,7 +81,7 @@
 
 .home-component {
     max-height: 600px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .home-right-sidebar {

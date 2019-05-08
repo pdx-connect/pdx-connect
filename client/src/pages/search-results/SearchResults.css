@@ -17,14 +17,22 @@
     background-color: var(--near-white-contrast);
 }
 
+.react-grid-Row:hover
+{
+    text-decoration: underline;
+    text-decoration-line: underline;
+}
+
 .react-grid-HeaderRow
 {
     color: var(--suggestion);
 }
 
-.react-grid-Cell__value
+.react-grid-Cell__value *
 {
-    white-space: normal !important;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .form-inline{

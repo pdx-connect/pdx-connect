@@ -131,7 +131,7 @@ export class ReactGrid extends Component<Props, State> {
         let columns : any
         if (this.props.searchBy == 1){
             columns = [
-                { key: "displayName", name: "Name", editable: false, filterable: true},
+                { key: "displayName", name: "Name", editable: false, filterable: true, className: "searchresults-ellipsis"},
                 { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
                 { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: MultiSelectFilter}
             ];
@@ -160,7 +160,6 @@ export class ReactGrid extends Component<Props, State> {
                     columns={columns}
                     rowGetter={i => filteredRows[i]}
                     rowsCount={this.state.rows.length}
-                    rowHeight={40}
                     minHeight={500}
                     toolbar={<Toolbar enableFilter={true} />}
                     onAddFilter={filter => this.setState({filters : handleFilterChange(filter) })}
