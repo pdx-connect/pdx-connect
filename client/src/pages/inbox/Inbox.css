@@ -120,7 +120,7 @@
 
 .textField
 {
-    width: 300px;
+    width: 400px;
     line-height: 28px;
 }
 
@@ -133,4 +133,19 @@
     padding-left: 50px;
     margin-top: -5px;
     width: 100%;
+}
+
+.user-select-form
+{
+    margin-left: 200px;
+}
+
+.user-select
+{
+    box-sizing: content-box;
+    -webkit-appearance: menulist-button;
+    height: 10px;
+    width: 200px;
+    overflow: hidden;
+    z-index: 10;
 }
