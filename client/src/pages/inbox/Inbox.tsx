@@ -5,6 +5,7 @@ import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
 
 import "./Inbox.css";
+import { number } from 'prop-types';
 
 
 interface Props {
@@ -17,9 +18,10 @@ interface Props {
 }
 
 interface State {
-    currentConversation?: number;
+    currentConversationIndex?: number;
     currentConversationID?: number;
     textField: string;
+    composingNewConvo: boolean;
 }
 
 /**
@@ -31,45 +33,94 @@ export class Inbox extends Component<Props, State> {
         super(props);
         this.state = {
             textField: "",
+            composingNewConvo: false,
         }
     }
 
+    /*
+    *   Message textfield state is updated on each keystroke
+    */
     private readonly onChange = (e: any) => {
         e.preventDefault();
         this.setState({textField: e.target.value});
     }
 
+    /*
+    *   On send or ENTER key, sendMessage() broadcasts to socket
+    *   message is sent
+    */
     private readonly onSubmit = (e: any) => {
         e.preventDefault();
 
-        if (this.state.currentConversationID) {
+        if (this.state.currentConversationID && this.state.textField != "") {
             this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
         }
         this.setState({textField: ""});
+    }
+    /*
+    *   On enter of compose button, a new conversation window is rendered
+    *   
+    */
+    private readonly onCompose = () => {
         
-        //this.props.onSendMessage(this.state.textField)
+    
     }
 
+    /* 
+    *   getMessages:    renders the participants of a conversation,
+    *                   only renders/opens one conversation at a time,
+    *                   Otherwise, converastion composer is default
+    *                   and this field is open for adding users to the conversation
+    *                   (right-top window of inbox)
+    */
+    private readonly getParticipents = () => {
+        let rows = [];
+
+        var participents: number[] = [];
+
+        if (this.props.conversations != null && this.state.currentConversationIndex != null) {
+            for (let i=0; i<this.props.conversations[this.state.currentConversationIndex].entries.length; i++) {
+                if (participents.indexOf(this.props.conversations[this.state.currentConversationIndex].entries[i].userID) == -1) {
+                    participents.push(this.props.conversations[this.state.currentConversationIndex].entries[i].userID);
+                }         
+            }
+        }
+        if (this.props.conversations != null) {
+            rows.push("Participent IDs: ")
+            for (let i=0; i<participents.length; i++) {
+                rows.push(participents[i]);
+                if (i != participents.length-1)
+                    rows.push(", ");
+            }
+        }
+        return rows;
+    }
+
+    /* 
+    *   getInbox:   renders the selectable list of conversations the user is a part of, 
+    *               along with a prewview of the lastest message
+    *               (left window of inbox)
+    */
     private readonly getInbox = () => {
         let rows = [];
         if (this.props.conversations != null) {
             for (let i=0; i<this.props.conversations.length; i++) {
-                if (i == this.state.currentConversation) {
+                if (i == this.state.currentConversationIndex) {
                     rows.push(
-                        <Row key={i} onClick={()=> this.setState({currentConversation: i, currentConversationID: this.props.conversations[i].conversationID})} className="open-conversation">
+                        <Row key={i} onClick={()=> this.setState({currentConversationIndex: i, currentConversationID: this.props.conversations[i].conversationID})} className="open-conversation">
                             <Col key={i} sm={12}>
-                                Message from: user {this.props.conversations[i].entries[0].userID}
-                                Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
+                                Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
+                                Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}    
                             </Col>
                         </Row>
                     );
                 }
                 else {
                     rows.push(
-                        <Row key={i} onClick={()=> this.setState({currentConversation: i, currentConversationID: this.props.conversations[i].conversationID})} className="conversation">
+                        <Row key={i} onClick={()=> this.setState({currentConversationIndex: i, currentConversationID: this.props.conversations[i].conversationID})} className="conversation">
                             <Col key={i} sm={12}>
-                                Message from: user {this.props.conversations[i].entries[0].userID}
-                                Preview: {this.props.conversations[i].entries[this.props.conversations[i].entries.length-1].text}
+                                Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
+                                Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}
                             </Col>
                         </Row>
                     );
@@ -84,27 +135,38 @@ export class Inbox extends Component<Props, State> {
         return rows;
     }
 
+    /* 
+    *   getMessages:    renders the messages box of a conversation,
+    *                   only renders/opens one conversation at a time,
+    *                   Otherwise, converastion composer is default
+    *                   (right window of inbox)
+    */
     private readonly getMessages = () => {
-        if (this.state.currentConversation == null) {
+
+        if (this.state.currentConversationIndex == null) {
             return [];
         }
         let rows = [];
-        if (this.props.conversations != null) {
-            for (let i=0; i<this.props.conversations[this.state.currentConversation].entries.length; i++) {
-                if (this.props.conversations[0].entries[i].userID == this.props.userID) {
+        if (this.props.conversations != null && this.state.currentConversationIndex != null) {
+            //console.log("Convo 0" ,this.props.conversations[0])
+            for (let i=this.props.conversations[this.state.currentConversationIndex].entries.length-1; i >= 0; i--) { 
+                if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID == this.props.userID) {
                     rows.push(
                         <Row key={i} className="my-message">
-                            <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
+                            <Col className="my-message-bubble" key={i} sm="auto"> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
                         </Row>
                     );
                 }
                 else {
                     rows.push(
                         <Row key={i} className="other-message">
-                            <Col key={i} sm={12}> {this.props.conversations[this.state.currentConversation].entries[i].text}</Col>
+                            <Col className="other-message-bubble" key={i} sm="auto"> {this.props.conversations[this.state.currentConversationIndex].entries[i].text}</Col>
+                            <Col className="message-bubble-name-tag" key={i} sm={12}>UserID: {this.props.conversations[this.state.currentConversationIndex].entries[i].userID}</Col>
                         </Row>
-                );
+                    );
+
                 }
+
             }
         } else {
             rows.push(
@@ -144,12 +206,26 @@ export class Inbox extends Component<Props, State> {
                 else 
                     print message left side
             */
-        let messages = this.getMessages();
+        let participents = this.getParticipents();
         let conversations = this.getInbox();
+        let messages = this.getMessages();
 
         return (
 
             <Container fluid className="inbox">
+
+                <div className="compose-message">
+                    <Form onSubmit={(e: any) => this.onSubmit(e)}>
+                        <Row>
+                            <Col sm={12} ><Button className="compose-button" variant="primary" type="submit">Compose Message</Button></Col>
+                        </Row>
+                    </Form>
+                </div>
+
+                <div className="participents">
+                    {participents}
+                </div>
+
                 <div className="conversations">
                     {conversations}
                 </div>
