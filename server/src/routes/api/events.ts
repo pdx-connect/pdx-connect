@@ -50,7 +50,7 @@ export function route(app: Express, db: Connection) {
       response.send(JSON.stringify("Not logged in."));
       return;
     }
-
+// TODO add all day event flag to the db
     const user: User | undefined = request.user;
     const body = request.body;
     const title = body.title;

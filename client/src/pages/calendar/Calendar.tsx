@@ -19,8 +19,7 @@ import "./style/Calendar.css";
 
 import NavBar from "./NavBar";
 import * as EventService from "./services/EventService";
-import { getJSON } from '../../util/json';
-
+import { getJSON, postJSON } from "../../util/json";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -96,11 +95,21 @@ export class Calendar extends Component<Props, State> {
     this.setState({ description: e.target.value });
   };
 
-  private handleShowCreate = () => {
-    this.setState({ create: true });
+  private createEvent = (e: any) => {
+    this.setState({ create: true, start: e.start, end: e.end });
+    console.log(this.state.start, this.state.end);
   };
 
-  private processCreation = () => {};
+  private submitForm = async () => {
+    const data = await postJSON("/api/event", {
+      title: this.state.title,
+      description: this.state.description,
+      start: this.state.start,
+      end: this.state.end
+    });
+    this.handleCloseCreate();
+    this.getEvents();
+  };
 
   private handleCloseCreate = () => {
     this.setState({
@@ -112,22 +121,50 @@ export class Calendar extends Component<Props, State> {
     });
   };
   private getEvents = async () => {
-    const eventsFromDB = await getJSON(("/api/events"));
+    const eventsFromDB = await getJSON("/api/events");
     var eventsFormated = [];
     const arrayLength = eventsFromDB.length;
-    for(var i = 0; i < arrayLength; i++){
+    const colors = ["default", "red", "green", "orange", "azure"];
+    for (var i = 0; i < arrayLength; i++) {
       var record = eventsFromDB[i];
-      var newEvent = {_id: record.id, title: record.title, description: record.description,
-      start: new Date(record.start), end: new Date(record.end), allDay: false};
+      var newEvent = {
+        _id: record.id,
+        userID: record.userID,
+        title: record.title,
+        description: record.description,
+        start: new Date(record.start),
+        end: new Date(record.end),
+        allDay: false,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      };
       eventsFormated.push(newEvent);
     }
     this.setState({
       events: eventsFormated
     });
+  };
+
+  private selectedEvent = (e: any) => {
+    this.setState({
+      title: e.title,
+      description: e.description,
+      create: true
+    });
+  };
+
+  private eventColors(event: any, start: any, end: any, isSelected: any) {
+    var backgroundColor = "rbc-event-";
+    event.color
+      ? (backgroundColor = backgroundColor + event.color)
+      : (backgroundColor = backgroundColor + "default");
+    return {
+      className: backgroundColor
+    };
   }
-  public componentDidMount(){
+
+  public componentDidMount() {
     this.getEvents().then();
-}
+  }
   public render(): ReactNode {
     return (
       <div className="main-content">
@@ -140,9 +177,10 @@ export class Calendar extends Component<Props, State> {
             events={this.state.events}
             startAccessor="start"
             endAccessor="end"
+            onSelectEvent={event => this.selectedEvent(event)}
+            eventPropGetter={this.eventColors}
             onSelectSlot={slotInfo => {
-              // this.addNewEventAlert(slotInfo);
-              this.handleShowCreate();
+              this.createEvent(slotInfo);
             }}
           />
         </div>
@@ -155,13 +193,18 @@ export class Calendar extends Component<Props, State> {
             <Form>
               <Form.Group>
                 <Form.Label>Title</Form.Label>
-                <Form.Control type="text" onChange={this.setTitle} />
+                <Form.Control
+                  type="text"
+                  value={this.state.title}
+                  onChange={this.setTitle}
+                />
               </Form.Group>
               <Form.Group>
                 <Form.Label>Description</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows="3"
+                  value={this.state.description}
                   onChange={this.setDescription}
                 />
               </Form.Group>
@@ -179,11 +222,52 @@ export class Calendar extends Component<Props, State> {
           <Modal.Footer>
             <Form>
               <Form.Group>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={this.processCreation}
-                >
+                <Button size="sm" variant="primary" onClick={this.submitForm}>
+                  Submit
+                </Button>
+              </Form.Group>
+            </Form>
+          </Modal.Footer>
+        </Modal>
+                {/* Popup for create and delete event */}
+        <Modal show={this.state.create} onHide={this.handleCloseCreate}>
+          <Modal.Header closeButton>
+            <Modal.Title>Create Event</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group>
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={this.state.title}
+                  onChange={this.setTitle}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows="3"
+                  value={this.state.description}
+                  onChange={this.setDescription}
+                />
+              </Form.Group>
+              {/* <Form.Group>
+                <Form.Label>Tags</Form.Label>
+                <Select
+                  options={this.state.optionTags}
+                  value={this.state.selectedTags}
+                  onChange={this.handleTagChange}
+                  isMulti={true}
+                />
+              </Form.Group> */}
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Form>
+              <Form.Group>
+                <Button size="sm" variant="primary" onClick={this.submitForm}>
                   Submit
                 </Button>
               </Form.Group>
