@@ -1,140 +1,129 @@
-@import url("https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i");
-@import url("https://fonts.googleapis.com/css?family=Varela+Round");
+@import "root.css";
 @import "placeholder.css";
 
-.registerPage
-{
+.register {
     margin-top: 10%;
-    color: #565656;
-    font-family: 'Montserrat', sans-serif;
-    background-color: #f6f9fb;
+    color: var(--white-contrast);
+    font-family: var(--hard-font);
+    background-color: var(--near-white);
 }
 
-.registerPage .title
-{
+.register .register-title {
     text-transform: uppercase;
     text-align: center;
     letter-spacing: 1vw;
-    color: #9fc1c0;
+    color: var(--suggestion);
     font-weight: bold;
     margin-bottom: 3%;
 }
 
-.registerPage .subTitle
-{
-    color: #c5e06f;
+.register .register-sub-title {
+    color: var(--thing-1);
     text-transform: uppercase;
     letter-spacing: .2vw;
     text-align: center;
     padding-bottom: 1%;
-    font-family: 'Varela Round', sans-serif;
+    font-family: var(--soft-font);
 }
 
-.emailDisplay {
-    color: #565656;
+.register-email-display {
+    color: var(--white-contrast);
 }
 
-.check {
-    color: gray;
+.register-check {
+    color: var(--gray);
 }
 
-.submit {
+.register-submit {
     text-align: right;
 }
 
-.tos h3 {
+.register-tos h3 {
     text-align: center;
     margin-bottom: 2%;
 }
 
-.joinButton, .resendButton, .confirmButton, .resetButton {
-    color: #565656;
+.register-join-button, .register-resend-button, .register-confirm-button, .register-reset-button {
+    color: var(--white-contrast);
     letter-spacing: .4vw;
     font-weight: bold;
-    background-color: #f2f2f2;
+    background-color: var(--faint-contrast);
     text-transform: uppercase;
-    font-family: 'Varela Round', sans-serif;
+    font-family: var(--soft-font);
     margin-left: 1%;
     margin-right: 1%;
 }
 
-.alignCenter {
-    text-align: center;
-}
-
-.joinButton:hover, .resendButton:hover, .confirmButton:hover, .resetButton:hover {
-    color: #f15a24;
+.register-join-button:hover, .register-resend-button:hover, .register-confirm-button:hover, .register-reset-button:hover {
+    color: var(--insist);
     text-decoration: none;
 }
 
-.emailConfirmation {
+.register-email-confirmation {
     text-align: center;
 }
 
-.switch {
+.register-switch {
     text-align: right;
 }
 
-.switchTitle {
+.register-switch-title {
     font-size: 1vw;
     text-transform: uppercase;
     padding-top: 1%;
     text-align: left;
 }
 
-.blurb {
-    color: #9fc1c0;
+.register-blurb {
+    color: var(--suggestion);
     text-align: center;
     font-size: 1.5vw;
 }
 
-.directionalButtons {
+.register-directional-buttons {
     text-align: center;
 }
 
-.information
-{
-    background-color: #565656;
+.register-information {
+    background-color: var(--white-contrast);
     padding: 1%;
     width: 1vw;
     height: 1vw;
-    color: #ffffff;
+    color: var(--white);
     border-radius:50%;
     -moz-border-radius:50%;
     -webkit-border-radius:50%;
-    border: solid thin #565656;
+    border: solid thin var(--white-contrast);
     margin-top: -10%;
     margin-left: 5%;
     cursor: pointer;
 }
 
-.leftButton, .rightButton {
-    color: #297d7d;
+.register-left-button, .register-right-button {
+    color: var(--thing-2);
     padding-top: 1%;
     padding-bottom: 1%;
     cursor: pointer;
 }
 
-.tos .modal-header {
+.register-tos .modal-header {
     border: none;
 }
 
-.confirmed
-{
-    color: red;
+.register-confirmed {
+    color: var(--warning);
     text-transform: uppercase;
     letter-spacing: .2vw;
     text-align: center;
     padding-bottom: 1%;
-    font-family: 'Varela Round', sans-serif;
+    font-family: var(--soft-font);
 }
 
-.notAuthorized
-{
-    color: red;
+.register-not-authorized {
+    color: var(--warning);
     text-transform: uppercase;
     letter-spacing: .2vw;
     text-align: center;
     padding-bottom: 1%;
-    font-family: 'Varela Round', sans-serif;
+    font-family: var(--soft-font);
 }

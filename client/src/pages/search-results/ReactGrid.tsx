@@ -55,6 +55,7 @@ export class ReactGrid extends Component<Props, State> {
         this.getTags().then()
     }
 
+
     private getValidFilterValues(rows : any, columnId : any) {
         if( columnId != "tags") {
             return rows

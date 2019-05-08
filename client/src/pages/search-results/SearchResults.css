@@ -1,28 +1,25 @@
 @import "../placeholder.css";
+@import "../root.css";
 
 .header
 {
-    color: #9fc1c0;
+    color: var(--suggestion);
 }
 
 .resultsFor
 {
-    color: #b3b3b3;
+    color: var(--near-white-contrast);
 }
 
-/*.react-grid-Canvas
-{
-    overflow: hidden !important;
-}*/
 
 .react-grid-Row--even .react-grid-Cell 
 { 
-    background-color: #b3b3b3; 
+    background-color: var(--near-white-contrast);
 }
 
 .react-grid-HeaderRow
 {
-    color: #9fc1c0
+    color: var(--suggestion);
 }
 
 .react-grid-Cell__value
@@ -32,4 +29,14 @@
 
 .form-inline{
     width: 100%
+}
+
+.search-pageTitle
+{
+    color: var(--white-contrast);
+    letter-spacing: 1vw;
+    text-align: center;
+    font-size: 3vw;
+    text-transform: uppercase;
+    font-weight: bold;
 }

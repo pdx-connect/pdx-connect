@@ -295,30 +295,30 @@ export class Register extends Page<Props, State> {
         };
 
         return (
-            <Container fluid className="registerPage">
-                <Row className="title">
+            <Container fluid className="register">
+                <Row className="register-title">
                     <Col sm={2}/>
                     <Col sm={8}><h1>pdx connect</h1></Col>
                     <Col sm={2}/>
                 </Row>
 
-                <Row className="subTitle">
+                <Row className="register-sub-title">
                     <Col sm={4}/>
                     <Col sm={4}><h3>{title[this.state.step]}</h3></Col>
                     <Col sm={4}/>
                 </Row>
                 <Row>
                     <Col sm={3}></Col>
-                    <Col sm={6} className="notAuthorized">
+                    <Col sm={6} className="register-not-authorized">
                         {!this.state.authorized? <span>{this.state.authorizationMsg}</span> : null}
                     </Col>
                     <Col sm={3}></Col>
                 </Row>
                 <Row>
-                    <Col sm={3} className="directionalButtons">
+                    <Col sm={3} className="register-directional-buttons">
                         {this.state.step != 1 ?
-                            <FaArrowAltCircleLeft className="leftButton" size="4vw" onClick={this.prev}/>
-                            : <FaArrowAltCircleLeft className="leftButton" size="4vw" onClick={() => {this.props.history.push('/login')}}/>}
+                            <FaArrowAltCircleLeft className="register-left-button" size="4vw" onClick={this.prev}/>
+                            : <FaArrowAltCircleLeft className="register-left-button" size="4vw" onClick={() => {this.props.history.push('/login')}}/>}
                     </Col>
                     <Col sm={6}>
                         <CurrentContent
@@ -338,16 +338,16 @@ export class Register extends Page<Props, State> {
                             passwordDisabled={this.state.passwordDisabled}
                         />
                     </Col>
-                    <Col sm={3} className="directionalButtons">
+                    <Col sm={3} className="register-directional-buttons">
                         {this.state.step === 1?
-                            <FaArrowAltCircleRight className="rightButton" size="4vw" onClick={this.nextArrowPressed}/> : null}
+                            <FaArrowAltCircleRight className="register-right-button" size="4vw" onClick={this.nextArrowPressed}/> : null}
                         {this.state.confirmed && this.state.step === 2?
-                            <FaArrowAltCircleRight className="rightButton" size="4vw" onClick={this.next}/> : null}
+                            <FaArrowAltCircleRight className="register-right-button" size="4vw" onClick={this.next}/> : null}
                     </Col>
                 </Row>
                 {this.state.passwordDisabled ?
                     null :
-                    <Modal show={this.state.show} onHide={this.closeTos} className="tos">
+                    <Modal show={this.state.show} onHide={this.closeTos} className="register-tos">
                         <Modal.Header closeButton />
                         <Agreement
                             handleCheck={this.handleCheck}

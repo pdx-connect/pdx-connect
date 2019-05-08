@@ -21,7 +21,7 @@ export class Agreement extends Component<Props, any> {
             <Container fluid className="agreement">
                 <Row>
                     <Col sm={12}>
-                        <Jumbotron className="tos">
+                        <Jumbotron className="register-tos">
                             <h3>Terms of Service</h3>
                             <p>
                                 Ut eu arcu malesuada, eleifend turpis non, molestie mauris. Curabitur tincidunt
@@ -35,8 +35,8 @@ export class Agreement extends Component<Props, any> {
                             <Form.Check type="checkbox" defaultChecked={checked} label="I Agree" onClick={handleCheck}/>
                             {checked ?
                                 <Row>
-                                    <Col sm={12} className="submit">
-                                        <Button variant="light" className="joinButton"
+                                    <Col sm={12} className="register-submit">
+                                        <Button variant="light" className="register-join-button"
                                                 onClick={handleJoin}>join</Button>
                                     </Col>
                                 </Row>
