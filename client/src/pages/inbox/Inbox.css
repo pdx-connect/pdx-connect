@@ -7,7 +7,7 @@
 
 .conversation
 {
-    transition: all .1s ease-in-out;
+    transition: all .03s ease-in-out;
     background-color: lightgrey;
     border-radius: 10px;
     padding: 10px;
@@ -17,7 +17,7 @@
 
 .conversation:hover, .open-conversation:hover
 {
-    transform: scale(1.05);
+    transform: scale(0.98);
 }
 
 .open-conversation
@@ -82,31 +82,42 @@
     overflow: scroll;
 }
 
-.my-message
+.message-row
 {
-    float: right;
-    padding: 10px;
-    margin: 5px;
-    margin-left: 300px;
-    margin-right: 30px;
-    border-radius: 20px;
-    background-color: lightgrey;
+    width: 100%;
 }
 
-
-
+.my-message-bubble
+{
+    padding: 10px 20px 10px 20px;
+    margin: 5px;
+    margin-left: auto;
+    border-radius: 20px;
+    background-color: lightgrey;
+    max-width: 60%;
+}
 
 .other-message-bubble
 {
     float: left;
-    padding: 10px;
+    padding: 10px 20px 10px 20px;
     margin: 5px;
-    margin-right: 300px;
     margin-left: 30px;
     border-radius: 20px;
     background-color: lightblue;
-    max-width: 50%;
+    max-width: 60%;
+    
+}
 
+.message-bubble-name-tag
+{
+    float: left;
+    color: grey;
+    font-size: 6pt;
+    margin-bottom: 8px;
+    padding-left: 50px;
+    margin-top: -5px;
+    width: 100%;
 }
 
 .text-box
@@ -122,17 +133,6 @@
 {
     width: 400px;
     line-height: 28px;
-}
-
-.message-bubble-name-tag
-{
-    float: left;
-    color: grey;
-    font-size: 6pt;
-    margin-bottom: 8px;
-    padding-left: 50px;
-    margin-top: -5px;
-    width: 100%;
 }
 
 .user-select-form

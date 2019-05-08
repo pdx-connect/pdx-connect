@@ -247,7 +247,7 @@ export class Inbox extends Component<Props, State> {
             for (let i=this.props.conversations[this.state.currentConversationIndex].entries.length-1; i >= 0; i--) { 
                 if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID == this.props.userID) {
                     rows.push(
-                        <Row key={i} className="my-message">
+                        <Row key={i} className="message-row">
                             <Col className="my-message-bubble" sm="auto">
                                 {this.props.conversations[this.state.currentConversationIndex].entries[i].text}
                             </Col>
@@ -256,7 +256,7 @@ export class Inbox extends Component<Props, State> {
                 }
                 else {
                     rows.push(
-                        <Row key={i} className="other-message">
+                        <Row key={i} className="message-row">
                             <Col className="other-message-bubble" sm="auto">
                                 {this.props.conversations[this.state.currentConversationIndex].entries[i].text}
                             </Col>
