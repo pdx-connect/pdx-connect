@@ -6,8 +6,6 @@ import {RouteComponentProps} from "react-router-dom";
 import {postJSON} from "../util/json";
 
 import "./Login.css";
-import { userInfo } from 'os';
-
 
 interface Props extends RouteComponentProps {
     
