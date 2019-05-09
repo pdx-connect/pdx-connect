@@ -182,8 +182,8 @@ export class Listings extends Component<Props, State> {
                 label: tag.name
             })
         }
+        this.handleTagChange(selectedTags);
         this.setState({
-            selectedTags: selectedTags,
             title: listing.title,
             description: listing.description,
             anonymous: listing.anonymous
@@ -545,7 +545,7 @@ export class Listings extends Component<Props, State> {
         this.getTags().then();
         this.loadAllListings();
         this.getCurrentUserId();
-        this.testing();
+        // this.testing();
     }
     
     /**
