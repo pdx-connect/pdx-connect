@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Component, ReactNode } from "react";
-import { Container, Row, Col, Form, Button, Modal, Nav } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Modal, Nav, ButtonToolbar } from "react-bootstrap";
 import BigCalendar, {
   BigCalendarProps,
   Navigate,
@@ -27,6 +27,7 @@ interface Props {}
 // events = list of all the events
 interface State {
   create?: boolean;
+  readMode?: boolean;
   title: string;
   description: string;
   start: Date | null;
@@ -43,6 +44,7 @@ export class Calendar extends Component<Props, State> {
     super(props);
     this.state = {
       create: false,
+      readMode: false,
       title: "",
       description: "",
       start: null,
@@ -58,6 +60,25 @@ export class Calendar extends Component<Props, State> {
   private hideAlert = () => {
     this.setState({
       alert: null
+    });
+  };
+
+  private alertReadMode = (e: any) => {
+    console.log(e.start);
+    const startTime = new Date(e.start).toString().substr(0 ,21);
+    this.setState({
+      alert: (
+        <SweetAlert title="Event Details" onConfirm={this.hideAlert}> 
+          <br/>
+          Title: {e.title}
+          <br/>
+          Description: {e.description}
+          <br/>
+          Start time: <time>{startTime}</time>
+          <br/>
+          {/* End time: {e.end}  */}
+        </SweetAlert>
+      )
     });
   };
 
@@ -97,7 +118,6 @@ export class Calendar extends Component<Props, State> {
 
   private createEvent = (e: any) => {
     this.setState({ create: true, start: e.start, end: e.end });
-    console.log(this.state.start, this.state.end);
   };
 
   private submitForm = async () => {
@@ -114,12 +134,18 @@ export class Calendar extends Component<Props, State> {
   private handleCloseCreate = () => {
     this.setState({
       create: false,
+      readMode: false,
       title: "",
       description: "",
       start: null,
       end: null
     });
   };
+  private deleteEvent = () => {
+    // TODO 
+    this.handleCloseCreate();
+  }
+
   private getEvents = async () => {
     const eventsFromDB = await getJSON("/api/events");
     var eventsFormated = [];
@@ -145,11 +171,18 @@ export class Calendar extends Component<Props, State> {
   };
 
   private selectedEvent = (e: any) => {
-    this.setState({
-      title: e.title,
-      description: e.description,
-      create: true
-    });
+    const userID = localStorage.getItem("userID");
+    // popup for event owner -- read and edit mode
+    if (e.userID == userID) {
+      this.setState({
+        create: true,
+        title: e.title,
+        description: e.description
+      });
+    } else {
+      // show event details 
+      this.alertReadMode(e);
+    }
   };
 
   private eventColors(event: any, start: any, end: any, isSelected: any) {
@@ -221,54 +254,40 @@ export class Calendar extends Component<Props, State> {
           </Modal.Body>
           <Modal.Footer>
             <Form>
-              <Form.Group>
-                <Button size="sm" variant="primary" onClick={this.submitForm}>
+              <ButtonToolbar>
+                <Button variant="outline-primary" onClick={this.submitForm}>
                   Submit
                 </Button>
-              </Form.Group>
+                &nbsp;&nbsp;
+                <Button variant="outline-danger" onClick={this.deleteEvent}>
+                  Delete
+                </Button>
+                </ButtonToolbar>
+      
             </Form>
           </Modal.Footer>
         </Modal>
-                {/* Popup for create and delete event */}
-        <Modal show={this.state.create} onHide={this.handleCloseCreate}>
+
+        {/* Popup for displaying event details */}
+        <Modal show={this.state.readMode} onHide={this.handleCloseCreate}>
           <Modal.Header closeButton>
-            <Modal.Title>Create Event</Modal.Title>
+            <Modal.Title>Event Details</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form>
-              <Form.Group>
-                <Form.Label>Title</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={this.state.title}
-                  onChange={this.setTitle}
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Description</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows="3"
-                  value={this.state.description}
-                  onChange={this.setDescription}
-                />
-              </Form.Group>
-              {/* <Form.Group>
-                <Form.Label>Tags</Form.Label>
-                <Select
-                  options={this.state.optionTags}
-                  value={this.state.selectedTags}
-                  onChange={this.handleTagChange}
-                  isMulti={true}
-                />
-              </Form.Group> */}
-            </Form>
+            <ul>
+              <li>Title: {this.state.title}</li>
+              <li>Description: {this.state.description}</li>
+            </ul>
           </Modal.Body>
           <Modal.Footer>
             <Form>
               <Form.Group>
-                <Button size="sm" variant="primary" onClick={this.submitForm}>
-                  Submit
+                <Button
+                  size="sm"
+                  variant="info"
+                  onClick={this.handleCloseCreate}
+                >
+                  Close
                 </Button>
               </Form.Group>
             </Form>

@@ -6,6 +6,7 @@ import {RouteComponentProps} from "react-router-dom";
 import {postJSON} from "../util/json";
 
 import "./Login.css";
+import { userInfo } from 'os';
 
 
 interface Props extends RouteComponentProps {
@@ -64,6 +65,9 @@ export class Login extends Page<Props, State> {
         });
         if ('success' in data) {
             localStorage.clear();
+            // push user id to localStorage -- needed for editing the event
+            // quick solution for now. We can make it better later
+            localStorage.setItem("userID", data.success);
             this.props.history.push("/");
         } else {
             this.setState({
