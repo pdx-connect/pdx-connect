@@ -3,21 +3,17 @@ import {Component, ReactNode} from "react";
 import {Container, Row, Col, Table} from "react-bootstrap";
 import {FaUser} from "react-icons/fa";
 import {postJSON} from "../../util/json";
+import queryString from "query-string";
 import "./Profile.css";
 
 interface Props {
-    userID: number | undefined;
+    displayProfile: Profile
 }
 
 interface State {
-    profile: DisplayProfile;
 }
 
-interface DisplayProfile {
-    [key: string]: any;
-}
-
-interface Params {
+interface Profile {
     [key: string]: any;
 }
 
@@ -29,43 +25,17 @@ export class ProfileContent extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            profile: {}
         };
     }
 
-    componentDidMount() {
-        const { match: { params } }: Params = this.props;
-
-        if(params['userid'] != undefined) {
-            this.setProfile(params.userid);
-            console.log('cdm: ', params.userid);
-        } else if (this.props.userID != undefined) {
-            this.setProfile(this.props.userID);
-            console.log('cdm: ', this.props.userID);
-        }
-    }
-
-    private readonly getProfile = async (userId: number) => {
-        const data = await postJSON("/api/search/finduser", {
-            userId: userId,
-        });
-
-        return data;
-    };
-
-    private readonly setProfile = (userId: number) => {
-        this.getProfile(userId).then(data => {
-            this.setState({profile: data.user[0]});
-        });
-    };
-
     public render(): ReactNode {
-        console.log('profilecontent: ', this.state.profile);
+        //console.log('profilecontent: ', this.props.displayProfile);
 
-        let name = this.state.profile.displayName ? this.state.profile.displayName : "";
-        let major = this.state.profile.major ? this.state.profile.major: "";
-        
-        console.log('name', name);
+        let name = this.props.displayProfile.displayName ? this.props.displayProfile.displayName : "";
+        let major = this.props.displayProfile.major ? this.props.displayProfile.major: "";
+        let commuterStatus = "waiting on merge";
+        let aboutMe = this.props.displayProfile.description ? this.props.displayProfile.description: "";
+        let interests = this.props.displayProfile.tags ? this.props.displayProfile.tags: "";
 
         return (
                 <Container fluid className="profile-content">
@@ -96,19 +66,19 @@ export class ProfileContent extends Component<Props, State> {
                                         <td>commuter</td>
                                     </tr>
                                     <tr>
-                                        <td>commuter content</td>
+                                        <td>{commuterStatus}</td>
                                     </tr>
                                     <tr>
                                         <td>about me</td>
                                     </tr>
                                     <tr>
-                                        <td>about me content</td>
+                                        <td>{aboutMe}</td>
                                     </tr>
                                     <tr>
                                         <td>interests</td>
                                     </tr>
                                     <tr>
-                                        <td>interests content</td>
+                                        <td>{interests}</td>
                                     </tr>
                                 </tbody>
                                 </Table>

@@ -7,9 +7,11 @@ import {ProfileContent} from "./ProfileContent";
 import {Edit} from "./Edit";
 import {Events} from "./Events";
 import {Listings} from "./Listings";
-import {SearchResults} from "../search-results/SearchResults";
+import {postJSON} from "../../util/json";
+import queryString from "query-string";
 
 import "./Profile.css";
+import { any } from 'prop-types';
 
 interface Props extends RouteComponentProps {
     
@@ -17,10 +19,16 @@ interface Props extends RouteComponentProps {
 
 interface Props {
     updateDisplayName: (s: string) => void,
-    userID?: number;
+    userID?: number
 }
 
 interface State {
+    userProfile: DisplayProfile;
+    displayProfile: DisplayProfile;
+}
+
+interface DisplayProfile {
+    [key: string]: any;
 }
 
 /**
@@ -31,10 +39,53 @@ export class Profile extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
+            userProfile: {},
+            displayProfile: {}
         };
     }
 
+    componentDidMount() {
+        const { location, userID } = this.props;
+
+        const values = queryString.parse(location.search);
+        
+        if('userid' in values) {
+            this.getProfile(Number(values.userid)).then(data => {
+                let displayProfile = data.user[0];
+                if(userID != undefined) {
+                    this.getProfile(userID).then(data => {
+                        this.setState({
+                            displayProfile: displayProfile,
+                            userProfile: data.user[0]
+                        });
+                    });
+                }
+            });
+        } else {
+            if(userID != undefined) {
+                this.getProfile(userID).then(data => {
+                    this.setState({
+                        displayProfile: data.user[0],
+                        userProfile: data.user[0]
+                    });
+                });
+            }
+        }
+    }
+
+    private readonly getProfile = async (userId: number) => {
+        const data = await postJSON("/api/search/finduser", {
+            userId: userId,
+        });
+
+        return data;
+    };
+
     private readonly updateHistory = (v: string) => {
+        if(v === "/profile") {
+            this.setState({displayProfile: this.state.userProfile});
+        }
+        
         this.props.history.push(v);
     };
 
@@ -46,8 +97,8 @@ export class Profile extends Component<Props, State> {
                 <Col sm={9} className="profile-right-container">
                     <Switch>
                         <Route
-                            exact path="/profile/"
-                            render={props => <ProfileContent {...props} userID={this.props.userID}/>}
+                            exact path="/profile"
+                            render={props => <ProfileContent {...props} displayProfile={this.state.displayProfile}/>}
                         />
                         <Route
                             path="/profile/edit"
@@ -55,7 +106,6 @@ export class Profile extends Component<Props, State> {
                         />
                         <Route path="/profile/events" component={Events} />
                         <Route path="/profile/listings" component={Listings} />
-                        <Route path="/profile/:userid?" component={ProfileContent} />
                         <Redirect to="/" />
                     </Switch>
                 </Col>

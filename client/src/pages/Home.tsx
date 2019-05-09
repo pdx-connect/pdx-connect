@@ -197,7 +197,7 @@ export class Home extends Page<Props, State> {
                             <Switch>
                                 <Route exact path="/" component={HomeContent} />
                                 <Route
-                                    path="/profile/:userid?"
+                                    path="/profile"
                                     render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} userID={this.state.userID}/>}
                                 />
                                 <Route path="/calendar" component={Calendar} />
@@ -205,7 +205,7 @@ export class Home extends Page<Props, State> {
                                 <Route path="/inbox" component={Inbox} />
                                 <Route
                                     path="/search-results"
-                                    render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}
+                                    render={props => (<SearchResults {...props} finalSearchField={this.state.finalSearchField} />)}
                                 />
                                 <Redirect to="/" />
                             </Switch> 
