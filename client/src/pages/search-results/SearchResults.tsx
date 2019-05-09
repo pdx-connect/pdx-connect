@@ -49,8 +49,11 @@ export class SearchResults extends Component<Props, State> {
      */
     public render(): ReactNode {
         return (
-            <Container fluid className="searchResults">
-                <Row className="radiorow">
+            <Container fluid className="search-searchResults">
+                <Row>
+                    <Col sm={10} md={11} className="search-pageTitle"> Search Results </Col>
+                </Row>
+                <Row className="search-radiorow">
                     <form className="form-inline">
                         <Col sm={4}>
                         <label>Search by Users:
