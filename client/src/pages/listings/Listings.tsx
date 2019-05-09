@@ -166,7 +166,6 @@ export class Listings extends Component<Props, State> {
     private readonly handleEdit = () => {
         this.handleCloseView();
 
-
         var listing: any = [];
         for(let i = 0; i < this.state.listings.length; i++)
         {
@@ -350,7 +349,8 @@ export class Listings extends Component<Props, State> {
 
     // Load in tags
     private readonly getTags = async () => {
-        const data = await getJSON("/api/tags/majors");
+        const data = await getJSON("/api/tags/allBaseTags");
+        console.log(data);
         if (!Array.isArray(data)) {
             // Not logged in, throw exception
             throw data;
@@ -387,10 +387,10 @@ export class Listings extends Component<Props, State> {
     };
 
   
-    // private readonly testing = async () => {
-    //     const data = await getJSON("/api/tags/tagTree");
-    //     console.log(data);
-    // };
+    private readonly getTagTrees = async () => {
+        const data = await getJSON("/api/tags/tagTree");
+        console.log(data);
+    };
 
 
     private readonly getCurrentUserId = async () => {
@@ -545,7 +545,7 @@ export class Listings extends Component<Props, State> {
         this.getTags().then();
         this.loadAllListings();
         this.getCurrentUserId();
-        // this.testing();
+        this.getTagTrees();
     }
     
     /**
