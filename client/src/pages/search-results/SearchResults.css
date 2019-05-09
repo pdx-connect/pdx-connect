@@ -17,10 +17,16 @@
     background-color: var(--near-white-contrast);
 }
 
-.react-grid-Row:hover
+.react-grid-Row--even:hover .react-grid-Cell
 {
-    text-decoration: underline;
-    text-decoration-line: underline;
+    background-color: var(--near-white-contrast);
+}
+
+.react-grid-Row:hover .react-grid-Cell
+{
+    text-decoration: underline !important;
+    text-decoration-line: underline !important;
+    color: var(--thing-2);
 }
 
 .react-grid-HeaderRow
