@@ -1,41 +1,23 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Table, Modal, Button, Form} from "react-bootstrap";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaTrash, FaPencilAlt} from "react-icons/fa";
 import Select from 'react-select';
 import {ValueType} from "react-select/lib/types";
 import {OptionType} from "../../components/types";
 import {getJSON, postJSON} from "../../util/json";
 import moment = require('moment');
 
-import List from "@material-ui/core/List";
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Collapse from '@material-ui/core/Collapse';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import { withStyles } from '@material-ui/core/styles';
-
 
 import "./Listings.css";
 import { string } from 'prop-types';
 
 
-// const TAGS = [
-//     [
-//         {id: 0, name: "Major"},
-//         {id: 1, name: "CS"},
-//         {id: 2, name: "EE"}
-//     ], 
-//     [
-//         {id: 3, name: "Commute"}, 
-//         {id: 4, name: "Car"},
-//         {id: 5, name: "Bus"}
-//     ],
-//     [
-//         {id: 6, name: "Other"}
-//     ]
-// ];
+// Collapsible Categories list w/ filter function
+// Where to put the listing edit symbol?
+    // Edit the listing w/ modal
+// Modal -> description: import pictures
+
 
 
 interface Props {
@@ -74,7 +56,7 @@ interface State {
     currentViewListing: number;
     myListings: boolean;
     myUserID: number;
-    openNested: boolean;
+    edit: boolean;
 }
 
 /**
@@ -99,7 +81,7 @@ export class Listings extends Component<Props, State> {
             currentViewListing: 0,
             myListings: false,
             myUserID: 0,
-            openNested: false
+            edit: false
         };
     }
 
@@ -138,7 +120,7 @@ export class Listings extends Component<Props, State> {
 
     // Send request to create a new listing
     private readonly createListing = async (title: string, description: string, selectedTags: number[], anonymous: boolean) => {
-        const data = await postJSON("/api/createListing", {
+        const data = await postJSON("/api/listings/createListing", {
             title: title,
             description: description,
             selectedTags: selectedTags,
@@ -174,11 +156,67 @@ export class Listings extends Component<Props, State> {
     private readonly handleShowView = (id: number) => (event:any) => {
         this.setState({ currentViewListing: id});
         this.setState({ view: true});
-        this.loadViewListingModal();
+        // this.loadViewListingModal();
     };
 
     private readonly handleCloseView = () => {
         this.setState({ view: false});
+    };
+
+    private readonly handleEdit = () => {
+        this.handleCloseView();
+
+
+        var listing: any = [];
+        for(let i = 0; i < this.state.listings.length; i++)
+        {
+            if(this.state.listings[i].id == this.state.currentViewListing)
+                listing = this.state.listings[i];
+        }
+        // Load back in the selectedTags and optionTags before loading in the modal
+        const selectedTags: OptionType[] = [];
+        for (const tag of listing.tags)
+        {
+            selectedTags.push({
+                value: tag.id,
+                label: tag.name
+            })
+        }
+        this.setState({
+            selectedTags: selectedTags,
+            title: listing.title,
+            description: listing.description,
+            anonymous: listing.anonymous
+        })
+
+        this.setState({ edit: true });
+        // this.loadEditListingModal();
+    };
+
+    private readonly handleCloseEdit = () => {
+        // clear out the editing listing form
+        this.setState({ 
+            edit: false,
+            isFormIncomplete: false,
+            selectedTags: [],
+            title: "",
+            description: "",
+            anonymous: false
+        });
+    };
+
+
+    private readonly handleDelete = async () => {
+        const data = await postJSON("/api/listings/delete_listing", {
+            id: this.state.currentViewListing
+        });
+        if (data.success) {
+            this.handleCloseView();
+            alert("Delete Successfully!");
+            // Update the listings panel
+            this.loadAllListings();
+            this.createListingsView(); 
+        }
     };
 
 
@@ -188,9 +226,112 @@ export class Listings extends Component<Props, State> {
         });
     };
 
-    private readonly handleClickNested = () => {
-        this.setState(state => ({ openNested: !state.openNested }));
+
+    // Create the edit listing modal
+    private readonly loadEditListingModal = () => {
+        var listing: any = [];
+        for(let i = 0; i < this.state.listings.length; i++)
+        {
+            // Get the listing user clicked
+            if(this.state.listings[i].id == this.state.currentViewListing)
+                listing = this.state.listings[i];
+        }
+
+        if(listing)
+        {
+            let listingModal = [];
+            listingModal.push(
+                // Create a editable modal with current listing data
+                <Modal show={this.state.edit} onHide={this.handleCloseEdit}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Edit a Listing</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            {this.state.isFormIncomplete ?
+                                <Form.Group>
+                                    <Form.Label className="notComplete">Fileds incomplete</Form.Label>
+                                </Form.Group>
+                            : null }
+
+                            <Form.Group>
+                                <Form.Label>Title</Form.Label>
+                                <Form.Control type="text" onChange={this.setTitle} value={this.state.title} />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Type</Form.Label>
+                                <Form.Control type="text" disabled/>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Description</Form.Label>
+                                <Form.Control as="textarea" rows="3" onChange={this.setDescription} value={this.state.description} />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Tags</Form.Label>
+                                <Select
+                                    options={this.state.optionTags}
+                                    value={this.state.selectedTags}
+                                    onChange={this.handleTagChange}
+                                    isMulti={true}
+                                />
+                            </Form.Group>
+
+                            <Form.Group>
+                                <Form.Check type="checkbox" label="Anonymous" onClick={this.setAnonymous} defaultChecked={this.state.anonymous}/>
+                            </Form.Group>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Form>
+                            <Form.Group>
+                                <Button size="sm" variant="light" onClick={this.processEditing}>Edit Listing</Button>
+                            </Form.Group>
+                        </Form>
+                    </Modal.Footer>
+                </Modal>
+            );
+            return listingModal;
+        }
+        return null;
+    }
+
+    // When user submit to edit a new listing
+    private readonly processEditing = () => {
+        if(this.state.title === "" || this.state.description === "" || this.state.selectedTags.length == 0) {
+            this.setState({
+                isFormIncomplete: true
+            })
+        }
+        else {
+            const selectedTags: number[] = this.state.selectedTags.map((option: OptionType): number => {
+                const id: number = Number.parseInt(option.value);
+                if (Number.isNaN(id)) {
+                    throw new Error("Option value is not a number!");
+                }
+                return id;
+            });
+            this.editListing(this.state.title, this.state.description, selectedTags, this.state.anonymous).then();
+            this.handleCloseEdit();
+        }
+    }
+
+    // Send request to edit the listing
+    private readonly editListing = async (title: string, description: string, selectedTags: number[], anonymous: boolean) => {
+        const data = await postJSON("/api/listings/edit_listing", {
+            id: this.state.currentViewListing,
+            title: title,
+            description: description,
+            selectedTags: selectedTags,
+            anonymous: anonymous
+        });
+        if (data.success) {
+            alert("success");
+            // Update the listings panel
+            this.loadAllListings();
+            this.createListingsView(); 
+        }
     };
+
 
     private readonly showOnlyMyListings = () => {
         this.setState({
@@ -200,7 +341,7 @@ export class Listings extends Component<Props, State> {
 
     // Load in listings
     private readonly loadAllListings = async () => {
-        const data = await getJSON("/api/allListings");
+        const data = await getJSON("/api/listings/allListings");
         this.setState({
             listings: data
         });
@@ -245,6 +386,12 @@ export class Listings extends Component<Props, State> {
         return categories;
     };
 
+  
+    // private readonly testing = async () => {
+    //     const data = await getJSON("/api/tags/tagTree");
+    //     console.log(data);
+    // };
+
 
     private readonly getCurrentUserId = async () => {
         const data = await getJSON("/api/user/name");
@@ -257,6 +404,7 @@ export class Listings extends Component<Props, State> {
     private readonly createListingsView = () => {
         let views : any = [];
        
+        // Show only my listings
         if(this.state.myListings)
         {
             for(let i=0; i < this.state.listings.length; i++)
@@ -267,6 +415,7 @@ export class Listings extends Component<Props, State> {
         }
         else
         {
+            // Show all listings
             for(let i=0; i < this.state.listings.length; i++)
             {
                views = this.createListings(i, views);
@@ -288,7 +437,7 @@ export class Listings extends Component<Props, State> {
             if(j+1 < this.state.listings[i].tags.length)
                 tags.push(', ');
         }
-
+        
         views.push(
             <tr className="theListing" onClick={this.handleShowView(this.state.listings[i].id)}>
                 <th>{this.state.listings[i].id}</th>
@@ -306,6 +455,7 @@ export class Listings extends Component<Props, State> {
         var listing: any = [];
         for(let i = 0; i < this.state.listings.length; i++)
         {
+            // Get the listing user clicked on
             if(this.state.listings[i].id == this.state.currentViewListing)
                 listing = this.state.listings[i];
         }
@@ -317,44 +467,66 @@ export class Listings extends Component<Props, State> {
                 username = "Anonymous";
 
             var tags: string[] = [];
-            for(let j = 0; j < listing.tags.length; j++)
+            for (const tag of listing.tags)
             {
-                tags.push(listing.tags[j].name);
-                if(j+1 < listing.tags.length)
-                    tags.push(', ');
+                tags.push(tag.name);
+                tags.push("  ");
             }
+
+            // Condition to check if current user owns current view listing
+            var editable = false;
+            if(listing.userID == this.state.myUserID)
+                editable = true;
 
             let listingModal = [];
             listingModal.push(
                 <Modal show={this.state.view} onHide={this.handleCloseView}>
                     <Modal.Header closeButton>
-                        <Modal.Title>{listing.title}</Modal.Title>
+                        <Container>
+                            <Row>
+                                <Col md={4}></Col>
+                                <Col md={4}>
+                                    <Modal.Title>{listing.title}</Modal.Title>
+                                </Col>
+                                <Col md={4}></Col>
+                            </Row>
+                        </Container>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form>
-                            <Form.Group>
-                                <Form.Label>{listing.title}</Form.Label>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>{listing.description}</Form.Label>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>{moment(listing.timePosted).format("YYYY/MM/DD")}</Form.Label>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>{username}</Form.Label>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>{tags}</Form.Label>
-                            </Form.Group>
-                        </Form>
+                        <h6>Description: {listing.description}</h6>
+                        <br />
+                        <p>{username} {moment(listing.timePosted).format("YYYY/MM/DD")}</p>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Form>
-                            <Form.Group>
-                                <Button size="sm" variant="light" onClick={() => {} }>Comments</Button>
-                            </Form.Group>
-                        </Form>
+                        <Container>
+                            <Row>
+                                <Col md={3}></Col>
+                                <Col md={6}>
+                                    {tags}
+                                </Col>
+                                <Col md={3}></Col>
+                            </Row>
+                        </Container>
+                    </Modal.Footer>
+                    <Modal.Footer>
+                        <Container>
+                            <Row>
+                                <Col md={1}>
+                                    {editable? <FaPencilAlt size="1vw" className="editButton" onClick={this.handleEdit}/> : null}
+                                </Col>
+                                <Col md={1}>
+                                    {editable? <FaTrash size="1vw" className="deleteButton" onClick={this.handleDelete}/> : null}
+                                </Col>
+                                <Col md={7}></Col>
+                                <Col md={3}>
+                                    <Form>
+                                        <Form.Group>
+                                            <Button size="sm" variant="light" onClick={() => {} }>Comments</Button>
+                                        </Form.Group>
+                                    </Form>
+                                </Col>
+                            </Row>
+                        </Container>
                     </Modal.Footer>
                 </Modal>
             );
@@ -373,6 +545,7 @@ export class Listings extends Component<Props, State> {
         this.getTags().then();
         this.loadAllListings();
         this.getCurrentUserId();
+        this.testing();
     }
     
     /**
@@ -410,7 +583,7 @@ export class Listings extends Component<Props, State> {
 
                 <Row>
                     <Col sm={2} className="categoryCol">
-                       {categories}    
+                       {categories}
                     </Col>
                     <Col sm={10} className="listingCol">
                         <Table responsive>
@@ -450,7 +623,7 @@ export class Listings extends Component<Props, State> {
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Type</Form.Label>
-                                <Form.Control type="text" />
+                                <Form.Control type="text" disabled/>
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Description</Form.Label>
@@ -482,6 +655,9 @@ export class Listings extends Component<Props, State> {
 
                 {/* Popup for viewing a listing */}
                 {this.state.view? this.loadViewListingModal() : null}
+
+                {/* Popup for editing a listing */}
+                {this.state.edit? this.loadEditListingModal() : null}
 
             </Container>
         );
