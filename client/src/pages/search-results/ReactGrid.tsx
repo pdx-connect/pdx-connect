@@ -109,20 +109,11 @@ export class ReactGrid extends Component<Props, State> {
         return data
     };
 
-    private readonly getProfile = async (userId: number) => {
-        const data = await postJSON("/api/search/finduser", {
-            userId: userId,
-        });
-        this.setState({user: data.user});
-        return data
-    };
-
     private onClick(rowIdx: number, row: any) {
         if (rowIdx != -1 && this.props.searchBy == 1) {
             let userID = row["userID"]
             let profileString = "/profile/" + userID
             this.props.history.push(profileString)
-            //this.getProfile(row["userID"]).then(userdata => console.log("User:", this.state.user))
         }
     }
 
