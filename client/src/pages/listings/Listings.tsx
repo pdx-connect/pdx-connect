@@ -188,14 +188,14 @@ export class Listings extends Component<Props, State> {
                 label: tag.name
             })
         }
-        this.handleTagChange(selectedTags);
+        // this.handleTagChange(selectedTags);
         this.setState({
+            selectedTags: selectedTags,
             title: listing.title,
             description: listing.description,
-            anonymous: listing.anonymous
+            anonymous: listing.anonymous,
+            edit: true
         })
-
-        this.setState({ edit: true });
         // this.loadEditListingModal();
     };
 
@@ -227,6 +227,7 @@ export class Listings extends Component<Props, State> {
 
 
     private readonly handleTagChange = (value: ValueType<OptionType>) => {
+        console.log(OptionType.resolve(value));
         this.setState({
             selectedTags: OptionType.resolve(value)
         });
@@ -361,21 +362,23 @@ export class Listings extends Component<Props, State> {
             // Not logged in, throw exception
             throw data;
         }
-        this.setState({
-            tags: data
-        });
 
         // Add to a optiontype[] in order for users to select
         var options: OptionType[] = [];
-        for(let i = 0; i < this.state.tags.length; i++)
+        var temp: {
+            id: number;
+            name: string;
+        }[] = data;
+        for(let i = 0; i < temp.length; i++)
         {
             options.push({
-                value:  this.state.tags[i].id.toString(),
-                label:  this.state.tags[i].name
+                value:  temp[i].id.toString(),
+                label:  temp[i].name
             });
         }
         this.setState({
-            optionTags: options
+            optionTags: options,
+            tags: data
         })
     };
   
@@ -393,7 +396,7 @@ export class Listings extends Component<Props, State> {
         let finalView: any[] = [];
 
         this.traverse(this.state.tagTree, categorieView);
-        console.log(categorieView);
+        // console.log(categorieView);
         return categorieView;
 
         // finalView.push(
