@@ -3,11 +3,8 @@ import {Connection, Like} from "typeorm";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
 
 import {User} from "../../entity/User";
-import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
 import {Listing} from "../../entity/Listing";
-import {ListingComment} from "../../entity/ListingComment";
-import { number } from "prop-types";
 
 
 interface listing {
@@ -128,9 +125,12 @@ export function route(app: Express, db: Connection) {
                 success: true
             }));
         }
-        response.send(JSON.stringify({
-            success: false
-        }));
+        else
+        {
+            response.send(JSON.stringify({
+                success: false
+            }));
+        }
     });
 
     app.post("/api/listings/delete_listing", async (request: Request, response: Response) => {
@@ -147,13 +147,15 @@ export function route(app: Express, db: Connection) {
         if(json)
         {
             json.deleted = true;
-            json.save();
+            await json.save();
             response.send(JSON.stringify({
                 success: true
             }));
         }
-        
-        response.send(JSON.stringify({success: false})); 
+        else
+        {
+            response.send(JSON.stringify({success: false})); 
+        }
     });
 
 
@@ -219,6 +221,12 @@ export function route(app: Express, db: Connection) {
             }
             response.send(JSON.stringify({
                 success: true
+            }));
+        }
+        else
+        {
+            response.send(JSON.stringify({
+                error: "Not logged in."
             }));
         }
     });

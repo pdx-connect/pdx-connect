@@ -18,9 +18,9 @@ import { string } from 'prop-types';
     // Edit the listing w/ modal
 // Modal -> description: import pictures
 
-interface node {
+interface Node {
     name: string;
-    children: node[];
+    children: Node[];
 };
 
 interface Props {
@@ -36,7 +36,7 @@ interface State {
     }[];
     tagTree: {
         name: string;
-        children: node[];
+        children: Node[];
     }[];
     optionTags: OptionType[];
     selectedTags: OptionType[];
@@ -407,7 +407,7 @@ export class Listings extends Component<Props, State> {
     };
 
     // Helper function for createCategories
-    private readonly traverse = (parents: node[], categorieView: any[]) => {
+    private readonly traverse = (parents: Node[], categorieView: any[]) => {
         for(const parent of parents) {
             // Create a collapsable row for parent(has children)
             if(parent.children.length > 0)

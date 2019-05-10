@@ -7,9 +7,9 @@ interface TagData {
     name: string;
 }
 
-interface node {
+interface Node {
     name: string;
-    children: node[];
+    children: Node[];
 };
 
 export function route(app: Express, db: Connection) {
@@ -88,7 +88,7 @@ export function route(app: Express, db: Connection) {
     app.get("/api/tags/tagTree", async (request: Request, response: Response) => {
         let json: TagData[] | string;
 
-        let TagTree: node[];
+        let TagTree: Node[];
         if (request.isAuthenticated()) {
             json = [];
             TagTree = [];
@@ -114,7 +114,7 @@ export function route(app: Express, db: Connection) {
     });
 
     // Recursive function
-    async function treeTraversal(parent: node[]): Promise<node[]> {
+    async function treeTraversal(parent: Node[]): Promise<Node[]> {
         // Add children
         for(const subtree of parent) {
             subtree.children = await findChildren(subtree.name);
@@ -127,8 +127,8 @@ export function route(app: Express, db: Connection) {
     }
 
     // Helper function
-    async function findChildren(name: string):Promise<node[]> {
-        let subtrees: node[] = [];
+    async function findChildren(name: string):Promise<Node[]> {
+        let subtrees: Node[] = [];
         const current: Tag|undefined = await Tag.findOne({
             name: name
         })
@@ -136,7 +136,7 @@ export function route(app: Express, db: Connection) {
         {
             for (const child of await current.children)
             {
-                const temp: node = {
+                const temp: Node = {
                     name: child.name,
                     children: []
                 }
