@@ -30,7 +30,7 @@ export class Tag extends BaseEntity {
             name: "child_tag_id"
         }
     })
-    @ManyToMany(type => Tag)
+    @ManyToMany(type => Tag, tag => tag.parents)
     children!: Promise<Tag[]>;
 
     @ManyToMany(type => Tag, tag => tag.children)
