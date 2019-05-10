@@ -60,3 +60,7 @@
     width: 20%;
 }
 
+.parentTag {
+    font-weight: bold;
+    text-decoration: underline;
+}

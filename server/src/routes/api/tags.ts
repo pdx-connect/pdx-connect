@@ -110,7 +110,6 @@ export function route(app: Express, db: Connection) {
             json = "Not logged in.";
             TagTree = [];
         }
-        console.log(TagTree);
         response.send(JSON.stringify(TagTree));
     });
 

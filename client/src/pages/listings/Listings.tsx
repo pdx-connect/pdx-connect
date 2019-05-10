@@ -18,7 +18,10 @@ import { string } from 'prop-types';
     // Edit the listing w/ modal
 // Modal -> description: import pictures
 
-
+interface node {
+    name: string;
+    children: node[];
+};
 
 interface Props {
 }
@@ -30,6 +33,10 @@ interface State {
     tags: {
         id: number;
         name: string;
+    }[];
+    tagTree: {
+        name: string;
+        children: node[];
     }[];
     optionTags: OptionType[];
     selectedTags: OptionType[];
@@ -71,6 +78,7 @@ export class Listings extends Component<Props, State> {
             view: false,
             open: false,
             tags: [],
+            tagTree: [],
             optionTags: [],
             selectedTags: [],
             title: "",
@@ -350,7 +358,6 @@ export class Listings extends Component<Props, State> {
     // Load in tags
     private readonly getTags = async () => {
         const data = await getJSON("/api/tags/allBaseTags");
-        console.log(data);
         if (!Array.isArray(data)) {
             // Not logged in, throw exception
             throw data;
@@ -372,25 +379,52 @@ export class Listings extends Component<Props, State> {
             optionTags: options
         })
     };
-
-
-    // Create the info in left column -> categories
-    private readonly createCategories = () => {
-        let categories = [];
-        for(let i=0; i < this.state.tags.length; i++)
-        {
-            categories.push(
-                <p key={i}>{this.state.tags[i].name}</p>
-            );
-        }
-        return categories;
-    };
-
   
     private readonly getTagTrees = async () => {
         const data = await getJSON("/api/tags/tagTree");
-        console.log(data);
+        this.setState({
+            tagTree: data
+        })
+        console.log(this.state.tagTree);
     };
+
+    // Create the info in left column -> categories
+    private readonly createCategories = () => {
+        let categorieView: any[] = [];
+        let finalView: any[] = [];
+
+        this.traverse(this.state.tagTree, categorieView);
+        console.log(categorieView);
+        return categorieView;
+
+        // finalView.push(
+        //     <ul> 
+        //         {categorieView}
+        //     </ul>
+        // );
+        // console.log(finalView);
+        // return finalView;
+    };
+
+    // Helper function for createCategories
+    private readonly traverse = (parents: node[], categorieView: any[]) => {
+        for(const parent of parents) {
+            // Create a collapsable row for parent(has children)
+            if(parent.children.length > 0)
+            {
+                categorieView.push(
+                    <h6 className="parentTag">{parent.name}</h6>
+                );
+                this.traverse(parent.children, categorieView);
+            }
+            else
+            {
+                categorieView.push(
+                    <p>{parent.name}</p>
+                );
+            }
+        }
+    }
 
 
     private readonly getCurrentUserId = async () => {
