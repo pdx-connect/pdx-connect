@@ -198,7 +198,10 @@ export class Home extends Page<Props, State> {
                                     path="/profile"
                                     render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} />}
                                 />
-                                <Route path="/calendar" component={Calendar} />
+                                <Route
+                                    path="/calendar" component={Calendar}
+                                    render={props => <Calendar {...props} userID={this.state.userID} />}
+                                />
                                 <Route path="/listings" component={Listings} />
                                 <Route path="/inbox" component={Inbox} />
                                 <Route
