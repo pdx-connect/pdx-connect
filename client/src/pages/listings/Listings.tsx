@@ -10,7 +10,6 @@ import moment = require('moment');
 
 
 import "./Listings.css";
-import { string } from 'prop-types';
 
 
 // Collapsible Categories list w/ filter function
