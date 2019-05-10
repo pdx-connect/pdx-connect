@@ -17,7 +17,7 @@ export interface Message {
 
 export interface ConversationEntry {
     conversationID: number;
-    lastSeen: Date;
+    lastSeen: Date|undefined;
     entries: Message[];
 }
 
@@ -57,7 +57,7 @@ export class Socket {
                     }
                     data = JSON.parse(data);
                     console.log("Data:", data);
-                    let lastSeen: Date = new Date();
+                    let lastSeen: Date|undefined = new Date();
                     let conversationID: number = data.conversationID;
                     let msgFromServer: ServerMessage = data.message;
                     if (conversationID == null || msgFromServer == null) {
@@ -118,9 +118,9 @@ export class Socket {
                 return;
             }
             const conversationID: number = data[i].conversationID;
-            const lastSeen: Date = data[i].lastSeen;
+            const lastSeen: Date|undefined = data[i].lastSeen;
             const messages: ServerMessage[] = data[i].messages;
-            if (conversationID == null || lastSeen == null || messages == null) {
+            if (conversationID == null || messages == null) {
                 // TODO throw error
                 console.log("error in getUnreadMesasages");
                 return;
@@ -141,7 +141,7 @@ export class Socket {
     public readonly getMoreMessages = async (conversationID: number) => {
         let conversation: ConversationEntry;
         let alreadyHave: number = 0;
-        let lastSeen: Date = new Date();
+        let lastSeen: Date|undefined = new Date();
     
         // Search for the conversation, get the number of existing messages
         for (let i = 0; i < this.messages.length; ++i) {
@@ -183,17 +183,26 @@ export class Socket {
         this.addToConversation(conversation);
     };
 
-    private readonly convertMessages = (messages: ServerMessage[], lastSeen: Date) => {
+    private readonly convertMessages = (messages: ServerMessage[], lastSeen: Date|undefined) => {
         let toReturn: Message[] = [];
 
         for(let i = 0; i < messages.length; ++i) {
             // TODO Unsure whether to use checks or enforce types in the argument list
-            toReturn.push({
-                userID: messages[i].from,
-                timeSent: messages[i].timeSent,
-                text: messages[i].content,
-                seen: true ? messages[i].timeSent < lastSeen : false
-            });
+            if (lastSeen != null) {
+                toReturn.push({
+                    userID: messages[i].from,
+                    timeSent: messages[i].timeSent,
+                    text: messages[i].content,
+                    seen: true ? messages[i].timeSent < lastSeen : false
+                });
+            } else {
+                toReturn.push({
+                    userID: messages[i].from,
+                    timeSent: messages[i].timeSent,
+                    text: messages[i].content,
+                    seen: false
+                });
+            }
         }
         return toReturn;
     };
@@ -295,7 +304,7 @@ export class Socket {
             console.log("error in getUnreadMessages")
             return;
         }
-        let participants: Map<number,string> = new Map();
+        let participants: Map<number,string> = new Map<number,string>();
         for (let i = 0; i < data.length; ++i) {
             participants.set(data[i].userID, data[i].displayName);
         }

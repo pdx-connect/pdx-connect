@@ -217,23 +217,25 @@ export function route(app: Express, db: Connection) {
                 } 
                 if (makeNew) {
                     // Otherwise create a new conversation and conversation participants
-                    conversation = new Conversation();
-                    conversation.save();
+                    conversation = await new Conversation().save();
                     for (let i = 0; i < userIDs.length; ++i) {
+                        console.error("finding participant");
                         let thisUser: User|undefined = await User.findOne({
                             where: {
                                 id: userIDs[i]
                             }
                         });
                         if (thisUser != null) {
+                            console.error("creating ConversationParticipant entity");
                             let newParticipant = new ConversationParticipant(conversation, thisUser);
-                            newParticipant.save();
+                            await newParticipant.save();
                             participants.push(newParticipant);
                         }
                     }
                 }
                 // Create/save the message
                 if (conversation != null) {
+                    console.log("Making and saving new message");
                     let newMessage = new Message(conversation, user, message.content);
                     newMessage.save();
                     // Send the message to every participant

@@ -22,6 +22,8 @@ async function getMessages (conversations: ConversationParticipant[]) {
             },
             take: 30
         });
+        console.log("\nRetrieved Conversation: ");
+        console.log(messages);
         // Process the messages and pack them up for addition to messagesToSend
         for (let j = 0; j < messages.length; ++j) {
             packed.push({
@@ -183,7 +185,7 @@ export function route(app: Express, db: Connection) {
         // Get the participants and save their IDs and names in toSend
         const participants: ConversationParticipant[] = await ConversationParticipant.find({
             where: {
-                userID: user.id
+                conversationID: body.conversationID
             }
         });
         for (let i = 0; i < participants.length; ++i) {

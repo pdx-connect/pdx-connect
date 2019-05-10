@@ -38,7 +38,7 @@ export interface Message {
 
 export interface ConversationEntry {
     conversationID: number;
-    lastSeen: Date;
+    lastSeen: Date|undefined;
     entries: Message[];
 }
 
