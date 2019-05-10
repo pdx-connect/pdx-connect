@@ -279,7 +279,7 @@ export class Listings extends Component<Props, State> {
                                     options={this.state.optionTags}
                                     value={this.state.selectedTags}
                                     onChange={this.handleTagChange}
-                                    isMulti={true}
+                                    isMulti={true}     
                                 />
                             </Form.Group>
 

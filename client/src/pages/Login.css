@@ -1,32 +1,28 @@
-@import url("https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i");
-@import url("https://fonts.googleapis.com/css?family=Varela+Round");
+@import "root.css";
 @import "placeholder.css";
 
-html{
+html {
     height: 100%;
-    background: #f6f9fb;
+    background: var(--main-bg-color);
 }
 
-.login
-{
+.login {
     margin-top: 10%;
-    color: #565656;
-    font-family: 'Montserrat', sans-serif;
-    background-color: #f6f9fb;
+    color: var(--white-contrast);
+    font-family: var(--hard-font);
+    background-color: var(--main-bg-color);
 }
 
-.login .title
-{
+.login .login-title {
     text-transform: uppercase;
     text-align: center;
     letter-spacing: 1vw;
-    color: #9fc1c0;
+    color: var(--suggestion);
     font-weight: bold;
 }
 
-.register
-{
-    color: #297d7d;
+.login-register {
+    color: var(--thing-2);
     text-transform: uppercase;
     letter-spacing: .4vw;
     font-weight: bold;
@@ -35,16 +31,14 @@ html{
     height: 100%;
 }
 
-.register:hover
-{
-    color: #9fc1c0;
+.login-register:hover {
+    color: var(--suggestion);
     text-decoration: none;
 }
 
-.password-forgot
-{
+.login-password-forgot {
     float: right;
-    color: #c5e06f;
+    color: var(--thing-1);
     text-transform: uppercase;
     letter-spacing: .4vw;
     font-weight: bold;
@@ -53,51 +47,34 @@ html{
     height: 100%;
 }
 
-.password-forgot:hover
-{
-    color: #9fc1c0;
+.login-password-forgot:hover {
+    color: var(--suggestion);
     text-decoration: none;
 }
 
-.login-button
-{
-    background-color: #9fc1c0;
+.login-button {
+    background-color: var(--suggestion);
     font-weight: bold;
     width: 100%;
-    color: #ffffff;
+    color: var(--white);
     text-transform: uppercase;
     letter-spacing: .4vw;
     font-weight: bold;
     font-size: 1em;
     height: 100%;
-    font-family: 'Varela Round', sans-serif;
+    font-family: var(--soft-font);
 }
 
-.login-button:hover
-{
-    color: #565656;
+.login-button:hover {
+    color: var(--white-contrast);
     text-decoration: none;
 }
 
-.notAuthorized
-{
-    color: red;
+.login-not-authorized {
+    color: var(--warning);
     text-transform: uppercase;
     letter-spacing: .2vw;
     text-align: center;
     padding-bottom: 1%;
-    font-family: 'Varela Round', sans-serif;
-}
-
-
-.directionalButtons {
-    text-align: center;
-}
-
-
-.leftButton, .rightButton {
-    color: #297d7d;
-    padding-top: 1%;
-    padding-bottom: 1%;
-    cursor: pointer;
+    font-family: var(--soft-font);
 }
