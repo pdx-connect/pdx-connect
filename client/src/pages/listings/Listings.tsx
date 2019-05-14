@@ -13,9 +13,9 @@ import "./Listings.css";
 
 
 // Collapsible Categories list w/ filter function
-// Where to put the listing edit symbol?
-    // Edit the listing w/ modal
-// Modal -> description: import pictures
+// duplicate selection in modal
+
+// Modal -> description: import pictures?
 
 interface Node {
     name: string;
@@ -188,15 +188,20 @@ export class Listings extends Component<Props, State> {
                 label: tag.name
             })
         }
-        // this.handleTagChange(selectedTags);
+        let temp: OptionType[] = this.state.optionTags;
+        for(const selected of selectedTags)
+        {
+            temp = temp.filter(x => { return x.label != selected.label; })
+        }
+
         this.setState({
+            optionTags: temp,
             selectedTags: selectedTags,
             title: listing.title,
             description: listing.description,
             anonymous: listing.anonymous,
             edit: true
         })
-        // this.loadEditListingModal();
     };
 
     private readonly handleCloseEdit = () => {
@@ -227,12 +232,27 @@ export class Listings extends Component<Props, State> {
 
 
     private readonly handleTagChange = (value: ValueType<OptionType>) => {
-        console.log(OptionType.resolve(value));
+        // Get the remove tag, add back to options
+        let difference = this.state.selectedTags.filter(x => !OptionType.resolve(value).includes(x));
+        if(!this.isEmpty(difference))
+        {
+            for(const dif of difference)
+                this.state.optionTags.push(dif);
+        }
+
         this.setState({
             selectedTags: OptionType.resolve(value)
         });
     };
 
+    // Check if object is empty
+    private readonly isEmpty = (obj: any[]) => {
+        for(var key in obj) {
+            if(obj.hasOwnProperty(key))
+                return false;
+        }
+        return true;
+    }
 
     // Create the edit listing modal
     private readonly loadEditListingModal = () => {
