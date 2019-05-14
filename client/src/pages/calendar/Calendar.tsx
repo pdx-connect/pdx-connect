@@ -23,8 +23,10 @@ import { getJSON, postJSON } from "../../util/json";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
-interface Props {}
-// events = list of all the events
+interface Props {
+  userID: number | undefined;
+}
+
 interface State {
   create?: boolean;
   readMode?: boolean;
