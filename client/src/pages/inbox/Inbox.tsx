@@ -2,8 +2,8 @@ import * as React from "react";
 import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
+
 import "./Inbox.css";
-import { number } from 'prop-types';
 
 
 interface Props {
@@ -43,7 +43,7 @@ export class Inbox extends Component<Props, State> {
     private readonly onTextFieldChange = (e: any) => {
         e.preventDefault();
         this.setState({textField: e.target.value});
-    }
+    };
 
     /*
     *   On send or ENTER key, sendMessage() broadcasts to socket
