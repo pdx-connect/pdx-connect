@@ -19,13 +19,14 @@ import "./style/Calendar.css";
 
 import NavBar from "./NavBar";
 import * as EventService from "./services/EventService";
-import { getJSON, postJSON } from "../../util/json";
+import { getJSON, postJSON, deleteJSON } from "../../util/json";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
 interface Props {
 }
 
+// tempEvent is a clone of the selected event for editing
 interface State {
   create?: boolean;
   readMode?: boolean;
@@ -36,6 +37,7 @@ interface State {
   userID: number | undefined;
 
   events: any;
+  tempEvent: any; 
   style: any;
   height: any;
   alert: any;
@@ -54,6 +56,7 @@ export class Calendar extends Component<Props, State> {
       end: null,
 
       events: [],
+      tempEvent: {},
       style: "",
       height: "100vh",
       alert: null
@@ -67,7 +70,6 @@ export class Calendar extends Component<Props, State> {
   };
 
   private alertReadMode = (e: any) => {
-    // console.log(e.start);
     const startTime = new Date(e.start).toString().substr(0 ,21);
     this.setState({
       alert: (
@@ -144,9 +146,16 @@ export class Calendar extends Component<Props, State> {
       end: null
     });
   };
-  private deleteEvent = () => {
-    // TODO 
-    this.handleCloseCreate();
+  private deleteEvent = async () => {
+    const buildPath = "/api/event/" + this.state.tempEvent._id.toString();
+    const data = await deleteJSON(buildPath);
+    const newEvents = this.state.events.filter((e:any) => {
+      return e._id != this.state.tempEvent._id;
+    });
+    this.setState({
+      events: newEvents,
+      create: false,
+    });
   }
 
   private getEvents = async () => {
@@ -177,10 +186,12 @@ export class Calendar extends Component<Props, State> {
     const userID = this.state.userID;
     // popup for event owner -- read and edit mode
     if (e.userID == userID) {
+      const eventIndex = this.state.events.findIndex((an_event:any) => an_event._id === e._id);
+      const cloneEvent = {...this.state.events[eventIndex]};
+      console.log(cloneEvent);
       this.setState({
+        tempEvent: cloneEvent,
         create: true,
-        title: e.title,
-        description: e.description
       });
     } else {
       // show event details 
@@ -198,7 +209,7 @@ export class Calendar extends Component<Props, State> {
     };
   }
 
-  private readonly getUserProfileData = async () => {
+  private readonly getUserID = async () => {
     const data = await getJSON("/api/user/name");
     this.setState({
         userID: data.userID
@@ -207,7 +218,7 @@ export class Calendar extends Component<Props, State> {
 
   public componentDidMount() {
     this.getEvents().then();
-    this.getUserProfileData().then();
+    this.getUserID().then();
   }
   public render(): ReactNode {
     return (
@@ -239,7 +250,7 @@ export class Calendar extends Component<Props, State> {
                 <Form.Label>Title</Form.Label>
                 <Form.Control
                   type="text"
-                  value={this.state.title}
+                  value={this.state.tempEvent.title}
                   onChange={this.setTitle}
                 />
               </Form.Group>
@@ -248,7 +259,7 @@ export class Calendar extends Component<Props, State> {
                 <Form.Control
                   as="textarea"
                   rows="3"
-                  value={this.state.description}
+                  value={this.state.tempEvent.description}
                   onChange={this.setDescription}
                 />
               </Form.Group>
