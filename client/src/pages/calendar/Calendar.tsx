@@ -24,7 +24,6 @@ import { getJSON, postJSON } from "../../util/json";
 const localizer = BigCalendar.momentLocalizer(moment);
 
 interface Props {
-  userID: number | undefined;
 }
 
 interface State {
@@ -34,6 +33,7 @@ interface State {
   description: string;
   start: Date | null;
   end: Date | null;
+  userID: number | undefined;
 
   events: any;
   style: any;
@@ -45,6 +45,7 @@ export class Calendar extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      userID: undefined,
       create: false,
       readMode: false,
       title: "",
@@ -66,7 +67,7 @@ export class Calendar extends Component<Props, State> {
   };
 
   private alertReadMode = (e: any) => {
-    console.log(e.start);
+    // console.log(e.start);
     const startTime = new Date(e.start).toString().substr(0 ,21);
     this.setState({
       alert: (
@@ -173,7 +174,7 @@ export class Calendar extends Component<Props, State> {
   };
 
   private selectedEvent = (e: any) => {
-    const userID = localStorage.getItem("userID");
+    const userID = this.state.userID;
     // popup for event owner -- read and edit mode
     if (e.userID == userID) {
       this.setState({
@@ -197,8 +198,16 @@ export class Calendar extends Component<Props, State> {
     };
   }
 
+  private readonly getUserProfileData = async () => {
+    const data = await getJSON("/api/user/name");
+    this.setState({
+        userID: data.userID
+    });
+};
+
   public componentDidMount() {
     this.getEvents().then();
+    this.getUserProfileData().then();
   }
   public render(): ReactNode {
     return (
