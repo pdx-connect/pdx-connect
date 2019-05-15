@@ -29,7 +29,10 @@ export function route(app: Express, db: Connection) {
       response.send(JSON.stringify("Not logged in."));
       return;
     }
-    const allEvents: CalendarEvent[] = await CalendarEvent.find();
+    const unfilteredEvents: CalendarEvent[] = await CalendarEvent.find();
+    const allEvents = unfilteredEvents.filter(e => {
+      return e.deleted == false;
+    });
     response.send(
       JSON.stringify(
         allEvents.map(e => {
