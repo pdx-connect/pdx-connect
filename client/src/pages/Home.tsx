@@ -14,10 +14,10 @@ import {Inbox} from "./inbox/Inbox";
 import {SearchResults} from "./search-results/SearchResults";
 import {Oobe} from "./oobe/Oobe";
 import {getJSON} from "../util/json";
-import {Socket} from "./Socket"
+import {Socket} from "./Socket";
 
 import "./Home.css";
-import { number } from 'prop-types';
+
 
 interface Props extends RouteComponentProps {
     
@@ -43,21 +43,24 @@ export interface ConversationEntry {
 }
 
 interface State {
+    showMessages: boolean;
+    showNotifications: boolean;
+    showOobe: boolean;
     alerts: object;
     searchField?: string;
-    showMessages?: boolean; // TODO is this necessary?
-    showNotifications?: boolean;
-    displayName?: string | undefined;
-    showOobe: boolean;
+    displayName?: string;
     finalSearchField: string;
-    userID: null | number;
-    conversations: ConversationEntry[]
+    userID?: number;
+    windowWidth: number;
+    windowHeight: number;
+    conversations: ConversationEntry[];
 }
 
 /**
  *
  */
 export class Home extends Page<Props, State> {
+    
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -65,10 +68,10 @@ export class Home extends Page<Props, State> {
             searchField: "",
             showMessages: false,
             showNotifications: false,
-            displayName: "",
             showOobe: false,
             finalSearchField: "",
-            userID: null, 
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
             conversations: []
         };
         this.socket = null;
@@ -86,7 +89,9 @@ export class Home extends Page<Props, State> {
 
     private readonly getUserOOBE = async () => {
         const data = await getJSON("/api/user/oobe");
-        this.setState({showOobe: !data.oobe});
+        this.setState({
+            showOobe: !data.oobe
+        });
     };
 
     private readonly logUserOut = async() => {
@@ -103,13 +108,9 @@ export class Home extends Page<Props, State> {
     };
 
     private readonly updateDisplayName = (displayName: string) => {
-        this.setState({displayName: displayName});
-    };
-
-    private readonly handleModalClose = (e: any) => {
         this.setState({
-            [e]: false
-        } as any);
+            displayName: displayName
+        });
     };
 
     private readonly setSearchField = (e: any) => {
@@ -120,16 +121,31 @@ export class Home extends Page<Props, State> {
         if (e.keyCode === 13 && this.state.searchField != "") {
             e.preventDefault();
             if (this.state.searchField != undefined) {
-                this.setState({finalSearchField: this.state.searchField})
+                if (this.state.searchField == "[ALL]") {
+                    this.setState({finalSearchField: ""})
+                }
+                else {
+                    this.setState({finalSearchField: this.state.searchField})
+                }
             }
             this.props.history.push('search-results')
-            
         }
     };
-    
+
+    private readonly updateHistory = (v: string) => {
+        this.props.history.push(v);
+    };
+
     private readonly logout = () => {
         this.logUserOut().then();
     };
+
+    private readonly updateDimensions = () =>{
+        this.setState({ 
+            windowWidth: window.innerWidth, 
+            windowHeight: window.innerHeight
+        });
+    }
 
     private readonly getSendMessages = () => {
         if (this.socket) {
@@ -178,6 +194,7 @@ export class Home extends Page<Props, State> {
      */
     public async componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
+        window.addEventListener('resize', this.updateDimensions);
         this.getUserOOBE().then();
         this.getUserProfileData().then();
         this.socket = new Socket(this.updateMessages);
@@ -191,56 +208,34 @@ export class Home extends Page<Props, State> {
      */
     public componentWillUnmount() {
         document.removeEventListener('keydown', this.enterKeyPressed);
+        window.removeEventListener('resize', this.updateDimensions);
     }
 
-    public updateHistory = (v: string) => {
-        this.props.history.push(v);
-    }
-
-    /***
+    /**
      * @override
      */
     public render(): ReactNode {
+        const messages = [];
+        const notifications = Object.keys(this.state.alerts);
 
-        const content: { [key: string]: any } = {
-            "/": HomeContent,
-            "/profile": Profile,
-            "/calendar": Calendar,
-            "/listings": Listings,
-            "/inbox": Inbox,
-            "/search-results": SearchResults
-        };
-        let messages = []
-        //let messages = Object.keys(this.socket.current.state.messages); 
-        let notifications = Object.keys(this.state.alerts);
-
-        const title: { [key: string]: any } = {
-            "/": 'home',
-            "/profile": 'profile',
-            "/calendar": 'calendar',
-            "/listings": 'listings',
-            "/inbox": 'inbox',
-            "/search-results": 'search results'
-        };
-        
-
+        let minHeight = {minHeight: (this.state.windowHeight * .80).toString() + "px"};
         return (
         <Container fluid className="home">
-            <Row className="topRow">
+            <Row className="home-top-row">
                 <Sidebar displayName={this.state.displayName} updateHistory={this.updateHistory}/>
-                <Col sm={1} md={1} className="topLeft"></Col>
-                <Col sm={4} md={4} className="topCenter">
+                <Col sm={1} md={1} className="home-top-left-col"></Col>
+                <Col sm={4} md={4} className="home-top-center-col">
                     <Form>
-                        <Form.Group className="formBasic">
+                        <Form.Group className="form-basic">
                             <Form.Control type="text" className="generic" placeholder="search" onChange={this.setSearchField} />
                         </Form.Group>
                     </Form>
                 </Col>
-                <Col sm={7} md={7} className="topRight">
-                    <FaSignOutAlt className="logout" onClick={this.logout}/>
-                        <Button size="sm" className="floatRight counter">{messages.length}</Button>
-                        <FaComment className="notifications" onClick={() => this.setState({ showMessages: true })}/>
-                        <Modal show={this.state.showMessages} onHide={() => this.handleModalClose('showMessages')} dialogClassName="messages-modal">
+                <Col sm={7} md={7} className="home-top-right-col">
+                    <FaSignOutAlt className="home-logout" onClick={this.logout}/>
+                        <Button size="sm" className="float-right home-counter">{messages.length}</Button>
+                        <FaComment className="home-notifications" onClick={() => this.setState({ showMessages: true })}/>
+                        <Modal show={this.state.showMessages} onHide={() => this.setState({ showMessages: false })} dialogClassName="messages-modal">
                             <Modal.Header closeButton>
                             <Modal.Title>Messages</Modal.Title>
                             </Modal.Header>
@@ -249,9 +244,9 @@ export class Home extends Page<Props, State> {
                             </Modal.Footer>
                         </Modal>
 
-                        <Button size="sm" className="floatRight counter">{notifications.length}</Button>
-                    <FaStar className="notifications" onClick={() => this.setState({ showNotifications: true })}/>
-                        <Modal show={this.state.showNotifications} onHide={() => this.handleModalClose('showNotifications')} dialogClassName="messages-modal">
+                        <Button size="sm" className="float-right home-counter">{notifications.length}</Button>
+                    <FaStar className="home-notifications" onClick={() => this.setState({ showNotifications: true })}/>
+                        <Modal show={this.state.showNotifications} onHide={() => this.setState({ showNotifications: false })} dialogClassName="messages-modal">
                             <Modal.Header closeButton>
                             <Modal.Title>Notifications</Modal.Title>
                             </Modal.Header>
@@ -261,28 +256,29 @@ export class Home extends Page<Props, State> {
                         </Modal>
                 </Col>
             </Row>
-            <Row className="main">
-                <Col sm={10} md={10} className="mainContent">
+            <Row className="home-main">
+                <Col sm={10} md={10} className="home-main-content">
                     <Row>
-                        <Col sm={10} md={11} className="pageTitle"> {title[this.props.history.location.pathname]} </Col>
-                    </Row>
-                    <Row>
-                        <Col sm={10} md={11} className="component">
+                        <Col sm={10} md={11} className="home-component" style={minHeight}>
                             <Switch>
                                 <Route exact path="/" component={HomeContent} />
                                 <Route
                                     path="/profile"
                                     render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} />}
                                 />
-                                <Route path="/calendar" component={Calendar} />
+                                <Route
+                                    path="/calendar"
+                                    render={props => <Calendar {...props} userID={this.state.userID} />}
+                                />
                                 <Route path="/listings" component={Listings} />
-                                <Route path="/inbox" 
-                                       render={(props) => <Inbox {...props} conversations={this.state.conversations} 
-                                                                            sendMessage={this.getSendMessages()} 
-                                                                            getMoreMessages={this.getGetMoreMessages()} 
-                                                                            seenRecent={this.getSeenRecent()} 
-                                                                            userID={this.state.userID ? this.state.userID : 0}
-                                                                            getParticipants={this.getGetParticipants()}/>}></Route>
+                                <Route path="/inbox"
+                                       render={(props) => <Inbox {...props} conversations={this.state.conversations}
+                                                                 sendMessage={this.getSendMessages()}
+                                                                 getMoreMessages={this.getGetMoreMessages()}
+                                                                 seenRecent={this.getSeenRecent()}
+                                                                 userID={this.state.userID ? this.state.userID : 0}
+                                                                 getParticipants={this.getGetParticipants()}/>}
+                                />
                                 <Route
                                     path="/search-results"
                                     render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}
@@ -292,12 +288,12 @@ export class Home extends Page<Props, State> {
                         </Col>
                     </Row>
                 </Col>
-                <Col sm={2} md={2} className="rightSidebar">Ad Space</Col>
+                <Col sm={2} md={2} className="home-right-sidebar">Ad Space</Col>
             </Row>
 
-            <Modal size="lg" show={this.state.showOobe} onHide={() => this.handleModalClose('showOobe')} dialogClassName="oobe-modal" backdrop="static">
+            <Modal size="lg" show={this.state.showOobe} onHide={() => this.setState({ showOobe: false })} dialogClassName="home-oobe-modal" backdrop="static">
                 <Modal.Header><h4>Hey {this.state.displayName}!</h4></Modal.Header>
-                <Modal.Body><Oobe onHide={() => this.handleModalClose('showOobe')}/></Modal.Body>
+                <Modal.Body><Oobe onHide={() => this.setState({ showOobe: false })}/></Modal.Body>
                 <Modal.Footer>
                 </Modal.Footer>
             </Modal>

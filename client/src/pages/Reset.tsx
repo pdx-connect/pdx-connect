@@ -157,13 +157,13 @@ export class Reset extends Page<Props, State> {
 
         return (
             <Container fluid className="reset">
-                <Row className="title">
+                <Row className="reset-title">
                     <Col sm={2}></Col>
                     <Col sm={8}><h1>pdx connect</h1></Col>
                     <Col sm={2}></Col>
                 </Row>
 
-                <Row className="subTitle">
+                <Row className="reset-sub-title">
                     <Col sm={2}></Col>
                     <Col sm={8}><h6>password reset</h6></Col>
                     <Col sm={2}></Col>
@@ -174,13 +174,13 @@ export class Reset extends Page<Props, State> {
                     <Col sm={4}></Col>
                     <Col sm={4}>
                         <Form>
-                            <Form.Group className="formBasic">
+                            <Form.Group className="form-basic">
                                 {!this.state.verificationCodeSent?
                                     <Form.Control type="email" placeholder="account email" className="generic" value={this.state.email} onChange={this.setEmail}/>
                                     :<Form.Control disabled type="email" placeholder="account email" className="generic" value={this.state.email} onChange={this.setEmail}/>
                                 }
-                                {this.state.verificationCodeSent? <span className="actionNotice">verification code sent</span> : null}
-                                {this.state.verificationCodeSent? <span className="update">edit<Button variant="light" size="sm" onClick={this.updateEmailAccount}><FaEdit size="1.5vw"/></Button></span> : null}
+                                {this.state.verificationCodeSent? <span className="reset-action-notice">verification code sent</span> : null}
+                                {this.state.verificationCodeSent? <span className="reset-update">edit<Button variant="light" size="sm" onClick={this.updateEmailAccount}><FaEdit size="1.5vw"/></Button></span> : null}
                             </Form.Group>
                         </Form>
                     </Col>
@@ -192,25 +192,25 @@ export class Reset extends Page<Props, State> {
                     <Col sm={4}></Col>
                     <Col sm={4}>
                         <Form>
-                            <Form.Group className="formBasic">
+                            <Form.Group className="form-basic">
                                 <Form.Control type="text" className="generic" placeholder="verification code" onChange={this.setVerificationCode}/>
-                                {this.state.verificationCodeMatch? <span className="actionNotice">Match <FaCheck size="1vw"/></span> : null}
+                                {this.state.verificationCodeMatch? <span className="reset-action-notice">Match <FaCheck size="1vw"/></span> : null}
                                 {!this.state.verificationCodeMatch? <span className="update">resend code<Button variant="light" size="sm" onClick={this.resendVerificationCode}><FaRedo size="1.5vw"/></Button></span>: null}
                             </Form.Group>
 
-                            <Form.Group className="formBasic">
+                            <Form.Group className="form-basic">
                                 {this.state.verificationCodeMatch?
                                     <Form.Control type="text" className="generic" value={this.state.newPassword} placeholder="new password" onChange={this.setNewPassword}/>
                                     :
                                     <Form.Control disabled type="text" className="generic" value={this.state.newPassword} placeholder="new password" onChange={this.setNewPassword}/>}
                             </Form.Group>
 
-                            <Form.Group controlId="formBasic">
+                            <Form.Group controlId="form-basic">
                                 {this.state.verificationCodeMatch?
                                     <Form.Control type="text" className="generic" value={this.state.confirmPassword} placeholder="confirm new password" onChange={this.setConfirmPassword}/>
                                     :
                                     <Form.Control disabled type="text" className="generic" value={this.state.confirmPassword}placeholder="confirm new password" onChange={this.setConfirmPassword}/>}
-                                    <span className="actionNoticeRed">{this.state.matchMessage}</span>
+                                    <span className="reset-action-notice-red">{this.state.matchMessage}</span>
                             </Form.Group>
                         </Form>
                     </Col>

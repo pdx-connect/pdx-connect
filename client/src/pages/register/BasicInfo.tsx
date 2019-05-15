@@ -24,7 +24,7 @@ export class BasicInfo extends Component<Props, any> {
         const { handleChange, email, displayName, password, disabled, domain, resetRegistration, passwordDisabled } = this.props;
         return (
             <Form>
-                <Form.Group className="formBasic">
+                <Form.Group className="form-basic">
                     <Form.Control
                         type="text"
                         placeholder="display name"
@@ -36,7 +36,7 @@ export class BasicInfo extends Component<Props, any> {
                     />
                 </Form.Group>
 
-                <Form.Group className="formBasic">
+                <Form.Group className="form-basic">
                     <InputGroup>
                         <Form.Control
                             type="email"
@@ -53,7 +53,7 @@ export class BasicInfo extends Component<Props, any> {
                     </InputGroup>
                 </Form.Group>
 
-                <Form.Group className="formBasic">
+                <Form.Group className="form-basic">
                     <Form.Control
                         type="password"
                         placeholder="password"
@@ -65,7 +65,7 @@ export class BasicInfo extends Component<Props, any> {
                     />
                 </Form.Group>
                 
-                {disabled?<div className="alignCenter"><Button variant="light" className="resetButton" onClick={resetRegistration}>reset</Button></div>:null}
+                {disabled?<div className="align-center"><Button variant="light" className="register-reset-button" onClick={resetRegistration}>reset</Button></div>:null}
             </Form>
         );
     }

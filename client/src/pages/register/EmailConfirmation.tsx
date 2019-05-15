@@ -21,13 +21,13 @@ export class EmailConfirmation extends Component<Props, any> {
     public render() {
         const { handleChange, email, confirmCode, resendCode, confirmed, domain } = this.props;
         return (
-            <div className="emailConfirmation">
-                <p className="blurb">
+            <div className="register-email-confirmation">
+                <p className="register-blurb">
                     A confirmation email was sent to:<br/>
-                    <span className="emailDisplay">{email}@{domain}</span><br/>
+                    <span className="register-email-display">{email}@{domain}</span><br/>
                     Please enter the code found in your confirmation email below.
                 </p>
-                <Form.Group className="basicForm">
+                <Form.Group className="basic-form">
                     <Form.Control
                         id="confirmationCode"
                         type="text"
@@ -37,10 +37,10 @@ export class EmailConfirmation extends Component<Props, any> {
                     />
                 </Form.Group>
                 {confirmed ?
-                    <div className="confirmed">Confirmed</div>:
+                    <div className="register-confirmed">Confirmed</div>:
                     <div>
-                        <Button variant="light" className="confirmButton" onClick={confirmCode}>confirm</Button>
-                        <Button variant="light" className="resendButton" onClick={resendCode}>resend</Button>
+                        <Button variant="light" className="register-confirm-button" onClick={confirmCode}>confirm</Button>
+                        <Button variant="light" className="register-resend-button" onClick={resendCode}>resend</Button>
                     </div>
                 }
             </div>

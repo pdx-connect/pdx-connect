@@ -1,0 +1,190 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i");
+@import url("https://fonts.googleapis.com/css?family=Varela+Round");
+@import "../placeholder.css";
+
+.oobe
+{
+    margin-top: 10%;
+    color: #565656;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f6f9fb;
+}
+
+.oobe .title
+{
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 1vw;
+    color: #9fc1c0;
+    font-weight: bold;
+    margin-bottom: 3%;
+}
+
+.oobe .subTitle
+{
+    color: #c5e06f;
+    text-transform: uppercase;
+    letter-spacing: .2vw;
+    text-align: center;
+    padding-bottom: 1%;
+    font-family: 'Varela Round', sans-serif;
+}
+
+.personalization
+{
+    width: 100%;
+}
+
+.personalizationTitle
+{
+    text-align: left;
+    text-transform: uppercase;
+    color: #565656;
+    letter-spacing: .5vw;
+    font-weight: bold;
+    font-size: 1vw;
+    margin-bottom: 1%;
+}
+
+.personalizationRowTitle
+{
+    margin-top: 4%;
+    margin-bottom: 4%;
+    box-shadow: 0 4px 2px -2px rgba(0,0,0,.14);
+}
+
+.personalizationRow
+{
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+
+.alignCenter
+{
+    text-align: center;
+}
+
+.switch
+{
+    text-align: right;
+}
+
+.switchTitle
+{
+    font-size: 1vw;
+    text-transform: uppercase;
+    padding-top: 1%;
+    text-align: left;
+}
+
+.blurb
+{
+    color: #9fc1c0;
+    text-align: center;
+    font-size: 1.5vw;
+}
+
+.directionalButtons
+{
+    text-align: center;
+}
+
+.information
+{
+    background-color: #565656;
+    padding: 1%;
+    width: 1vw;
+    height: 1vw;
+    color: #ffffff;
+    border-radius:50%;
+    -moz-border-radius:50%;
+    -webkit-border-radius:50%;
+    border: solid thin #565656;
+    margin-top: -10%;
+    margin-left: 5%;
+    cursor: pointer;
+}
+
+.leftButton, .rightButton
+{
+    color: #297d7d;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    cursor: pointer;
+}
+
+.finalizeButton
+{
+    color: #565656;
+    letter-spacing: .4vw;
+    font-weight: bold;
+    background-color: #f2f2f2;
+    text-transform: uppercase;
+    font-family: 'Varela Round', sans-serif;
+    margin-left: 1%;
+    margin-right: 1%;
+}
+
+.finalizeButton:hover
+{
+    color: #f15a24;
+    text-decoration: none;
+}
+
+.info-modal
+{
+    background-color: rgba(41,125,125,.90);
+}
+
+.info-modal .modal-content
+{
+    margin-top: 30%;
+}
+
+.info-modal .modal-header
+{
+    color: #b3b3b3;
+    letter-spacing: .5vw;
+    font-weight: bold;
+    font-family: 'Varela Round', sans-serif;
+    margin: 0 auto;
+    text-transform: uppercase;
+}
+
+.info-modal .modal-body
+{
+    text-align: center;
+    background-color: #f6f9fb;
+    color: #565656;
+    font-family: 'Montserrat', sans-serif;
+    overflow-y: auto;
+}
+
+.info-modal .modal-footer
+{
+    background-color: #f6f9fb;
+}
+
+.strong
+{
+    font-size: 1.2em
+}
+
+.about-select
+{
+    margin-bottom: 2%;
+}
+
+.react-select-drop-down
+{
+    color: #565656;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.react-select__placeholder 
+{
+    color: #b3b3b3 !important;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}

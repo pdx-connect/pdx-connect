@@ -1,0 +1,66 @@
+.listings {
+
+}
+
+.categoryCol {
+    max-height: 600px;
+    background-color: lightgray;
+    overflow-y: scroll;
+}
+
+.listingCol {
+    height: 600px;
+    overflow-y: scroll;
+}
+
+
+.createButton {
+    padding-bottom: 5%;
+    cursor: pointer;
+}
+
+.editButton {
+    cursor: pointer;
+}
+
+.deleteButton {
+    cursor: pointer;
+}
+
+.notComplete
+{
+    color: red;
+    text-transform: uppercase;
+    letter-spacing: .2vw;
+    text-align: center;
+    padding-bottom: 1%;
+    font-family: 'Varela Round', sans-serif;
+}
+
+.myListingCheckbox {
+    /* align to the most right */
+}
+
+
+.theListing:hover {
+    text-decoration: underline;
+    color: lightseagreen;
+}
+
+
+.ID {
+    width: 7%;
+}
+
+.Title {
+    width: 40%;
+}
+
+.edit {
+    width: 20%;
+}
+
+.parentTag {
+    font-weight: bold;
+    text-decoration: underline;
+}

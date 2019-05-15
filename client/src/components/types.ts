@@ -1,4 +1,5 @@
 import * as React from "react";
+import {ValueType} from "react-select/lib/types";
 
 /**
  * Properties for React-Bootstrap Form.Control
@@ -20,4 +21,24 @@ export interface FormControlProps {
 export interface OptionType {
     label: string;
     value: string;
+}
+
+export namespace OptionType {
+
+    /**
+     * Resolves a ValueType into an array of OptionType.
+     * @param value The ValueType to resolve.
+     */
+    export function resolve(value: ValueType<OptionType>): OptionType[] {
+        let optionTypes: OptionType[];
+        if (value == null) {
+            optionTypes = [];
+        } else if (Array.isArray(value)) {
+            optionTypes = value;
+        } else {
+            optionTypes = [value];
+        }
+        return optionTypes;
+    }
+    
 }

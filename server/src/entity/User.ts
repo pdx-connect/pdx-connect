@@ -3,8 +3,9 @@ import {UserEmail} from "./UserEmail";
 import {randomBytes} from "crypto";
 import {hash} from "bcrypt";
 import {UserProfile} from "./UserProfile";
-import { ConversationParticipant } from "./ConversationParticipant";
 import {CalendarEvent} from "./CalendarEvent";
+import {Listing} from "./Listing";
+import {ConversationParticipant} from "./ConversationParticipant";
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -44,16 +45,18 @@ export class User extends BaseEntity {
     
     @OneToOne(type => UserProfile, profile => profile.user)
     readonly profile!: Promise<UserProfile|undefined>;
+
+    @OneToMany(type => CalendarEvent, event => event.user)
+    readonly events!: Promise<CalendarEvent[]>;
+
+    @OneToMany(type => Listing, listing => listing.user)
+    readonly listings!: Promise<Listing[]>;
     
     @OneToMany(type => ConversationParticipant, conversations => conversations.user, {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE"
     })
-    readonly conversations!: ConversationParticipant;
- 
-
-    @OneToMany(type => CalendarEvent, events => events.user)
-    readonly events!: Promise<CalendarEvent[]>;
+    readonly conversations!: Promise<ConversationParticipant[]>;
 
     @Column({
         name: "deactivated",
