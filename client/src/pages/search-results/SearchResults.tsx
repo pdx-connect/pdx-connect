@@ -29,7 +29,6 @@ export class SearchResults extends Component<Props, State> {
     }
 
     private handleChange(radio : React.ChangeEvent<HTMLInputElement>) {
-        console.log("Checked:", radio.target.checked)
         if(radio.target.checked == true){
             if(radio.target.id == "1"){
                 this.setState({searchBy: 1})
