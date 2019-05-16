@@ -48,7 +48,6 @@ export function route(app: Express, db: Connection) {
         }
         response.send(JSON.stringify(json));
     });
-
     app.get("/api/tags/allBaseTags", async (request: Request, response: Response) => {
         let json: TagData[] | string;
         let parents: Tag[];
