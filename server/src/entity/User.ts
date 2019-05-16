@@ -5,6 +5,7 @@ import {hash} from "bcrypt";
 import {UserProfile} from "./UserProfile";
 import {CalendarEvent} from "./CalendarEvent";
 import {Listing} from "./Listing";
+import {ConversationParticipant} from "./ConversationParticipant";
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -50,6 +51,12 @@ export class User extends BaseEntity {
 
     @OneToMany(type => Listing, listing => listing.user)
     readonly listings!: Promise<Listing[]>;
+    
+    @OneToMany(type => ConversationParticipant, conversations => conversations.user, {
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE"
+    })
+    readonly conversations!: Promise<ConversationParticipant[]>;
 
     @Column({
         name: "deactivated",

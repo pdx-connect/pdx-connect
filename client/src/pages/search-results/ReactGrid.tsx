@@ -40,28 +40,21 @@ export class ReactGrid extends Component<Props, State> {
             user: []
         };
     }
-    
-    private readonly enterKeyPressed = (e: any) => {
-        if (e.keyCode === 13) {
-            e.preventDefault();
-            if (this.props.searchField != null) {
-                const results = this.getResults(this.props.searchBy, this.props.searchField).then();
-            }
+
+    public componentDidUpdate(prevProps: Props){
+        if (this.props.searchBy !== prevProps.searchBy || this.props.searchField !== prevProps.searchField) {
+            this.getResults(this.props.searchBy, this.props.searchField).then();
             this.setState({reset: this.state.reset + 1})
         }
-    };
+    }
 
     public componentDidMount(){
-        document.addEventListener('keydown', this.enterKeyPressed);
         if (this.props.searchField != null) {
-            const results = this.getResults(this.props.searchBy, this.props.searchField).then()
+            this.getResults(this.props.searchBy, this.props.searchField).then()
         }
-        const tags = this.getTags().then()
+        this.getTags().then()
     }
 
-    public componentWillUnmount() {
-        document.removeEventListener('keydown', this.enterKeyPressed);
-    }
 
     private getValidFilterValues(rows : any, columnId : any) {
         if( columnId != "tags") {
@@ -96,12 +89,23 @@ export class ReactGrid extends Component<Props, State> {
     };
 
     private readonly getResults = async (searchBy: number, searchString: string) => {
-        const data = await postJSON("/api/search/profile", {
-            searchBy: searchBy,
-            displayName: searchString,
-            title: searchString
-        });
-        this.setState({rows: data.users});
+        let data: any
+        if (searchBy == 1) { //Search by user
+            data = await postJSON("/api/search/profile", {
+                displayName: searchString
+            });
+        }
+        else if (searchBy == 2) { //Search by listing
+            data = await postJSON("/api/search/listing", {
+                title: searchString
+            });
+        }
+        else if (searchBy == 3) { //Search by event
+            data = await postJSON("/api/search/event", {
+                title: searchString
+            });
+        }
+        this.setState({rows: data.results});
         return data
     };
 
@@ -128,7 +132,7 @@ export class ReactGrid extends Component<Props, State> {
         let columns : any
         if (this.props.searchBy == 1){
             columns = [
-                { key: "displayName", name: "Name", editable: false, filterable: true},
+                { key: "displayName", name: "Name", editable: false, filterable: true, className: "searchresults-ellipsis"},
                 { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
                 { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: MultiSelectFilter}
             ];
@@ -157,8 +161,7 @@ export class ReactGrid extends Component<Props, State> {
                     columns={columns}
                     rowGetter={i => filteredRows[i]}
                     rowsCount={this.state.rows.length}
-                    rowHeight={40}
-                    minHeight={500}
+                    minHeight={450}
                     toolbar={<Toolbar enableFilter={true} />}
                     onAddFilter={filter => this.setState({filters : handleFilterChange(filter) })}
                     onClearFilters={() => this.setState({filters : {}})}

@@ -80,7 +80,11 @@
 }
 
 .home-component {
+<<<<<<< HEAD
     min-height: 600px;
+=======
+    max-height: 600px;
+>>>>>>> master
     overflow-y: auto;
 }
 
