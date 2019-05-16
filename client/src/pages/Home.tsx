@@ -220,10 +220,6 @@ export class Home extends Page<Props, State> {
         const notifications = Object.keys(this.state.alerts);
 
         let minHeight = {minHeight: (this.state.windowHeight * .80).toString() + "px"};
-<<<<<<< HEAD
-
-=======
->>>>>>> master
         return (
         <Container fluid className="home">
             <Row className="home-top-row">

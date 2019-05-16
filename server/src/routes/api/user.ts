@@ -356,13 +356,8 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
         }
     });
-<<<<<<< HEAD
      // Post major data to the database. 
      app.post("/api/user/on_campus", async (request: Request, response: Response) => {
-=======
-    // Post major data to the database. 
-    app.post("/api/user/commuter", async (request: Request, response: Response) => {
->>>>>>> master
         // Parse the request body
         // It should be an object.
         if (typeof request.body !== "object") {
