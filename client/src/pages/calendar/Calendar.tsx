@@ -1,6 +1,15 @@
 import * as React from "react";
 import { Component, ReactNode } from "react";
-import { Container, Row, Col, Form, Button, Modal, Nav, ButtonToolbar } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  Button,
+  Modal,
+  Nav,
+  ButtonToolbar
+} from "react-bootstrap";
 import BigCalendar, {
   BigCalendarProps,
   Navigate,
@@ -13,9 +22,11 @@ import BigCalendar, {
 } from "react-big-calendar";
 import moment from "moment";
 import SweetAlert from "react-bootstrap-sweetalert";
+import Datetime from "react-datetime";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./style/Calendar.css";
+import "./style/react-datetime.css";
 
 import NavBar from "./NavBar";
 import * as EventService from "./services/EventService";
@@ -23,8 +34,7 @@ import { getJSON, postJSON, deleteJSON } from "../../util/json";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
-interface Props {
-}
+interface Props {}
 
 // tempEvent is a clone of the selected event for editing
 interface State {
@@ -37,7 +47,7 @@ interface State {
   userID: number | undefined;
 
   events: any;
-  tempEvent: any; 
+  tempEvent: any;
   style: any;
   height: any;
   alert: any;
@@ -70,17 +80,17 @@ export class Calendar extends Component<Props, State> {
   };
 
   private alertReadMode = (e: any) => {
-    const startTime = new Date(e.start).toString().substr(0 ,21);
+    const startTime = new Date(e.start).toString().substr(0, 21);
     this.setState({
       alert: (
-        <SweetAlert title="Event Details" onConfirm={this.hideAlert}> 
-          <br/>
+        <SweetAlert title="Event Details" onConfirm={this.hideAlert}>
+          <br />
           Title: {e.title}
-          <br/>
+          <br />
           Description: {e.description}
-          <br/>
+          <br />
           Start time: <time>{startTime}</time>
-          <br/>
+          <br />
           {/* End time: {e.end}  */}
         </SweetAlert>
       )
@@ -149,14 +159,14 @@ export class Calendar extends Component<Props, State> {
   private deleteEvent = async () => {
     const buildPath = "/api/event/" + this.state.tempEvent._id.toString();
     const data = await deleteJSON(buildPath);
-    const newEvents = this.state.events.filter((e:any) => {
+    const newEvents = this.state.events.filter((e: any) => {
       return e._id != this.state.tempEvent._id;
     });
     this.setState({
       events: newEvents,
-      create: false,
+      create: false
     });
-  }
+  };
 
   private getEvents = async () => {
     const eventsFromDB = await getJSON("/api/events");
@@ -186,15 +196,17 @@ export class Calendar extends Component<Props, State> {
     const userID = this.state.userID;
     // popup for event owner -- read and edit mode
     if (e.userID == userID) {
-      const eventIndex = this.state.events.findIndex((an_event:any) => an_event._id === e._id);
-      const cloneEvent = {...this.state.events[eventIndex]};
+      const eventIndex = this.state.events.findIndex(
+        (an_event: any) => an_event._id === e._id
+      );
+      const cloneEvent = { ...this.state.events[eventIndex] };
       console.log(cloneEvent);
       this.setState({
         tempEvent: cloneEvent,
-        create: true,
+        create: true
       });
     } else {
-      // show event details 
+      // show event details
       this.alertReadMode(e);
     }
   };
@@ -212,9 +224,9 @@ export class Calendar extends Component<Props, State> {
   private readonly getUserID = async () => {
     const data = await getJSON("/api/user/name");
     this.setState({
-        userID: data.userID
+      userID: data.userID
     });
-};
+  };
 
   public componentDidMount() {
     this.getEvents().then();
@@ -240,22 +252,48 @@ export class Calendar extends Component<Props, State> {
           />
         </div>
         {/* Popup for create and delete event */}
-        <Modal show={this.state.create} onHide={this.handleCloseCreate}>
+        <Modal
+          size="lg"
+          show={this.state.create}
+          onHide={this.handleCloseCreate}
+        >
           <Modal.Header closeButton>
             <Modal.Title>Create Event</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group>
-                <Form.Label>Title</Form.Label>
+              <h6 className="title">Title</h6>
                 <Form.Control
                   type="text"
                   value={this.state.tempEvent.title}
                   onChange={this.setTitle}
                 />
               </Form.Group>
+              <div>
+                <Row>
+                  <Col md={6}>
+                    <h6 className="title">Start</h6>
+                    <Form.Group>
+                      <Datetime
+                        inputProps={{ placeholder: "Datetime Picker Here" }}
+                        defaultValue={new Date()}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <h6 className="title">End</h6>
+                    <Form.Group>
+                      <Datetime
+                        inputProps={{ placeholder: "Datetime Picker Here" }}
+                        defaultValue={new Date()}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </div>
               <Form.Group>
-                <Form.Label>Description</Form.Label>
+              <h6 className="title">Description</h6>
                 <Form.Control
                   as="textarea"
                   rows="3"
@@ -284,8 +322,7 @@ export class Calendar extends Component<Props, State> {
                 <Button variant="outline-danger" onClick={this.deleteEvent}>
                   Delete
                 </Button>
-                </ButtonToolbar>
-      
+              </ButtonToolbar>
             </Form>
           </Modal.Footer>
         </Modal>
