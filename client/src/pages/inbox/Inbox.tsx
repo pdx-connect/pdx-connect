@@ -53,7 +53,7 @@ export class Inbox extends Component<Props, State> {
         e.preventDefault();
 
         if (this.state.composingNewConvo && this.state.textField != "") {
-            console.log("Sending message! with Participants: ", this.state.composingNewConvoParticipants);
+            //console.log("Sending message! with Participants: ", this.state.composingNewConvoParticipants);
             this.props.sendMessage(this.state.textField, null, this.state.composingNewConvoParticipants);
             this.setState({
                 composingNewConvoParticipants: [], // Clear participants array
@@ -94,8 +94,6 @@ export class Inbox extends Component<Props, State> {
     *
     */
     private readonly setParticipents = (e: any) => {
-        //this.setState({composingNewConvoParticipants: []}); // Clear participants array
-
         var options = e.target.options;
         var value = [];
 
@@ -104,9 +102,7 @@ export class Inbox extends Component<Props, State> {
                 value.push(options[i].value);
             }
         }
-        //console.log("Value array: ", value);
         this.setState({composingNewConvoParticipants: value});
-        //console.log("State array: ", this.state.composingNewConvoParticipants);
     }
 
     /* 
@@ -124,7 +120,7 @@ export class Inbox extends Component<Props, State> {
 
             // DOTO: Add stuff here to pull all users
             rows.push(
-                <Form className="user-select-form">
+                <Form className="inbox-user-select-form">
                     <Form.Control as="select" multiple className="user-select" onChange={(e: any) => this.setParticipents(e)}> 
                         <option value="1">Bradley - 1</option>
                         <option value="2">Brooke - 2</option>
@@ -171,7 +167,7 @@ export class Inbox extends Component<Props, State> {
 
         if (this.state.composingNewConvo) {
             rows.push(
-                <Row className="open-conversation" key={-1}>
+                <Row className="inbox-open-conversation" key={-1}>
                     <Col key={-1} sm={12}>
                         Starting new conversation...
                     </Col>
@@ -183,7 +179,7 @@ export class Inbox extends Component<Props, State> {
             for (let i=0; i<this.props.conversations.length; i++) {
                 if (i == this.state.currentConversationIndex) {
                     rows.push(
-                        <Row className="open-conversation" key={i} 
+                        <Row className="inbox-open-conversation" key={i} 
                             onClick={()=> 
                                 this.setState({
                                     currentConversationIndex: i,
@@ -201,7 +197,7 @@ export class Inbox extends Component<Props, State> {
                 }
                 else {
                     rows.push(
-                        <Row className="conversation" key={i}
+                        <Row className="inbox-conversation" key={i}
                             onClick={()=> 
                                 this.setState({
                                     currentConversationIndex: i,
@@ -220,7 +216,7 @@ export class Inbox extends Component<Props, State> {
             }
         } else {
             rows.push(
-            <Row key={0} className="no-message">
+            <Row key={0} className="inbox-no-message">
                 <Col key={0} sm={12}>No conversations</Col>
             </Row>);
         }
@@ -248,8 +244,8 @@ export class Inbox extends Component<Props, State> {
             for (let i=this.props.conversations[this.state.currentConversationIndex].entries.length-1; i >= 0; i--) { 
                 if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID == this.props.userID) {
                     rows.push(
-                        <Row key={i} className="message-row">
-                            <Col className="my-message-bubble" sm="auto">
+                        <Row key={i} className="inbox-message-row">
+                            <Col className="inbox-my-message-bubble" sm="auto">
                                 {this.props.conversations[this.state.currentConversationIndex].entries[i].text}
                             </Col>
                         </Row>
@@ -257,11 +253,11 @@ export class Inbox extends Component<Props, State> {
                 }
                 else {
                     rows.push(
-                        <Row key={i} className="message-row">
-                            <Col className="other-message-bubble" sm="auto">
+                        <Row key={i} className="inbox-message-row">
+                            <Col className="inbox-other-message-bubble" sm="auto">
                                 {this.props.conversations[this.state.currentConversationIndex].entries[i].text}
                             </Col>
-                            <Col className="message-bubble-name-tag" sm={12}>
+                            <Col className="inbox-message-bubble-name-tag" sm={12}>
                                 UserID: {this.props.conversations[this.state.currentConversationIndex].entries[i].userID}
                             </Col>
                         </Row>
@@ -270,7 +266,7 @@ export class Inbox extends Component<Props, State> {
             }
         } else {
             rows.push(
-            <Row key={0} className="no-message">
+            <Row key={0} className="inbox-no-message">
                 <Col key={0} sm={12}>No messages</Col>
             </Row>);
         }
@@ -314,32 +310,32 @@ export class Inbox extends Component<Props, State> {
 
             <Container fluid className="inbox">
 
-                <div className="compose-message">
+                <div className="inbox-compose-message">
                     <Form onSubmit={(e: any) => this.onCompose(e)}>
                         <Row>
-                            <Col sm={12} ><Button className="compose-button" variant="primary" type="submit">Compose Message</Button></Col>
+                            <Col sm={12} ><Button className="inbox-compose-button" variant="primary" type="submit">Compose Message</Button></Col>
                         </Row>
                     </Form>
                 </div>
 
-                <div className="participents">
+                <div className="inbox-participents">
                     {participents}
                 </div>
 
-                <div className="conversations">
+                <div className="inbox-conversations">
                     {conversations}
                 </div>
 
-                <div className="chat-box">
+                <div className="inbox-chat-box">
                     {messages}
                 </div>
 
-                <div className="text-box">
+                <div className="inbox-text-box">
                     <Form onSubmit={(e: any) => this.onSend(e)}>
                         <Row>
                             <Col>
                                 <Form.Control
-                                    className="textField"
+                                    className="inbox-textField"
                                     onChange={(e: any) => this.onTextFieldChange(e)}
                                     type="text"
                                     value={this.state.textField}
