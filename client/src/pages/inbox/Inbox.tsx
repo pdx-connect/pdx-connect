@@ -4,6 +4,7 @@ import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
 
 import "./Inbox.css";
+import { postJSON } from '../../util/json';
 
 
 interface Props {
@@ -21,6 +22,7 @@ interface State {
     textField: string;
     composingNewConvo: boolean;
     composingNewConvoParticipants: number[];
+    users?: any;
 }
 
 /**
@@ -35,6 +37,12 @@ export class Inbox extends Component<Props, State> {
             composingNewConvo: false,
             composingNewConvoParticipants: [],
         }
+    }
+
+    private readonly getUsers = async () => {
+        let data: any;
+        data = await postJSON("/api/user/findnames", {});
+        this.setState({users: data.results});
     }
 
     /*
@@ -103,6 +111,7 @@ export class Inbox extends Component<Props, State> {
             }
         }
         this.setState({composingNewConvoParticipants: value});
+        //console.log("Current participants: ", value); // Shows the list of the IDs only
     }
 
     /* 
@@ -114,23 +123,23 @@ export class Inbox extends Component<Props, State> {
     */
     private readonly renderParticipents = () => {
         let rows = [];
+        let users= [];
 
         // If in composingNewConvo state, will return a selection window of all users
         if (this.state.composingNewConvo) {
 
-            // DOTO: Add stuff here to pull all users
+            if (this.state.users) {
+                //console.log("Length of userID: ", this.state.users.length);
+                for(let i=0; i<this.state.users.length; i++) {
+                    users.push(<option value={this.state.users[i].userID} >{this.state.users[i].displayName}</option> );
+                    //console.log("User: ", this.state.users[i].displayName, ": ", this.state.users[i].userID);
+                }
+            }
+
             rows.push(
                 <Form className="inbox-user-select-form">
                     <Form.Control as="select" multiple className="user-select" onChange={(e: any) => this.setParticipents(e)}> 
-                        <option value="1">Bradley - 1</option>
-                        <option value="2">Brooke - 2</option>
-                        <option value="3">Lee - 3</option>
-                        <option value="4">Daniel - 4</option>
-                        <option value="6">David - 6</option>
-                        <option value="9">Ivan - 9</option>
-                        <option value="10">Doanh - 10</option>
-                        <option value="26">Hannah - 26</option>
-                        <option value="38">Terry - 38</option>
+                        {users}
                     </Form.Control>
                 </Form>
             );
@@ -283,6 +292,10 @@ export class Inbox extends Component<Props, State> {
     //         return false;
     //     }
     // }
+
+    public componentDidMount() {
+        this.getUsers().then();
+    }
 
     /**
      * @override
