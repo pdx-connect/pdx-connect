@@ -22,7 +22,7 @@
     background-color: var(--near-white-contrast);
 }
 
-.react-grid-Row:hover .react-grid-Cell
+.styleOn .react-grid-Row:hover .react-grid-Cell
 {
     text-decoration: underline !important;
     text-decoration-line: underline !important;

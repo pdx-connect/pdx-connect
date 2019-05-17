@@ -358,7 +358,7 @@ export function route(app: Express, db: Connection) {
         const users: User[] = await User.find({
         });
 
-        // Create an array of user(s) containing their ID, displayName, major
+        // Create an array of user(s) containing their ID, displayName
         json = await Promise.all(users.map(async user => {
             return {
                 userID: user.id,

@@ -21,6 +21,7 @@ interface State {
     filters: any;
     reset: any;
     user: []
+    style: boolean;
 }
 
 const {
@@ -37,7 +38,8 @@ export class ReactGrid extends Component<Props, State> {
             tags: [{id: 1, name: ""}],
             filters: {},
             reset: 0,
-            user: []
+            user: [],
+            style: true
         };
     }
 
@@ -45,6 +47,14 @@ export class ReactGrid extends Component<Props, State> {
         if (this.props.searchBy !== prevProps.searchBy || this.props.searchField !== prevProps.searchField) {
             this.getResults(this.props.searchBy, this.props.searchField).then();
             this.setState({reset: this.state.reset + 1})
+            if (this.props.searchBy == 1) {
+                this.setState({style: true})
+            }
+            else {
+                console.log("Turning off style")
+                this.setState({style: false})
+            }
+            console.log("Searchby:", this.props.searchBy)
         }
     }
 
@@ -94,16 +104,19 @@ export class ReactGrid extends Component<Props, State> {
             data = await postJSON("/api/search/profile", {
                 displayName: searchString
             });
+            this.setState({style: true})
         }
         else if (searchBy == 2) { //Search by listing
             data = await postJSON("/api/search/listing", {
                 title: searchString
             });
+            this.setState({style: false})
         }
         else if (searchBy == 3) { //Search by event
             data = await postJSON("/api/search/event", {
                 title: searchString
             });
+            this.setState({style: false})
         }
         this.setState({rows: data.results});
         return data
@@ -146,7 +159,7 @@ export class ReactGrid extends Component<Props, State> {
         };
 
         return (
-            <div key={this.state.reset}>
+            <div key={this.state.reset} className={this.state.style? "styleOn": "styleOff"}>
                 <ReactDataGrid
                     columns={columns}
                     rowGetter={i => filteredRows[i]}

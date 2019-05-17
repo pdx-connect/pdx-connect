@@ -90,6 +90,7 @@ export function route(app: Express, db: Connection) {
     });
     app.post("/api/search/listing", async (request: Request, response: Response) => {
         let json: ListingData[]
+        json = [];
         if (typeof request.body.title !== "string") {
             response.sendStatus(400);
             return;
@@ -99,27 +100,33 @@ export function route(app: Express, db: Connection) {
                 title: Like("%" + request.body.title + "%")
             }
         });
-        json = await Promise.all(listings.map(async listing => {
-            let tagsString = "Tags: Not Set";
-            let date = getFormattedDate(listing.timePosted)
-            const tags: Tag[] = await listing.tags;
-            if (tags.length > 0) {
-                tagsString = toTagString(tags);
+        for (const listing of listings)
+        {
+            if(listing.deleted == false)
+            { 
+                let tagsString = "Tags: Not Set";
+                let date = getFormattedDate(listing.timePosted)
+                const tags: Tag[] = await listing.tags;
+                if (tags.length > 0) {
+                    tagsString = toTagString(tags);
+                }
+                json.push({
+                    title: listing.title,
+                    description: listing.description,
+                    startDate: date,
+                    tags: tagsString,
+                })
             }
-            return {
-                title: listing.title,
-                description: listing.description,
-                startDate: date,
-                tags: tagsString,
-            }
-        }));
+        }
+    
         response.send(JSON.stringify({
             // Send back the array of found listing(s)
                 results: json
-            }));
+        }));
     });
     app.post("/api/search/event", async (request: Request, response: Response) => {
         let json: EventData[]
+        json = [];
         if(typeof request.body.title !== "string") {
             response.sendStatus(400);
             return;
@@ -129,20 +136,24 @@ export function route(app: Express, db: Connection) {
                 title: Like("%" + request.body.title + "%")
             }
         });
-        json = await Promise.all(events.map(async event => {
-            let tagsString = "Tags: Not Set";
-            let date = getFormattedDate(event.start)
-            const tags: Tag[] = await event.tags;
-            if (tags.length > 0) {
-                tagsString = toTagString(tags);
+        for (const event of events)
+        {
+            if(event.deleted == false)
+            { 
+                let tagsString = "Tags: Not Set";
+                let date = getFormattedDate(event.start)
+                const tags: Tag[] = await event.tags;
+                if (tags.length > 0) {
+                    tagsString = toTagString(tags);
+                }
+                json.push({
+                    title: event.title,
+                    description: event.description,
+                    startDate: date,
+                    tags: tagsString,
+                });
             }
-            return {
-                title: event.title,
-                description: event.description,
-                startDate: date,
-                tags: tagsString,
-            };
-        }));
+        }
         response.send(JSON.stringify({
             // Send back the array of found event(s)
             results: json
