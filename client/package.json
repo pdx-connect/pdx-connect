@@ -25,6 +25,7 @@
     "react-fa": "^5.0.0",
     "react-hot-loader": "^4.8.0",
     "react-icons": "^3.5.0",
+    "react-infinity-menu": "^4.0.0",
     "react-router-dom": "^4.3.1",
     "react-select": "^2.4.2",
     "react-switch": "^4.1.0",

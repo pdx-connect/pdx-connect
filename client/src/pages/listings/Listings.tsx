@@ -1,21 +1,18 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Container, Row, Col, Table, Modal, Button, Form} from "react-bootstrap";
+import {Container, Row, Col, Table, Modal, Button, Form, Collapse} from "react-bootstrap";
 import { FaPlus, FaTrash, FaPencilAlt} from "react-icons/fa";
 import Select from 'react-select';
 import {ValueType} from "react-select/lib/types";
 import {OptionType} from "../../components/types";
 import {getJSON, postJSON} from "../../util/json";
 import moment = require('moment');
-
+import InfinityMenu from "react-infinity-menu";
 
 import "./Listings.css";
+import { collapseDuration } from 'react-select/lib/animated/transitions';
 
 
-// Collapsible Categories list w/ filter function
-// duplicate selection in modal
-
-// Modal -> description: import pictures?
 
 interface Node {
     name: string;
@@ -34,7 +31,9 @@ interface State {
         name: string;
     }[];
     tagTree: {
+        id: number;
         name: string;
+        isOpen: boolean;
         children: Node[];
     }[];
     optionTags: OptionType[];
@@ -61,14 +60,23 @@ interface State {
 
     currentViewListing: number;
     myListings: boolean;
+    myBookmarkedListings: boolean;
     myUserID: number;
     edit: boolean;
+    categoriesList: any[];
+    collapseHeader: {
+        id: number;
+        show: boolean;
+    }[];
+
+    completed: boolean;
+    filterTag: string;
 }
 
 /**
  * 
  */
-export class Listings extends Component<Props, State> {
+export class Listings extends Component<Props, State>{
     
     constructor(props: Props) {
         super(props);
@@ -87,10 +95,16 @@ export class Listings extends Component<Props, State> {
             listings: [],
             currentViewListing: 0,
             myListings: false,
+            myBookmarkedListings: false,
             myUserID: 0,
-            edit: false
+            edit: false,
+            categoriesList: [],
+            collapseHeader: [],
+            completed: false,
+            filterTag: ""
         };
     }
+
 
     // Used for creating a listing
     private readonly setTitle = (e: any) => {
@@ -163,7 +177,6 @@ export class Listings extends Component<Props, State> {
     private readonly handleShowView = (id: number) => (event:any) => {
         this.setState({ currentViewListing: id});
         this.setState({ view: true});
-        // this.loadViewListingModal();
     };
 
     private readonly handleCloseView = () => {
@@ -362,7 +375,18 @@ export class Listings extends Component<Props, State> {
 
     private readonly showOnlyMyListings = () => {
         this.setState({
-            myListings: !this.state.myListings
+            myListings: !this.state.myListings,
+            filterTag: "",
+            myBookmarkedListings: false
+        });
+    }
+
+
+    private readonly showOnlyMyBookmarkedListings = () => {
+        this.setState({
+            myBookmarkedListings: !this.state.myBookmarkedListings,
+            filterTag: "",
+            myListings: false
         });
     }
 
@@ -404,49 +428,151 @@ export class Listings extends Component<Props, State> {
   
     private readonly getTagTrees = async () => {
         const data = await getJSON("/api/tags/tagTree");
+
         this.setState({
-            tagTree: data
-        })
-        console.log(this.state.tagTree);
-    };
+            tagTree: data,
+            completed: true
+        });
+    };    
+
+
+    private readonly onNodeMouseClick = (event:any, tree:any, node:any, level:any, keyPath:any) => {
+        // For filter behaviors
+        if(node.children.length == 0)
+        {
+            // Get the new listings view by setting state of filterTag
+            if(this.state.filterTag === node.name)
+            {
+                this.setState({
+                    filterTag: ""
+                });
+            }
+            else
+            {
+                this.setState({
+                    tagTree: tree,
+                    filterTag: node.name,
+                    myListings: false,
+                    myBookmarkedListings: false
+                });
+            }
+        }
+        else    // For normal collapse behaviors
+        {
+            this.setState({
+                tagTree: tree
+            });
+        }
+	}
 
     // Create the info in left column -> categories
     private readonly createCategories = () => {
         let categorieView: any[] = [];
-        let finalView: any[] = [];
-
-        this.traverse(this.state.tagTree, categorieView);
-        // console.log(categorieView);
+        
+        categorieView.push(
+            <InfinityMenu
+                tree={this.state.tagTree}
+                onNodeMouseClick={this.onNodeMouseClick}
+            />
+        );
         return categorieView;
-
-        // finalView.push(
-        //     <ul> 
-        //         {categorieView}
-        //     </ul>
-        // );
-        // console.log(finalView);
-        // return finalView;
     };
 
+
     // Helper function for createCategories
-    private readonly traverse = (parents: Node[], categorieView: any[]) => {
-        for(const parent of parents) {
-            // Create a collapsable row for parent(has children)
-            if(parent.children.length > 0)
-            {
-                categorieView.push(
-                    <h6 className="parentTag">{parent.name}</h6>
-                );
-                this.traverse(parent.children, categorieView);
-            }
-            else
-            {
-                categorieView.push(
-                    <p>{parent.name}</p>
-                );
-            }
-        }
-    }
+    // private readonly traverse = (parent: any, categorieView: any[], index: number): any[] => {
+    //     // Create a collapsable row for parent(has children)
+    //     if(parent.children.length > 0)
+    //     {
+    //         for(const child of parent.children)
+    //         {
+    //             let temp1: any[] = [];
+    //             temp1 = this.traverse(child, temp1, index);
+    //             categorieView.push(temp1);
+    //         }
+    //         let temp2: any[] = [];
+            // let location = this.findIndexLocation(parent.id);
+            // temp2.push(
+            //     <div>
+            //         <h6 className="parentTag" onClick={this.handleIvan}>
+            //             {parent.name}
+            //         </h6>
+            //         {this.state.ivan?
+            //             <div>
+            //                 <ul className="childTag">{categorieView}</ul>
+            //             </div>
+            //         : null}
+            //     </div>
+            // );
+            // temp2.push(
+            //     <Collapse in={this.state.collapseHeader[location].show}>
+            //         <ul className="childTag">{categorieView}</ul>
+            //     </Collapse>
+            // );
+    //         categorieView = [];
+    //         categorieView.push(temp2);
+    //     }
+    //     else
+    //     {
+    //         categorieView.push(
+    //             <li>{parent.name}</li>
+    //         );
+    //     }
+    //     return categorieView;
+    // }
+
+    // private readonly findIndexLocation = (id: number): number => {
+    //     let temp: any[] = this.state.collapseHeader;
+    //     for(let i = 0; i < temp.length; i++)
+    //     {
+    //         if(temp[i].id == id)
+    //             return i;
+    //     }
+    //     return -1;
+    // }
+
+    // private readonly handleCollapse = (location: number) => {
+    //     let temp: any[] = this.state.collapseHeader;
+    //     temp[location].show = !this.state.collapseHeader[location].show;
+        
+    //     this.setState({
+    //         collapseHeader: temp,
+    //         ivan: !this.state.ivan
+    //     })
+    // }
+
+    // Set the array of show options for the category headers, 
+    // add default to false (not expanding)
+    // private readonly setHeaderNum = (tagTree: any[]) => {
+    //     let temp: any[];
+    //     let headerArray: any[] = [];
+    //     for(const subtree of tagTree)
+    //     {
+    //         temp = [];
+    //         temp = this.findHeaderNum(subtree, temp);
+    //         for(const i of temp)
+    //             headerArray.push(i);
+    //     }
+
+    //     this.setState({
+    //         collapseHeader: headerArray
+    //     })
+    // }
+
+    // private readonly findHeaderNum = (parent: any, headerArray: any[]): any[] => {
+    //     if(parent.children.length > 0)
+    //     {   
+    //         for(const child of parent.children)
+    //         {
+    //             headerArray = this.findHeaderNum(child, headerArray);
+    //         }
+    //         headerArray.push({
+    //             id: parent.id,
+    //             show: false
+    //         });
+    //     }
+    //     return headerArray;
+    // }
 
 
     private readonly getCurrentUserId = async () => {
@@ -460,8 +586,8 @@ export class Listings extends Component<Props, State> {
     private readonly createListingsView = () => {
         let views : any = [];
        
-        // Show only my listings
-        if(this.state.myListings)
+
+        if(this.state.myListings)   // Show only my listings
         {
             for(let i=0; i < this.state.listings.length; i++)
             {
@@ -469,9 +595,23 @@ export class Listings extends Component<Props, State> {
                     views = this.createListings(i, views);
             }
         }
-        else
+        else if(this.state.myBookmarkedListings)    // Show only my bookmarked listings
         {
-            // Show all listings
+
+        }
+        else if(this.state.filterTag)   // Show filtered listings
+        {
+            for(let i=0; i < this.state.listings.length; i++)
+            {
+                for(const tag of this.state.listings[i].tags)
+                {
+                    if(tag.name === this.state.filterTag)
+                        views = this.createListings(i, views);
+                }
+            }
+        }
+        else    // Show all listings
+        {
             for(let i=0; i < this.state.listings.length; i++)
             {
                views = this.createListings(i, views);
@@ -618,7 +758,6 @@ export class Listings extends Component<Props, State> {
      */
     public render(): ReactNode {
 
-        let categories = this.createCategories();
         let listingViews = this.createListingsView();
 
         return (
@@ -627,11 +766,29 @@ export class Listings extends Component<Props, State> {
                     <Col md={2}>
                         <FaPlus size="3vw" className="createButton" onClick={this.handleShowCreate}/>
                     </Col>
-                    <Col md={7}>All Listings</Col>
-                    <Col md={3}>
+                    <Col md={6}>Filter By ->  {this.state.filterTag}</Col>
+                    <Col md={2}>
                         <Form>
                             <Form.Group>
-                                <Form.Check type="checkbox" label="My Listings" className="myListingCheckbox" onClick={this.showOnlyMyListings}/>
+                                <Form.Check 
+                                    type="checkbox" 
+                                    label="Interested" 
+                                    onClick={this.showOnlyMyBookmarkedListings}
+                                    checked={this.state.myBookmarkedListings}
+                                />
+                            </Form.Group>
+                        </Form>
+                    </Col>
+                    <Col md={2}>
+                        <Form>
+                            <Form.Group>
+                                <Form.Check 
+                                    type="checkbox" 
+                                    label="My Listings" 
+                                    className="myListingCheckbox" 
+                                    onClick={this.showOnlyMyListings}
+                                    checked={this.state.myListings}
+                                />
                             </Form.Group>
                         </Form>
                     </Col>
@@ -639,7 +796,7 @@ export class Listings extends Component<Props, State> {
 
                 <Row>
                     <Col sm={2} className="categoryCol">
-                       {categories}
+                       {this.state.completed? this.createCategories() : null}
                     </Col>
                     <Col sm={10} className="listingCol">
                         <Table responsive>

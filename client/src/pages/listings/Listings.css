@@ -60,7 +60,36 @@
     width: 20%;
 }
 
+.headerTagDiv {
+
+}
+
 .parentTag {
     font-weight: bold;
     text-decoration: underline;
+    cursor: pointer;
+}
+
+.childTag {
+    cursor: pointer;
+}
+
+.react-infinity-menu-default-search-input {
+    display: none;
+    visibility: hidden;
+}
+
+.infinity-menu-node-container {
+    width: 100%;
+	height: 40px;
+	padding-left: 10px;
+    padding-top: 20px;
+}
+
+/* .infinity-menu-node-container label {
+    display: inline-block;
+} */
+
+.infinity-menu-node-container:hover {
+	/* background-color: rgb(73, 73, 73); */
 }

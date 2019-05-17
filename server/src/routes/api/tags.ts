@@ -8,7 +8,9 @@ interface TagData {
 }
 
 interface Node {
+    id: number;
     name: string;
+    isOpen: boolean;
     children: Node[];
 };
 
@@ -98,7 +100,9 @@ export function route(app: Express, db: Connection) {
                 if(Object.keys(await tag.parents).length == 0)
                 {
                     TagTree.push({
+                        id: tag.id,
                         name: tag.name,
+                        isOpen: false,
                         children: []
                     });
                 }
@@ -137,7 +141,9 @@ export function route(app: Express, db: Connection) {
             for (const child of await current.children)
             {
                 const temp: Node = {
+                    id: child.id,
                     name: child.name,
+                    isOpen: false,
                     children: []
                 }
                 subtrees.push(temp);
