@@ -41,23 +41,10 @@ export function route(app: Express, db: Connection) {
                         tags: await listing.tags
                     })
                 }
-                // json = await Promise.all(Listings.map(async listing => {
-                //     return {
-                //         id: listing.id,
-                //         userID: listing.userID,
-                //         username: (await listing.user).displayName,
-                //         // userProfile: (await listing.user).profile,   // For profile picture
-                //         title: listing.title,
-                //         description: listing.description,
-                //         anonymous: listing.anonymous,
-                //         timePosted: listing.timePosted,
-                //         tags: await listing.tags
-                //     };
-                // }))
             }
         }
         response.send(JSON.stringify(json));
-   });
+    });
 
 
     app.post("/api/listings/edit_listing", async (request: Request, response: Response) => {

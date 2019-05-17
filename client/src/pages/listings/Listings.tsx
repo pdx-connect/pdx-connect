@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Container, Row, Col, Table, Modal, Button, Form, Collapse} from "react-bootstrap";
-import { FaPlus, FaTrash, FaPencilAlt} from "react-icons/fa";
+import {Container, Row, Col, Table, Modal, Button, Form} from "react-bootstrap";
+import { FaPlus, FaTrash, FaPencilAlt, FaStar, FaStarHalfAlt} from "react-icons/fa";
 import Select from 'react-select';
 import {ValueType} from "react-select/lib/types";
 import {OptionType} from "../../components/types";
@@ -10,7 +10,6 @@ import moment = require('moment');
 import InfinityMenu from "react-infinity-menu";
 
 import "./Listings.css";
-import { collapseDuration } from 'react-select/lib/animated/transitions';
 
 
 
@@ -63,14 +62,10 @@ interface State {
     myBookmarkedListings: boolean;
     myUserID: number;
     edit: boolean;
-    categoriesList: any[];
-    collapseHeader: {
-        id: number;
-        show: boolean;
-    }[];
-
     completed: boolean;
     filterTag: string;
+    bookmarked: boolean;
+    bookmarkedListings: number[];
 }
 
 /**
@@ -98,10 +93,10 @@ export class Listings extends Component<Props, State>{
             myBookmarkedListings: false,
             myUserID: 0,
             edit: false,
-            categoriesList: [],
-            collapseHeader: [],
             completed: false,
-            filterTag: ""
+            filterTag: "",
+            bookmarked: false,
+            bookmarkedListings: []
         };
     }
 
@@ -174,13 +169,31 @@ export class Listings extends Component<Props, State>{
         });
     };
 
-    private readonly handleShowView = (id: number) => (event:any) => {
-        this.setState({ currentViewListing: id});
-        this.setState({ view: true});
+    private readonly handleShowView = async (id: number) => {
+        // check if selected listing is bookmarked by the user,
+        // change the state of bookmark
+        const data = await postJSON("/api/user/isBookmark", {
+            id: id,
+        });
+        if (data.bookmarked) {
+            this.setState({ 
+                bookmarked: true,
+                currentViewListing: id,
+                view: true
+            });
+        } else {
+            this.setState({ 
+                currentViewListing: id,
+                view: true
+            });
+        }
     };
 
     private readonly handleCloseView = () => {
-        this.setState({ view: false});
+        this.setState({ 
+            view: false,
+            bookmarked: false
+        });
     };
 
     private readonly handleEdit = () => {
@@ -243,6 +256,52 @@ export class Listings extends Component<Props, State>{
         }
     };
 
+    private readonly handleBookmark = async (id: number) => {
+        const data = await postJSON("/api/user/bookmark_listing", {
+            id: id,
+            bookmark: true
+        });
+        if (data.success) {
+            let temp: number[] = this.state.bookmarkedListings;
+            temp.push(id);
+
+            this.setState({
+                bookmarkedListings: temp,
+                bookmarked: true
+            });
+        }
+    }
+
+    private readonly handleUnbookmark = async (id: number) => {
+        const data = await postJSON("/api/user/bookmark_listing", {
+            id: id,
+            bookmark: false
+        });
+        if (data.success) {
+            let temp: number[] = this.state.bookmarkedListings;
+            let index: number = temp.indexOf(id);
+            if (index !== -1)
+            {
+                temp.splice(index, 1);
+                this.setState({
+                    bookmarkedListings: temp,
+                    bookmarked: false
+                });
+            } else {
+                this.setState({
+                    bookmarked: false
+                });
+            }
+        }
+    }
+
+    // Get the user's bookmarked listings array from the DB
+    private readonly updateBookmarkedListings = async () => {
+        const data = await getJSON("/api/user/bookmarkedListings");
+        this.setState({
+            bookmarkedListings: data.bookmarkedListings
+        });
+    }
 
     private readonly handleTagChange = (value: ValueType<OptionType>) => {
         // Get the remove tag, add back to options
@@ -382,7 +441,7 @@ export class Listings extends Component<Props, State>{
     }
 
 
-    private readonly showOnlyMyBookmarkedListings = () => {
+    private readonly showOnlyMyBookmarkedListings = async () => {
         this.setState({
             myBookmarkedListings: !this.state.myBookmarkedListings,
             filterTag: "",
@@ -478,103 +537,6 @@ export class Listings extends Component<Props, State>{
         return categorieView;
     };
 
-
-    // Helper function for createCategories
-    // private readonly traverse = (parent: any, categorieView: any[], index: number): any[] => {
-    //     // Create a collapsable row for parent(has children)
-    //     if(parent.children.length > 0)
-    //     {
-    //         for(const child of parent.children)
-    //         {
-    //             let temp1: any[] = [];
-    //             temp1 = this.traverse(child, temp1, index);
-    //             categorieView.push(temp1);
-    //         }
-    //         let temp2: any[] = [];
-            // let location = this.findIndexLocation(parent.id);
-            // temp2.push(
-            //     <div>
-            //         <h6 className="parentTag" onClick={this.handleIvan}>
-            //             {parent.name}
-            //         </h6>
-            //         {this.state.ivan?
-            //             <div>
-            //                 <ul className="childTag">{categorieView}</ul>
-            //             </div>
-            //         : null}
-            //     </div>
-            // );
-            // temp2.push(
-            //     <Collapse in={this.state.collapseHeader[location].show}>
-            //         <ul className="childTag">{categorieView}</ul>
-            //     </Collapse>
-            // );
-    //         categorieView = [];
-    //         categorieView.push(temp2);
-    //     }
-    //     else
-    //     {
-    //         categorieView.push(
-    //             <li>{parent.name}</li>
-    //         );
-    //     }
-    //     return categorieView;
-    // }
-
-    // private readonly findIndexLocation = (id: number): number => {
-    //     let temp: any[] = this.state.collapseHeader;
-    //     for(let i = 0; i < temp.length; i++)
-    //     {
-    //         if(temp[i].id == id)
-    //             return i;
-    //     }
-    //     return -1;
-    // }
-
-    // private readonly handleCollapse = (location: number) => {
-    //     let temp: any[] = this.state.collapseHeader;
-    //     temp[location].show = !this.state.collapseHeader[location].show;
-        
-    //     this.setState({
-    //         collapseHeader: temp,
-    //         ivan: !this.state.ivan
-    //     })
-    // }
-
-    // Set the array of show options for the category headers, 
-    // add default to false (not expanding)
-    // private readonly setHeaderNum = (tagTree: any[]) => {
-    //     let temp: any[];
-    //     let headerArray: any[] = [];
-    //     for(const subtree of tagTree)
-    //     {
-    //         temp = [];
-    //         temp = this.findHeaderNum(subtree, temp);
-    //         for(const i of temp)
-    //             headerArray.push(i);
-    //     }
-
-    //     this.setState({
-    //         collapseHeader: headerArray
-    //     })
-    // }
-
-    // private readonly findHeaderNum = (parent: any, headerArray: any[]): any[] => {
-    //     if(parent.children.length > 0)
-    //     {   
-    //         for(const child of parent.children)
-    //         {
-    //             headerArray = this.findHeaderNum(child, headerArray);
-    //         }
-    //         headerArray.push({
-    //             id: parent.id,
-    //             show: false
-    //         });
-    //     }
-    //     return headerArray;
-    // }
-
-
     private readonly getCurrentUserId = async () => {
         const data = await getJSON("/api/user/name");
         this.setState({
@@ -585,7 +547,6 @@ export class Listings extends Component<Props, State>{
     // Create the info in the right column -> listings
     private readonly createListingsView = () => {
         let views : any = [];
-       
 
         if(this.state.myListings)   // Show only my listings
         {
@@ -597,7 +558,14 @@ export class Listings extends Component<Props, State>{
         }
         else if(this.state.myBookmarkedListings)    // Show only my bookmarked listings
         {
-
+            for(let i=0; i < this.state.listings.length; i++)
+            {
+                for(const id of this.state.bookmarkedListings)
+                {
+                    if(this.state.listings[i].id === id)
+                        views = this.createListings(i, views);
+                }
+            }
         }
         else if(this.state.filterTag)   // Show filtered listings
         {
@@ -635,7 +603,7 @@ export class Listings extends Component<Props, State>{
         }
         
         views.push(
-            <tr className="theListing" onClick={this.handleShowView(this.state.listings[i].id)}>
+            <tr className="theListing" onClick={this.handleShowView.bind(this, this.state.listings[i].id)}>
                 <th>{this.state.listings[i].id}</th>
                 <th>{this.state.listings[i].title}</th>
                 <th>{tags}</th>
@@ -680,7 +648,14 @@ export class Listings extends Component<Props, State>{
                     <Modal.Header closeButton>
                         <Container>
                             <Row>
-                                <Col md={4}></Col>
+                                <Col md={4}>
+                                    {this.state.bookmarked
+                                        ?
+                                        <FaStar size="2vw" className="bookmarkButton" onClick={this.handleUnbookmark.bind(this, listing.id)}/> 
+                                        :
+                                        <FaStarHalfAlt size="2vw" className="bookmarkButton" onClick={this.handleBookmark.bind(this, listing.id)}/> 
+                                    }
+                                </Col>
                                 <Col md={4}>
                                     <Modal.Title>{listing.title}</Modal.Title>
                                 </Col>
@@ -742,6 +717,7 @@ export class Listings extends Component<Props, State>{
         this.loadAllListings();
         this.getCurrentUserId();
         this.getTagTrees();
+        this.updateBookmarkedListings();
     }
     
     /**
@@ -766,20 +742,20 @@ export class Listings extends Component<Props, State>{
                     <Col md={2}>
                         <FaPlus size="3vw" className="createButton" onClick={this.handleShowCreate}/>
                     </Col>
-                    <Col md={6}>Filter By ->  {this.state.filterTag}</Col>
+                    <Col md={5}>Filter By ->  {this.state.filterTag}</Col>
                     <Col md={2}>
                         <Form>
                             <Form.Group>
                                 <Form.Check 
                                     type="checkbox" 
-                                    label="Interested" 
+                                    label="Bookmarked" 
                                     onClick={this.showOnlyMyBookmarkedListings}
                                     checked={this.state.myBookmarkedListings}
                                 />
                             </Form.Group>
                         </Form>
                     </Col>
-                    <Col md={2}>
+                    <Col md={3}>
                         <Form>
                             <Form.Group>
                                 <Form.Check 

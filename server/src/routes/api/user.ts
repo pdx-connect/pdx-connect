@@ -5,6 +5,7 @@ import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {CalendarEvent} from "../../entity/CalendarEvent";
+import {Listing} from "../../entity/Listing";
 
 export function route(app: Express, db: Connection) {
     app.get("/api/user/name", async (request: Request, response: Response) => {
@@ -346,4 +347,144 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+
+    // Bookmark and un-bookmark a listing
+    app.post("/api/user/bookmark_listing", async (request: Request, response: Response) => {
+        const id: number = request.body.id;
+        if(id <= 0)
+        {
+            response.send(JSON.stringify({
+                error: "Listing ID cannot be less than 1."
+            }));
+            return;
+        }
+
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const profile: UserProfile|undefined = await user.profile;
+            if (profile != null) {
+                // Find the listing this user wants to bookmark
+                const listing: Listing|undefined =  await Listing.findOne({
+                    where: {
+                        id: request.body.id
+                    }
+                });
+
+                // Save the listing id to the user bookmark listing array
+                if(listing) {
+                    // If user want to bookmark a listing
+                    if(request.body.bookmark) {
+                        let temp: any[] = await profile.bookmarkedListings;
+                        temp.push(listing);
+                        profile.bookmarkedListings = Promise.resolve(temp);
+                        await profile.save();
+                        // Send success response
+                        response.send(JSON.stringify({
+                            success: true
+                        }));
+                    } else {    // If user want to unmark a listing
+                        let temp: any[] = [];
+                        for(const current of await profile.bookmarkedListings)
+                        {
+                            if(current.id !== listing.id)
+                                temp.push(current);
+                        }
+                        profile.bookmarkedListings = Promise.resolve(temp);
+                        await profile.save();
+                        // Send success response
+                        response.send(JSON.stringify({
+                            success: true
+                        }));
+                    }
+                } else {
+                    // Send error response
+                    response.send(JSON.stringify({
+                        error: "Desired listing cannot be find."
+                    }));
+                }
+            } else {
+                // Send error response
+                response.send(JSON.stringify({
+                    error: "Profile has not been set up."
+                }));
+            }
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
+
+    app.post("/api/user/isBookmark", async (request: Request, response: Response) => {
+        const id: number = request.body.id;
+        if(id <= 0)
+        {
+            response.send(JSON.stringify({
+                error: "Listing ID cannot be less than 1."
+            }));
+            return;
+        }
+
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const profile: UserProfile|undefined = await user.profile;
+            if (profile != null) {
+                let found: boolean = false;
+                for(const current of await profile.bookmarkedListings)
+                {
+                    if(current.id === request.body.id)
+                        found = true;
+                }
+                if(found)
+                {
+                    response.send(JSON.stringify({
+                        bookmarked: true
+                    }));
+                } else {
+                    response.send(JSON.stringify({
+                        bookmarked: false
+                    }));    
+                }
+            } else {
+                // Send error response
+                response.send(JSON.stringify({
+                    error: "Profile has not been set up."
+                }));
+            }
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
+
+    app.get("/api/user/bookmarkedListings", async (request: Request, response: Response) => {
+        const user: User|undefined = request.user;
+        if(user)
+        {
+            const profile: UserProfile|undefined = await user.profile;
+            if(profile)
+            {
+                let temp: number[] = [];
+                for(const current of await profile.bookmarkedListings)
+                {
+                    temp.push(current.id);
+                }
+                response.send(JSON.stringify({
+                    bookmarkedListings: temp
+                }));
+            } else {
+                // Send error response
+                response.send(JSON.stringify({
+                    error: "Profile has not been set up."
+                }));
+            }
+        } else {
+            // Send error response
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
+
 }

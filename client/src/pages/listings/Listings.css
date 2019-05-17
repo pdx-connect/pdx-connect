@@ -13,11 +13,15 @@
     overflow-y: scroll;
 }
 
-
 .createButton {
     padding-bottom: 5%;
     cursor: pointer;
 }
+
+.bookmarkButton {
+    cursor: pointer;
+}
+
 
 .editButton {
     cursor: pointer;
@@ -38,7 +42,7 @@
 }
 
 .myListingCheckbox {
-    /* align to the most right */
+    
 }
 
 
@@ -60,9 +64,6 @@
     width: 20%;
 }
 
-.headerTagDiv {
-
-}
 
 .parentTag {
     font-weight: bold;
