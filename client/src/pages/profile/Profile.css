@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i");
-@import url("https://fonts.googleapis.com/css?family=Varela+Round");
+@import "../root.css";
 @import "../placeholder.css";
 
 .profile
@@ -131,4 +130,22 @@
 .indent
 {
     text-indent: 15%;
+}
+
+.profile-message-me-button {
+    background-color: var(--suggestion);
+    font-weight: bold;
+    width: 100%;
+    color: var(--white);
+    text-transform: uppercase;
+    letter-spacing: .4vw;
+    font-weight: bold;
+    font-size: 1em;
+    height: 100%;
+    font-family: var(--soft-font);
+}
+
+.profile-message-me-button:hover {
+    color: var(--white-contrast);
+    text-decoration: none;
 }

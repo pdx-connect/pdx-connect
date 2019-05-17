@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Container, Row, Col, Table} from "react-bootstrap";
+import {Container, Row, Col, Table, Button, Modal} from "react-bootstrap";
 import {FaUser} from "react-icons/fa";
 import {postJSON} from "../../util/json";
 import queryString from "query-string";
@@ -11,6 +11,7 @@ interface Props {
 }
 
 interface State {
+    showComposeMessage: boolean
 }
 
 interface Profile {
@@ -25,6 +26,7 @@ export class ProfileContent extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
+            showComposeMessage: false
         };
     }
 
@@ -36,6 +38,7 @@ export class ProfileContent extends Component<Props, State> {
         let commuterStatus = "waiting on merge";
         let aboutMe = this.props.displayProfile.description ? this.props.displayProfile.description: "";
         let interests = this.props.displayProfile.tags ? this.props.displayProfile.tags: "";
+        let isUser = this.props.displayProfile.isUser ? this.props.displayProfile.isUser: false;
 
         return (
                 <Container fluid className="profile-content">
@@ -49,6 +52,11 @@ export class ProfileContent extends Component<Props, State> {
                                     <tr>
                                         <td className="profile-display-name">{name}</td>
                                     </tr>
+                                    { isUser === true ? null :
+                                        <tr>
+                                            <td><Button size="sm" variant="light" className="profile-message-me-button" onClick={() => this.setState({ showComposeMessage: true })}>message me</Button></td>
+                                        </tr>
+                                    }
                                 </tbody>
                                 </Table>
                         </Col>
@@ -84,6 +92,14 @@ export class ProfileContent extends Component<Props, State> {
                                 </Table>
                         </Col>
                     </Row>
+                    { isUser === true ? null :
+                        <Modal size="lg" show={this.state.showComposeMessage} onHide={() => this.setState({ showComposeMessage: false })} dialogClassName="profile-compose-message-modal" backdrop="static">
+                            <Modal.Header closeButton><h4>Hey {name}!</h4></Modal.Header>
+                            <Modal.Body>message</Modal.Body>
+                            <Modal.Footer>
+                            </Modal.Footer>
+                        </Modal>
+                    }
                 </Container>
 
         );

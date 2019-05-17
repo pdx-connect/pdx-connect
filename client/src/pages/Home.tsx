@@ -200,8 +200,8 @@ export class Home extends Page<Props, State> {
         this.getUserProfileData().then();
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
-        console.log("In home component did mount");
-        console.log(this.state.conversations);
+        //console.log("In home component did mount");
+        //console.log(this.state.conversations);
     }
     
     /**

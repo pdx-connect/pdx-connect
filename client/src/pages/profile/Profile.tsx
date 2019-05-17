@@ -48,12 +48,38 @@ export class Profile extends Component<Props, State> {
         const { location, userID } = this.props;
 
         const values = queryString.parse(location.search);
+        const userid = Number(values.userid) ? Number(values.userid) : undefined;
+
+        this.setProfile(userID, userid);
+    }
+
+    componentDidUpdate(prevProps: any, prevState: any) {
+        const { location, userID } = this.props;
+
+        const values = queryString.parse(location.search);
+        const userid = Number(values.userid) ? Number(values.userid) : undefined;
+
+        if(Object.keys(this.state.displayProfile).length === 0) {
+            this.setProfile(userID, userid);
+        } 
+    }
+
+    private readonly setProfile = (userID: number|undefined, userid: number|undefined) => {
+
         
-        if('userid' in values) {
-            this.getProfile(Number(values.userid)).then(data => {
+        if(userid != undefined) {
+            this.getProfile(userid).then(data => {
                 let displayProfile = data.user[0];
                 if(userID != undefined) {
+
+                    displayProfile['isUser'] = false;
+
+                    if(userID === userid) {
+                        displayProfile['isUser'] = true;
+                    }
+
                     this.getProfile(userID).then(data => {
+                        console.log('profile: ', displayProfile);
                         this.setState({
                             displayProfile: displayProfile,
                             userProfile: data.user[0]
@@ -64,9 +90,13 @@ export class Profile extends Component<Props, State> {
         } else {
             if(userID != undefined) {
                 this.getProfile(userID).then(data => {
+                    
+                    let displayProfile = data.user[0];
+                    displayProfile['isUser'] = true;
+                    console.log('profile: ', displayProfile);
                     this.setState({
-                        displayProfile: data.user[0],
-                        userProfile: data.user[0]
+                        displayProfile: displayProfile,
+                        userProfile: displayProfile
                     });
                 });
             }
