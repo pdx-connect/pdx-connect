@@ -22,7 +22,9 @@ import * as EventService from "./services/EventService";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
-interface Props {}
+interface Props {
+  userID: number | undefined;
+}
 
 interface State {
   events: any;
