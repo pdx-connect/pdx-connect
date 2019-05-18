@@ -38,3 +38,17 @@
 .align-center {
     text-align: center;
 }
+
+.react-select-drop-down
+{
+    color: #565656;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.react-select__placeholder 
+{
+    color: #b3b3b3 !important;
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+}

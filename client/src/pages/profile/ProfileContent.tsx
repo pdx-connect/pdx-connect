@@ -31,11 +31,11 @@ export class ProfileContent extends Component<Props, State> {
     }
 
     public render(): ReactNode {
-        //console.log('profilecontent: ', this.props.displayProfile);
+        console.log('profilecontent: ', this.props.displayProfile);
 
         let name = this.props.displayProfile.displayName ? this.props.displayProfile.displayName : "";
         let major = this.props.displayProfile.major ? this.props.displayProfile.major: "";
-        let commuterStatus = "waiting on merge";
+        let commuterStatus = this.props.displayProfile.commuterStatus ? this.props.displayProfile.commuterStatus: "";
         let aboutMe = this.props.displayProfile.description ? this.props.displayProfile.description: "";
         let interests = this.props.displayProfile.tags ? this.props.displayProfile.tags: "";
         let isUser = this.props.displayProfile.isUser ? this.props.displayProfile.isUser: false;

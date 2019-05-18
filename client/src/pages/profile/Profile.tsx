@@ -66,7 +66,6 @@ export class Profile extends Component<Props, State> {
 
     private readonly setProfile = (userID: number|undefined, userid: number|undefined) => {
 
-        
         if(userid != undefined) {
             this.getProfile(userid).then(data => {
                 let displayProfile = data.user[0];
@@ -79,7 +78,6 @@ export class Profile extends Component<Props, State> {
                     }
 
                     this.getProfile(userID).then(data => {
-                        console.log('profile: ', displayProfile);
                         this.setState({
                             displayProfile: displayProfile,
                             userProfile: data.user[0]
@@ -93,7 +91,6 @@ export class Profile extends Component<Props, State> {
                     
                     let displayProfile = data.user[0];
                     displayProfile['isUser'] = true;
-                    console.log('profile: ', displayProfile);
                     this.setState({
                         displayProfile: displayProfile,
                         userProfile: displayProfile
@@ -101,6 +98,10 @@ export class Profile extends Component<Props, State> {
                 });
             }
         }
+    }
+
+    private readonly updateUserProfile = () => {
+        this.setProfile(this.props.userID, undefined);
     }
 
     private readonly getProfile = async (userId: number) => {
@@ -119,6 +120,8 @@ export class Profile extends Component<Props, State> {
         this.props.history.push(v);
     };
 
+
+
     public render(): ReactNode {
         return (
             <Container fluid className="profile">
@@ -132,7 +135,7 @@ export class Profile extends Component<Props, State> {
                         />
                         <Route
                             path="/profile/edit"
-                            render={props => <Edit {...props} updateDisplayName={this.props.updateDisplayName} />}
+                            render={props => <Edit {...props} updateDisplayName={this.props.updateDisplayName} userProfile={this.state.userProfile} updateUserProfile={this.updateUserProfile}/>}
                         />
                         <Route path="/profile/events" component={Events} />
                         <Route path="/profile/listings" component={Listings} />
