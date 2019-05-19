@@ -39,34 +39,38 @@ interface Props {}
 // tempEvent is a clone of the selected event for editing
 interface State {
   create?: boolean;
+  edit?: boolean;
   readMode?: boolean;
   title: string;
   description: string;
-  start: Date | null;
-  end: Date | null;
+  start: Date;
+  end: Date;
   userID: number | undefined;
 
   events: any;
   tempEvent: any;
+  errors: any;
   style: any;
   height: any;
   alert: any;
 }
 
 export class Calendar extends Component<Props, State> {
-  constructor(props: Props) {
+  constructor(props: Props) {    
     super(props);
     this.state = {
       userID: undefined,
       create: false,
+      edit: false,
       readMode: false,
       title: "",
       description: "",
-      start: null,
-      end: null,
+      start: new Date(),
+      end: new Date(),
 
       events: [],
       tempEvent: {},
+      errors: {},
       style: "",
       height: "100vh",
       alert: null
@@ -131,19 +135,45 @@ export class Calendar extends Component<Props, State> {
     this.setState({ description: e.target.value });
   };
 
+  private setStartTime = (e: any) => {
+    console.log(e._d);
+    this.setState({ start: e._d });
+  };
+  private setEndTime = (e: any) => {
+    console.log(e._d);
+    this.setState({ end: e._d });
+  };
+
   private createEvent = (e: any) => {
     this.setState({ create: true, start: e.start, end: e.end });
   };
 
+  private validate = () => {
+    const errors: any = {};
+    const { title } = this.state;
+    if (title.trim() === "") errors.title = "Title is required.";
+    const { description } = this.state;
+    if (description.trim() === "")
+      errors.description = "Description is required.";
+
+    return Object.keys(errors).length === 0 ? {} : errors;
+  };
+
   private submitForm = async () => {
+    const errors = this.validate();
+    console.log(errors);
+    this.setState({ errors: errors || {} });
     const data = await postJSON("/api/event", {
       title: this.state.title,
       description: this.state.description,
       start: this.state.start,
       end: this.state.end
     });
-    this.handleCloseCreate();
-    this.getEvents();
+    // TODO add div to handle error from data
+    if (Object.keys(errors).length === 0) {
+      this.handleCloseCreate();
+      this.getEvents();
+    }
   };
 
   private handleCloseCreate = () => {
@@ -152,8 +182,8 @@ export class Calendar extends Component<Props, State> {
       readMode: false,
       title: "",
       description: "",
-      start: null,
-      end: null
+      start: new Date(),
+      end: new Date(),
     });
   };
   private deleteEvent = async () => {
@@ -251,7 +281,7 @@ export class Calendar extends Component<Props, State> {
             }}
           />
         </div>
-        {/* Popup for create and delete event */}
+        {/* Popup for create*/}
         <Modal
           size="lg"
           show={this.state.create}
@@ -263,7 +293,88 @@ export class Calendar extends Component<Props, State> {
           <Modal.Body>
             <Form>
               <Form.Group>
-              <h6 className="title">Title</h6>
+                <h6 className="title">Title</h6>
+                <Form.Control
+                  type="text"
+                  value={this.state.tempEvent.title}
+                  onChange={this.setTitle}
+                />
+                {this.state.errors.title && (
+                  <div className="alert alert-danger">
+                    {this.state.errors.title}
+                  </div>
+                )}
+              </Form.Group>
+              <div>
+                <Row>
+                  <Col md={6}>
+                    <h6 className="title">Start</h6>
+                    <Form.Group>
+                      <Datetime
+                        inputProps={{ placeholder: "Datetime Picker Here" }}
+                        defaultValue={this.state.start}
+                        onChange={this.setStartTime}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <h6 className="title">End</h6>
+                    <Form.Group>
+                      <Datetime
+                        inputProps={{ placeholder: "Datetime Picker Here" }}
+                        defaultValue={this.state.end}
+                        onChange={this.setEndTime}
+
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </div>
+              <Form.Group>
+                <h6 className="title">Description</h6>
+                <Form.Control
+                  as="textarea"
+                  rows="3"
+                  value={this.state.tempEvent.description}
+                  onChange={this.setDescription}
+                />
+                {this.state.errors.description && (
+                  <div className="alert alert-danger">
+                    {this.state.errors.description}
+                  </div>
+                )}
+              </Form.Group>
+              {/* <Form.Group>
+                <Form.Label>Tags</Form.Label>
+                <Select
+                  options={this.state.optionTags}
+                  value={this.state.selectedTags}
+                  onChange={this.handleTagChange}
+                  isMulti={true}
+                />
+              </Form.Group> */}
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Form>
+              <ButtonToolbar>
+                <Button variant="outline-primary" onClick={this.submitForm}>
+                  Submit
+                </Button>
+              </ButtonToolbar>
+            </Form>
+          </Modal.Footer>
+        </Modal>
+        {/* *************************************************** */}
+        {/* Popup for editing Event */}
+        <Modal size="lg" show={this.state.edit} onHide={this.handleCloseCreate}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Event</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group>
+                <h6 className="title">Title</h6>
                 <Form.Control
                   type="text"
                   value={this.state.tempEvent.title}
@@ -293,7 +404,7 @@ export class Calendar extends Component<Props, State> {
                 </Row>
               </div>
               <Form.Group>
-              <h6 className="title">Description</h6>
+                <h6 className="title">Description</h6>
                 <Form.Control
                   as="textarea"
                   rows="3"
@@ -319,9 +430,12 @@ export class Calendar extends Component<Props, State> {
                   Submit
                 </Button>
                 &nbsp;&nbsp;
-                <Button variant="outline-danger" onClick={this.deleteEvent}>
-                  Delete
-                </Button>
+                {/* conditional rendering */}
+                {this.state.edit && (
+                  <Button variant="outline-danger" onClick={this.deleteEvent}>
+                    Delete
+                  </Button>
+                )}
               </ButtonToolbar>
             </Form>
           </Modal.Footer>
