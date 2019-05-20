@@ -56,7 +56,7 @@ interface State {
 }
 
 export class Calendar extends Component<Props, State> {
-  constructor(props: Props) {    
+  constructor(props: Props) {
     super(props);
     this.state = {
       userID: undefined,
@@ -161,18 +161,19 @@ export class Calendar extends Component<Props, State> {
 
   private submitForm = async () => {
     const errors = this.validate();
-    console.log(errors);
-    this.setState({ errors: errors || {} });
-    const data = await postJSON("/api/event", {
-      title: this.state.title,
-      description: this.state.description,
-      start: this.state.start,
-      end: this.state.end
-    });
     // TODO add div to handle error from data
     if (Object.keys(errors).length === 0) {
+      this.setState({ errors: {} });
+      const data = await postJSON("/api/event", {
+        title: this.state.title,
+        description: this.state.description,
+        start: this.state.start,
+        end: this.state.end
+      });
       this.handleCloseCreate();
       this.getEvents();
+    }else{
+      this.setState({ errors: errors });
     }
   };
 
@@ -183,7 +184,7 @@ export class Calendar extends Component<Props, State> {
       title: "",
       description: "",
       start: new Date(),
-      end: new Date(),
+      end: new Date()
     });
   };
   private deleteEvent = async () => {
@@ -324,7 +325,6 @@ export class Calendar extends Component<Props, State> {
                         inputProps={{ placeholder: "Datetime Picker Here" }}
                         defaultValue={this.state.end}
                         onChange={this.setEndTime}
-
                       />
                     </Form.Group>
                   </Col>
