@@ -6,6 +6,18 @@ import {Tag} from "../../entity/Tag";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 
+
+function toTagString(tags: Tag[]) {
+    let str = "Tags: ";
+    for (let i = 0; i < tags.length; ++i) {
+        str = str.concat(tags[i].name);
+        if (i < tags.length - 1) {
+            str = str.concat(", ");
+        }
+    }
+    return str;
+}
+
 export function route(app: Express, db: Connection) {
     app.get("/api/user/name", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
@@ -192,57 +204,6 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
-
-    // // Manage the user's commuter status
-    // // Post major data to the database. Currently TODO
-    // app.post("/api/user/on_campus", async (request: Request, response: Response) => {
-    //     // Parse the request body
-    //     if (typeof request.body !== "number") {
-    //         response.sendStatus(400);
-    //         return;
-    //     }
-    //     const body: any = request.body;
-
-    //     const user: User|undefined = request.user;
-
-    //     if (user != null) {
-    //         const profile: UserProfile|undefined = await user.profile;
-    //         // Find a major whose ID matches what is selected.
-    //         if (profile != null) {
-    //             // const incomingTag: Tag | undefined = await Tag.findOne({
-    //             //     where: {
-    //             //         id: incomingMajor
-    //             //     }
-    //             // });
-                
-    //             // // Tag should not be null
-    //             // if (incomingTag != null) {
-    //             //     profile.major = Promise.resolve(incomingTag);
-    //             //     await profile.save();
-    //             //     // Send success response
-    //             //     response.send(JSON.stringify({
-    //             //         success: true
-    //             //     }));
-    //             // } else {
-    //             //     // Send error response
-    //             //     response.send(JSON.stringify({
-    //             //         error: "Invalid ID for major tag."
-    //             //     }));
-    //             // }
-
-    //         } else {
-    //             // Send error response (profile has not been set up)
-    //             response.send(JSON.stringify({
-    //                 error: "Profile has not been set up."
-    //             }));
-    //         }
-    //     } else {
-    //         // User is not logged in
-    //         response.send(JSON.stringify({
-    //             error: "Not logged in."
-    //         }));
-    //     }
-    // });
     app.post("/api/user/interests", async (request: Request, response: Response) => {
         // Parse the request body
         if (typeof request.body !== "object") {
@@ -391,6 +352,150 @@ export function route(app: Express, db: Connection) {
                 // Send error response (profile has not been set up)
                 response.send(JSON.stringify({
                     error: "Profile has not been set up."
+                }));
+            }
+        } else {
+            // User is not logged in
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
+
+    app.post("/api/user/finduser", async (request: Request, response: Response) => {
+        let json : any
+        if(request.body.userId)     // If there is a userid to search
+        {
+            // Search the DB to find the user with the userID
+            const users: User[] = await User.find({
+                where: {
+                    id: request.body.userId
+                }
+            });
+ 
+            // Create an array of user(s) containing their ID, displayName, major
+            json = await Promise.all(users.map(async user => {
+                const userProfile: UserProfile|undefined = await user.profile;
+                let majorString = "Not Set";
+                let tagsString = "Tags: Not Set";
+                const creationDate = await user.creationDate
+                const events = await user.events
+                const listings = await user.listings
+                let descString = "Not Set"
+                let commuterString = "Not Set"
+                if (userProfile != null) {
+                    const description: string|null = await userProfile.description
+                    const majorTag: Tag | null = await userProfile.major;
+                    const interestTags: Tag[] = await userProfile.interests;
+                    const commuterStatus: boolean | null = await userProfile.isOnCampus;
+                    if (description != null) {
+                        descString = description
+                    }
+                    if (majorTag != null) {
+                        majorString = majorTag.name;
+                    }
+                    if (interestTags.length > 0) {
+                        tagsString = toTagString(interestTags);
+                    }
+                    if (commuterStatus != null) {
+                        if (commuterStatus == true) {
+                            commuterString = "On Campus"
+                        }
+                        else {
+                            commuterString = "Off Campus"
+                        }
+                    }
+                }
+                return {
+                    userID: user.id,
+                    displayName: user.displayName,
+                    major: majorString,
+                    tags: tagsString,
+                    creationDate: creationDate,
+                    events: events,
+                    listings: listings,
+                    description: descString,
+                    commuterStatus: commuterString,
+                };
+            }));
+        }
+        else{
+            response.sendStatus(400)
+            return;
+        }
+
+        response.send(JSON.stringify({
+            // Send back the array of found user(s)
+            user: json
+        }));
+    });
+
+    app.get("/api/user-profile/picture", async (request: Request, response: Response) => {
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const userProfile: UserProfile|undefined = await user.profile;
+            
+            if (userProfile != null) {
+                const userProfilePicture: string|null = await userProfile.picture;
+
+                if (userProfilePicture != null) {
+                    const picture = Buffer.from(userProfilePicture).toString('base64');
+                    
+                    response.send(JSON.stringify({
+                        picture: picture
+                    }));
+                } else {
+                    response.send(JSON.stringify({
+                        picture: ""
+                    }));
+                }
+            } else {
+                response.send(JSON.stringify({
+                    error: "User profile not found"
+                }));
+            }
+                
+        } else {
+            response.send(JSON.stringify({
+                error: "User not found"
+            }));
+        }
+    });
+    app.post("/api/user-profile/picture", async (request: Request, response: Response) => {
+
+        if (typeof request.body !== "object") {
+            response.sendStatus(400);
+            return;
+        }
+
+        // Get the request and the major.
+        const body: any = request.body;
+        const picture: unknown = Buffer.from(body.picture).toString('base64');;
+
+        // The incoming major should be a number.
+        if (typeof picture !== "string") {
+            response.sendStatus(400);
+            return;
+        }
+
+        const user: User | undefined = request.user;
+
+        if (user != null) {
+            const userProfile: UserProfile | undefined = await user.profile;
+
+            if (userProfile != null) {
+                
+                userProfile.picture = picture;
+                await userProfile.save();
+                
+                response.send(JSON.stringify({
+                    success: true
+                }));
+
+            } else {
+                
+                response.send(JSON.stringify({
+                    error: "Picture could not be saved."
                 }));
             }
         } else {

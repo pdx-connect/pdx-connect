@@ -105,7 +105,7 @@ export class Profile extends Component<Props, State> {
     }
 
     private readonly getProfile = async (userId: number) => {
-        const data = await postJSON("/api/search/finduser", {
+        const data = await postJSON("/api/user/finduser", {
             userId: userId,
         });
 

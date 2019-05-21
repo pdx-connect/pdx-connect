@@ -216,8 +216,9 @@ export class Edit extends Component<Props, State> {
                     picture: URL.createObjectURL(files[0]),
                     picture64: fileReader.result
                 });
+                this.update('picture', fileReader.result);
             }            
-        }
+        }        
     };
 
     private readonly update = async (e: string, v: string | null) => {
@@ -265,6 +266,20 @@ export class Edit extends Component<Props, State> {
             }
             case "optInEmail": {
                 console.log('optInEmail: ', v);
+                break;
+            }
+            case "picture": {
+                const data = await postJSON("/api/user-profile/picture", {
+                    picture: v
+                });
+
+                /*if (!('success' in data)) {
+                    this.error(e, true);
+                    return;
+                } else {
+                    this.props.updateUserProfile();
+                }*/
+                console.log('data in edit: ', data);
                 break;
             }
             case "description": {

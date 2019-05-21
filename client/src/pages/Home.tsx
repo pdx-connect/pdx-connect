@@ -55,6 +55,7 @@ interface State {
     windowWidth: number;
     windowHeight: number;
     conversations: ConversationEntry[];
+    picture: string;
 }
 
 /**
@@ -73,7 +74,8 @@ export class Home extends Page<Props, State> {
             finalSearchField: "",
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
-            conversations: []
+            conversations: [],
+            picture: ""
         };
         this.socket = null;
     }
@@ -94,6 +96,15 @@ export class Home extends Page<Props, State> {
             showOobe: !data.oobe
         });
     };
+
+    private readonly getUserProfilePicture = async () => {
+        const data = await getJSON("/api/user-profile/picture");
+        console.log('data: ', data);
+        this.setState({
+            picture: data.picture
+        });
+    };
+
 
     private readonly logUserOut = async() => {
         return fetch("/logout", {
@@ -197,6 +208,7 @@ export class Home extends Page<Props, State> {
         window.addEventListener('resize', this.updateDimensions);
         this.getUserOOBE().then();
         this.getUserProfileData().then();
+        this.getUserProfilePicture().then();
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
     }
@@ -219,6 +231,7 @@ export class Home extends Page<Props, State> {
         let minHeight = {minHeight: (this.state.windowHeight * .80).toString() + "px"};
         return (
         <Container fluid className="home">
+            {this.state.picture != "" ? <img src={this.state.picture} className="profile-picture-halfsize"/> : null}
             <Row className="home-top-row">
                 <Sidebar displayName={this.state.displayName} updateHistory={this.updateHistory}/>
                 <Col sm={1} md={1} className="home-top-left-col"></Col>
