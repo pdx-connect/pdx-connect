@@ -5,6 +5,7 @@ import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {User} from "../../entity/User";
 import {Tag} from "../../entity/Tag";
 import {Listing} from "../../entity/Listing";
+import { ListingComment } from "../../entity/ListingComment";
 
 
 interface listing {
@@ -17,6 +18,23 @@ interface listing {
     tags: Tag[],
     anonymous: boolean,
     timePosted: Date,
+}
+
+// Get the listing by its id
+async function parseListingByID(request: Request): Promise<Listing|null|undefined> {
+    const id: number = Number.parseInt(request.params.id);
+    if (Number.isNaN(id)) {
+        return void 0;
+    }
+    const listing: Listing|undefined = await Listing.findOne({
+        where: {
+            id: id
+        }
+    });
+    if (listing == null) {
+        return null;
+    }
+    return listing;
 }
 
 export function route(app: Express, db: Connection) {
@@ -228,6 +246,67 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify({
                 error: "Not logged in."
             }));
+        }
+    });
+    // Route for retrieving comments for a listing
+    app.get("/api/listing/:id/comments", async (request: Request, response: Response) => {
+        if (!request.isAuthenticated()) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        const listing: Listing|null|undefined = await parseListingByID(request);
+        if (listing === void 0) {
+            response.sendStatus(400);
+        } else if (listing === null) {
+            response.send(JSON.stringify("Event not found."));
+        } else {
+            const comments: ListingComment[] = await listing.comments;
+            response.send(JSON.stringify(comments.map(c => {
+                return {
+                    id: c.id,
+                    userID: c.userID,
+                    timePosted: c.time_posted,
+                    content: c.content
+                };
+            })));
+        }
+    });
+    app.post("/api/listing/:id/comment", async (request: Request, response: Response) => {
+        // Get the body of the message, validate formate
+        const body: {
+            content: string
+        } = request.body;
+        if (body == null) {
+            response.send(JSON.stringify("Recieved comment request with no body"));
+            return;
+        }
+        // Get the comment body
+        const content: string|undefined = body.content;
+        if (content == null) {
+            console.error("Recieved comment request with no content: ", body);
+            response.send(JSON.stringify("No comment provided"));
+            return;
+        }
+        // Get the userID to ensure that they are logged in
+        const user: User|undefined = await User.findOne({
+            where: {
+                id: request.user.id
+            }
+        });
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        // Retrieve the calendar event, verify that it was found
+        const listing: Listing|null|undefined = await parseListingByID(request);
+        if (listing === void 0) {
+            response.sendStatus(400);
+        } else if (listing === null) {
+            response.send(JSON.stringify("Listing not found."));
+        } else {
+            // Create and save the new comment
+            const comment: ListingComment = new ListingComment(listing, user, content);
+            comment.save();
         }
     });
 }

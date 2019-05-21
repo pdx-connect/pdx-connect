@@ -14,7 +14,6 @@ interface CommentFormat {
 
 // Properties passed in from parent
 interface Props {
-    comments?: CommentFormat[];
     type: "event"|"listing";
     id: number;
 }
@@ -24,25 +23,6 @@ interface State {
     commentText: string;
     comments: CommentFormat[];
 }
-
-const hardCodeComments = [
-    {
-        id: 0,
-        userID: 10,
-        timePosted: new Date(),
-        content: "Comment 1",
-    },{
-        id: 0,
-        userID: 4,
-        timePosted: new Date(),
-        content: "Comment 2",
-    },{
-        id: 0,
-        userID: 6,
-        timePosted: new Date(),
-        content: "Comment 3",
-    }
-];
 
 /**
  * 
@@ -67,12 +47,17 @@ export class CommentBox extends Component<Props, State> {
             // Format the middle portion of the server route
             let middle: string = this.props.type + "/" + this.props.id;
 
+            // Send the comment to the server
             let response: Response = await fetch("/api/" + middle + "/comment", {
                 method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     content: this.state.commentText
                 })
             });
+
             // Reset the commentText field
             this.setState({commentText: ""});
         } else {
@@ -86,6 +71,7 @@ export class CommentBox extends Component<Props, State> {
         this.setState({commentText: e.target.value});
     };
 
+    // Renders the actual comments themselves
     private readonly renderComments = () => {
         let toRender = [];
         // Render the comments
@@ -99,6 +85,7 @@ export class CommentBox extends Component<Props, State> {
         return toRender;
     };
 
+    // Renders a form for comment text and a submit button
     private readonly renderBottom = () => {
         // Render Text Box
         return (
@@ -123,11 +110,9 @@ export class CommentBox extends Component<Props, State> {
 
     }
 
-    /**
-     * @override
-     */
-
-    public componentDidMount = async () => {
+    // Fetches comments from the server based on which type of object these comments
+    //   belong to, and that object's ID
+    private readonly fetchComments = async () => {
         // Format the middle portion of the server route
         let middle: string = this.props.type + '/' + this.props.id;
         // Request the comments for this box from the server 
@@ -141,6 +126,20 @@ export class CommentBox extends Component<Props, State> {
             throw comments;
         }
         this.setState({comments: comments});
+    }
+
+    /**
+     * @override
+     */
+    public componentDidMount = async () => {
+        this.fetchComments();
+    }
+
+    /**
+     * @override
+     */
+    public componentDidUpdate = async () => {
+        this.fetchComments();
     }
     
     /**

@@ -126,13 +126,11 @@ export function route(app: Express, db: Connection) {
         }
     });
     app.post("/api/event/:id/comment", async (request: Request, response: Response) => {
-        console.log("Recieved comment attempt");
         // Get the body of the message, validate formate
         const body: {
             content: string
         } = request.body;
         if (body == null) {
-            console.error("Body not valid: ", body);
             response.send(JSON.stringify("Recieved comment request with no body"));
             return;
         }
@@ -143,7 +141,6 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("No comment provided"));
             return;
         }
-        console.log("Got body");
         // Get the userID to ensure that they are logged in
         const user: User|undefined = await User.findOne({
             where: {
@@ -154,7 +151,6 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        console.log("Found user");
         // Retrieve the calendar event, verify that it was found
         const event: CalendarEvent|null|undefined = await parseEventByID(request);
         if (event === void 0) {
@@ -163,10 +159,8 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Event not found."));
         } else {
             // Create and save the new comment
-            console.log("Got the event");
             const comment: CalendarEventComment = new CalendarEventComment(event, user, new Date(), content);
             comment.save();
-            console.log("Saved the comment");
         }
     });
 }

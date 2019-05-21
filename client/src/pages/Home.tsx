@@ -191,7 +191,7 @@ export class Home extends Page<Props, State> {
                 </Col>
             </Row>
             <Row>
-                <CommentBox type="event" id={4}></CommentBox>
+                <CommentBox type="listing" id={21}></CommentBox>
             </Row>
             <Row className="home-main">
                 <Col sm={10} md={10} className="home-main-content">
