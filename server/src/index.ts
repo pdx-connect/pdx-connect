@@ -195,7 +195,7 @@ function generateSessionKey(): string {
     // Initialize Express app
     const port: number = serverConfig.port || 9999;
     const app: Express = express();
-    
+
     // Serve static files from the public directory
     app.use(express.static(publicDirectory));
     
@@ -207,7 +207,8 @@ function generateSessionKey(): string {
         // TODO May need to configure this session more (secure cookies, proxy, session store, etc)
     }));
     app.use(bodyParser.json({
-        strict: false
+        strict: false,
+        limit: '50mb'
     }));
     app.use(passport.initialize());
     app.use(passport.session());

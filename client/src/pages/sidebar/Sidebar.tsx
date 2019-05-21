@@ -2,6 +2,7 @@ import * as React from "react";
 import {Component, ReactNode} from "react";
 import { FaHome, FaUser, FaCalendar, FaClipboard, FaMailBulk} from 'react-icons/fa';
 import { slide as Menu } from 'react-burger-menu';
+import {getJSON} from "../../util/json";
 
 import "./Sidebar.css";
 
@@ -12,6 +13,7 @@ interface Props {
 }
 
 interface State {
+    picture: string;
 }
 
 /**
@@ -21,8 +23,27 @@ export class Sidebar extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);
-        this.state = {};
+        this.state = {
+            picture: ""
+        };
     }
+
+        /**
+     * @override
+     */
+    public async componentDidMount() {
+        this.getUserProfilePicture().then(picture => {
+            console.log('picture returned: ', picture);
+            this.setState({
+                picture: picture
+            });
+        });
+    }
+
+    private readonly getUserProfilePicture = async () => {
+        const data = await getJSON("/api/user-profile/picture");
+        return data.picture;
+    };
 
     /**
      * @override
@@ -33,11 +54,18 @@ export class Sidebar extends Component<Props, State> {
             displayName = "";
         }
 
+        console.log("picture render: ", this.state.picture);
+
         return (
                 <Menu width={'25%'}>
                     <span className="space"></span>
                     <span className="sidebarProfileImg">
-                        <img className="userImage" src="../resources/matilda.png"></img>
+                        {this.state.picture === "" ?
+                            <img className="userImage" id="img" src="../resources/matilda.png" alt="user picture"></img>
+                            :
+                            <img className="userImage" id="img" src={this.state.picture} alt="user picture"></img>
+                        }
+
                         <h3 className="greeting"><span className="hi">hi</span> {displayName}</h3>
                     </span>
                     <span className="sidebarMenuItem" onClick={() => this.props.updateHistory("/")}><FaHome className="icon" /><span className="sidebarMenuItemTitle">home</span></span>

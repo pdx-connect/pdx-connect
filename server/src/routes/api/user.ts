@@ -439,11 +439,12 @@ export function route(app: Express, db: Connection) {
                 const userProfilePicture: string|null = await userProfile.picture;
 
                 if (userProfilePicture != null) {
-                    const picture = Buffer.from(userProfilePicture).toString('base64');
+                    const picture = await Buffer.from(userProfilePicture).toString('base64');
                     
                     response.send(JSON.stringify({
                         picture: picture
                     }));
+                    
                 } else {
                     response.send(JSON.stringify({
                         picture: ""
