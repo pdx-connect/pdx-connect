@@ -14,6 +14,7 @@ import {Inbox} from "./inbox/Inbox";
 import {SearchResults} from "./search-results/SearchResults";
 import {Oobe} from "./oobe/Oobe";
 import {getJSON} from "../util/json";
+import {Socket} from "./Socket";
 
 import "./Home.css";
 
@@ -22,18 +23,37 @@ interface Props extends RouteComponentProps {
     
 }
 
+interface ServerMessage {
+    from: number;
+    timeSent: Date;
+    content: string;
+}
+
+export interface Message {
+    userID: number;
+    timeSent: Date;
+    text: string;
+    seen: boolean;
+}
+
+export interface ConversationEntry {
+    conversationID: number;
+    lastSeen: Date|undefined;
+    entries: Message[];
+}
+
 interface State {
     showMessages: boolean;
     showNotifications: boolean;
     showOobe: boolean;
-    messages: object;
     alerts: object;
     searchField?: string;
     displayName?: string;
     finalSearchField: string;
     userID?: number;
-    windowWidth: number,
-    windowHeight: number,
+    windowWidth: number;
+    windowHeight: number;
+    conversations: ConversationEntry[];
 }
 
 /**
@@ -44,7 +64,6 @@ export class Home extends Page<Props, State> {
     constructor(props: Props) {
         super(props);   
         this.state = {
-            messages: {},
             alerts: {},
             searchField: "",
             showMessages: false,
@@ -53,8 +72,12 @@ export class Home extends Page<Props, State> {
             finalSearchField: "",
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
+            conversations: []
         };
+        this.socket = null;
     }
+
+    protected socket: Socket|null;
     
     private readonly getUserProfileData = async () => {
         const data = await getJSON("/api/user/name");
@@ -123,15 +146,61 @@ export class Home extends Page<Props, State> {
             windowHeight: window.innerHeight
         });
     }
+
+    private readonly getSendMessages = () => {
+        if (this.socket) {
+            return this.socket.sendMessage;
+        } else { 
+            return () => {};
+        }
+    };
+
+    private readonly getGetMoreMessages = () => {
+        if (this.socket) {
+            return this.socket.getMoreMessages;
+        } else {
+            return () => {};
+        }
+    };
+
+    private readonly getSeenRecent = () => {
+        if (this.socket) {
+            return this.socket.seenRecent;
+        } else {
+            return () => {};
+        }
+    };
+
+    private readonly getGetParticipants = () => {
+        if (this.socket) {
+            return this.socket.getParticipants;
+        } else {
+            return (conversationID: number) => {
+                let promise: Promise<Map<number,string>> = new Promise((resolve, reject) => {
+                    resolve(new Map<number,string>());
+                });
+                return promise;
+//                return new Map<number,string>();
+            };
+        }
+    };
+
+    private readonly updateMessages = (messages: ConversationEntry[]) => {
+        this.setState({conversations: messages});
+    }
     
     /**
      * @override
      */
-    public componentDidMount() {
+    public async componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
         window.addEventListener('resize', this.updateDimensions);
         this.getUserOOBE().then();
         this.getUserProfileData().then();
+        this.socket = new Socket(this.updateMessages);
+        await this.socket.getUnreadMessages();
+        console.log("In home component did mount");
+        console.log(this.state.conversations);
     }
     
     /**
@@ -146,7 +215,7 @@ export class Home extends Page<Props, State> {
      * @override
      */
     public render(): ReactNode {
-        const messages = Object.keys(this.state.messages);
+        const messages = [];
         const notifications = Object.keys(this.state.alerts);
 
         let minHeight = {minHeight: (this.state.windowHeight * .80).toString() + "px"};
@@ -185,7 +254,6 @@ export class Home extends Page<Props, State> {
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
-                        
                 </Col>
             </Row>
             <Row className="home-main">
@@ -202,7 +270,14 @@ export class Home extends Page<Props, State> {
                                     path="/calendar" component={Calendar}
                                 />
                                 <Route path="/listings" component={Listings} />
-                                <Route path="/inbox" component={Inbox} />
+                                <Route path="/inbox"
+                                       render={(props) => <Inbox {...props} conversations={this.state.conversations}
+                                                                 sendMessage={this.getSendMessages()}
+                                                                 getMoreMessages={this.getGetMoreMessages()}
+                                                                 seenRecent={this.getSeenRecent()}
+                                                                 userID={this.state.userID ? this.state.userID : 0}
+                                                                 getParticipants={this.getGetParticipants()}/>}
+                                />
                                 <Route
                                     path="/search-results"
                                     render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}
