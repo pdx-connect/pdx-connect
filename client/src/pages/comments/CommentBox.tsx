@@ -69,7 +69,9 @@ export class CommentBox extends Component<Props, State> {
 
             let response: Response = await fetch("/api/" + middle + "/comment", {
                 method: "POST",
-                body: this.state.commentText
+                body: JSON.stringify({
+                    content: this.state.commentText
+                })
             });
             // Reset the commentText field
             this.setState({commentText: ""});
