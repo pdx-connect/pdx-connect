@@ -14,6 +14,8 @@ import {Inbox} from "./inbox/Inbox";
 import {SearchResults} from "./search-results/SearchResults";
 import {Oobe} from "./oobe/Oobe";
 import {getJSON} from "../util/json";
+import {Comment} from "./comments/Comment";
+import {CommentBox} from "./comments/CommentBox";
 
 import "./Home.css";
 
@@ -187,6 +189,9 @@ export class Home extends Page<Props, State> {
                         </Modal>
                         
                 </Col>
+            </Row>
+            <Row>
+                <CommentBox type="event" id={4}></CommentBox>
             </Row>
             <Row className="home-main">
                 <Col sm={10} md={10} className="home-main-content">

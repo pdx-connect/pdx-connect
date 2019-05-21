@@ -11,7 +11,7 @@ interface listing {
     id: number,
     userID: number,
     username: string,
-    // userProfile: UserProfile|undefined,
+    // userProfile: UserProfile|undefined, 
     title: string,
     description: string,
     tags: Tag[],

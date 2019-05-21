@@ -3,6 +3,7 @@ import {Connection} from "typeorm";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 import {Tag} from "../../entity/Tag";
 import {CalendarEventComment} from "../../entity/CalendarEventComment";
+import {User} from "../../entity/User"
 
 async function parseEventByID(request: Request): Promise<CalendarEvent|null|undefined> {
     const id: number = Number.parseInt(request.params.id);
@@ -100,7 +101,7 @@ export function route(app: Express, db: Connection) {
         }
     });
     app.post("/api/event/:id/tags", async (request: Request, response: Response) => {
-        // TODO Set the tags for a single event
+        // TODO Set the tags for a single event 
     });
     app.get("/api/event/:id/comments", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
@@ -125,6 +126,47 @@ export function route(app: Express, db: Connection) {
         }
     });
     app.post("/api/event/:id/comment", async (request: Request, response: Response) => {
-        // TODO Create a new comment for an event
+        console.log("Recieved comment attempt");
+        // Get the body of the message, validate formate
+        const body: {
+            content: string
+        } = request.body;
+        if (body == null) {
+            console.error("Body not valid: ", body);
+            response.send(JSON.stringify("Recieved comment request with no body"));
+            return;
+        }
+        // Get the comment body
+        const content: string|undefined = body.content;
+        if (content == null) {
+            console.error("Recieved comment request with no content: ", body);
+            response.send(JSON.stringify("No comment provided"));
+            return;
+        }
+        console.log("Got body");
+        // Get the userID to ensure that they are logged in
+        const user: User|undefined = await User.findOne({
+            where: {
+                id: request.user.id
+            }
+        });
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        console.log("Found user");
+        // Retrieve the calendar event, verify that it was found
+        const event: CalendarEvent|null|undefined = await parseEventByID(request);
+        if (event === void 0) {
+            response.sendStatus(400);
+        } else if (event === null) {
+            response.send(JSON.stringify("Event not found."));
+        } else {
+            // Create and save the new comment
+            console.log("Got the event");
+            const comment: CalendarEventComment = new CalendarEventComment(event, user, new Date(), content);
+            comment.save();
+            console.log("Saved the comment");
+        }
     });
 }
