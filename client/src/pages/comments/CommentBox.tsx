@@ -1,8 +1,8 @@
 import * as React from "react";
 import {Container, Row, Col, Button, Form} from "react-bootstrap";
 import {Component, ReactNode} from "react";
-
 import {Comment} from "./Comment"
+import {RouteChildrenProps} from "react-router";
 
 // Comment format, used to communicate between client and server
 interface CommentFormat {
@@ -13,7 +13,7 @@ interface CommentFormat {
 }
 
 // Properties passed in from parent
-interface Props {
+interface Props extends RouteChildrenProps {
     type: "event"|"listing";
     id: number;
 }
@@ -78,7 +78,7 @@ export class CommentBox extends Component<Props, State> {
         for (let i = 0; i < this.state.comments.length; ++i) {
             toRender.push(
                 <Row>
-                    <Comment comment={this.state.comments[i]}></Comment>
+                    <Comment comment={this.state.comments[i]} history={this.props.history} match={this.props.match} location={this.props.location}></Comment>
                 </Row>
             );
         }

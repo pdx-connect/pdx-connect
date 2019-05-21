@@ -1,7 +1,9 @@
 import * as React from "react";
 import {Container, Row, Col, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
- 
+import {RouteChildrenProps} from "react-router";
+
+
 interface CommentFormat {
     id: number,
     userID: number,
@@ -9,7 +11,7 @@ interface CommentFormat {
     content: string
 }
 
-interface Props {
+interface Props extends RouteChildrenProps{
     comment: CommentFormat;
 }
 
@@ -27,6 +29,11 @@ export class Comment extends Component<Props, State> {
         };
     }
 
+    private readonly onClick = () => {
+        let profilePath = "/profile/" + this.props.comment.userID;
+        this.props.history.push(profilePath);
+        return;
+    }
   
     
     /**
@@ -37,7 +44,7 @@ export class Comment extends Component<Props, State> {
         return (
             <Container>
                 <Row className='comment-user-and-timestamp'>
-                    <Col className='comment-user'>{this.props.comment.userID}</Col>
+                    <Col className='comment-user' onClick={this.onClick}> {this.props.comment.userID} </Col>
                     <Col className='comment-timestamp'>{this.props.comment.timePosted}</Col>
                 </Row>
                 <Row className='comment-body'>

@@ -191,7 +191,7 @@ export class Home extends Page<Props, State> {
                 </Col>
             </Row>
             <Row>
-                <CommentBox type="listing" id={21}></CommentBox>
+                <CommentBox type="listing" id={21} history={this.props.history} match={this.props.match} location={this.props.location}></CommentBox>
             </Row>
             <Row className="home-main">
                 <Col sm={10} md={10} className="home-main-content">
