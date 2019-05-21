@@ -53,7 +53,7 @@ export function route(app: Express, db: Connection) {
       response.send(JSON.stringify("Not logged in."));
       return;
     }
-// TODO add all day event flag to the db
+
     const user: User | undefined = request.user;
     const body = request.body;
     const title = body.title;
@@ -66,6 +66,30 @@ export function route(app: Express, db: Connection) {
 
     response.send(JSON.stringify("Success"));
     return;
+  });
+
+  app.put("/api/event/:id", async (request: Request, response: Response) => {
+    if (!request.isAuthenticated()) {
+      response.send(JSON.stringify("Not logged in."));
+      return;
+    }
+    const event: CalendarEvent | null | undefined = await parseEventByID(
+      request
+    );
+    if (event === void 0) {
+      response.sendStatus(400);
+    } else if (event === null) {
+      response.send(JSON.stringify("Event not found."));
+    } else {
+      event.title = request.body.title;
+      event.description = request.body.description;
+      event.start = request.body.start;
+      event.end = request.body.end; 
+      await event.save();
+      response.send(JSON.stringify({
+        success: true
+    }));
+    }
   });
 
   app.delete("/api/event/:id", async (request: Request, response: Response) => {
@@ -89,7 +113,6 @@ export function route(app: Express, db: Connection) {
 
     }
   });
-
 
   app.get("/api/event/:id", async (request: Request, response: Response) => {
     if (!request.isAuthenticated()) {

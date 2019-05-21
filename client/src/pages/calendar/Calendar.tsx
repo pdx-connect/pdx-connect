@@ -30,7 +30,7 @@ import "./style/react-datetime.css";
 
 import NavBar from "./NavBar";
 import * as EventService from "./services/EventService";
-import { getJSON, postJSON, deleteJSON } from "../../util/json";
+import { getJSON, postJSON, deleteJSON, updateJSON } from "../../util/json";
 
 const localizer = BigCalendar.momentLocalizer(moment);
 
@@ -46,6 +46,7 @@ interface State {
   start: Date;
   end: Date;
   userID: number | undefined;
+  _id: number | undefined;
 
   events: any;
   tempEvent: any;
@@ -60,6 +61,7 @@ export class Calendar extends Component<Props, State> {
     super(props);
     this.state = {
       userID: undefined,
+      _id: undefined,
       create: false,
       edit: false,
       readMode: false,
@@ -136,11 +138,9 @@ export class Calendar extends Component<Props, State> {
   };
 
   private setStartTime = (e: any) => {
-    console.log(e._d);
     this.setState({ start: e._d });
   };
   private setEndTime = (e: any) => {
-    console.log(e._d);
     this.setState({ end: e._d });
   };
 
@@ -172,8 +172,39 @@ export class Calendar extends Component<Props, State> {
       });
       this.handleCloseCreate();
       this.getEvents();
-    }else{
+    } else {
       this.setState({ errors: errors });
+    }
+  };
+
+  private submitChanges = async () => {
+    const eventIndex = this.state.events.findIndex(
+      (an_event: any) => an_event._id === this.state._id
+    );
+    const cloneEvent = { ...this.state.events[eventIndex] };
+    const { title, description, start, end } = this.state;
+    if (
+      cloneEvent.title !== title ||
+      cloneEvent.description !== description ||
+      cloneEvent.start !== start ||
+      cloneEvent.end !== end
+    ) {
+      const errors = this.validate();
+      // TODO add div to handle error from data
+      if (Object.keys(errors).length === 0) {
+        this.setState({ errors: {} });
+        const buildPath = "/api/event/" + cloneEvent._id.toString();
+        const data = await updateJSON(buildPath, {
+          title: title,
+          description: description,
+          start: start,
+          end: end
+        });
+        this.handleCloseCreate();
+        this.getEvents();
+      } else {
+        this.setState({ errors: errors });
+      }
     }
   };
 
@@ -181,22 +212,26 @@ export class Calendar extends Component<Props, State> {
     this.setState({
       create: false,
       readMode: false,
+      edit: false,
       title: "",
       description: "",
       start: new Date(),
-      end: new Date()
+      end: new Date(),
+      errors: {}
     });
   };
   private deleteEvent = async () => {
-    const buildPath = "/api/event/" + this.state.tempEvent._id.toString();
-    const data = await deleteJSON(buildPath);
-    const newEvents = this.state.events.filter((e: any) => {
-      return e._id != this.state.tempEvent._id;
-    });
-    this.setState({
-      events: newEvents,
-      create: false
-    });
+    if (this.state._id !== undefined) {
+      const buildPath = "/api/event/" + this.state._id.toString();
+      const data = await deleteJSON(buildPath);
+      const newEvents = this.state.events.filter((e: any) => {
+        return e._id != this.state._id;
+      });
+      this.setState({
+        events: newEvents
+      });
+      this.handleCloseCreate();
+    }
   };
 
   private getEvents = async () => {
@@ -231,10 +266,13 @@ export class Calendar extends Component<Props, State> {
         (an_event: any) => an_event._id === e._id
       );
       const cloneEvent = { ...this.state.events[eventIndex] };
-      console.log(cloneEvent);
       this.setState({
-        tempEvent: cloneEvent,
-        create: true
+        _id: cloneEvent._id,
+        title: cloneEvent.title,
+        description: cloneEvent.title,
+        start: cloneEvent.start,
+        end: cloneEvent.end,
+        edit: true
       });
     } else {
       // show event details
@@ -263,6 +301,7 @@ export class Calendar extends Component<Props, State> {
     this.getEvents().then();
     this.getUserID().then();
   }
+
   public render(): ReactNode {
     return (
       <div className="main-content">
@@ -282,11 +321,12 @@ export class Calendar extends Component<Props, State> {
             }}
           />
         </div>
-        {/* Popup for create*/}
+        {/* Modal for creating Event*/}
         <Modal
           size="lg"
           show={this.state.create}
           onHide={this.handleCloseCreate}
+          backdrop="static"
         >
           <Modal.Header closeButton>
             <Modal.Title>Create Event</Modal.Title>
@@ -297,7 +337,7 @@ export class Calendar extends Component<Props, State> {
                 <h6 className="title">Title</h6>
                 <Form.Control
                   type="text"
-                  value={this.state.tempEvent.title}
+                  value={this.state.title}
                   onChange={this.setTitle}
                 />
                 {this.state.errors.title && (
@@ -335,7 +375,7 @@ export class Calendar extends Component<Props, State> {
                 <Form.Control
                   as="textarea"
                   rows="3"
-                  value={this.state.tempEvent.description}
+                  value={this.state.description}
                   onChange={this.setDescription}
                 />
                 {this.state.errors.description && (
@@ -366,8 +406,13 @@ export class Calendar extends Component<Props, State> {
           </Modal.Footer>
         </Modal>
         {/* *************************************************** */}
-        {/* Popup for editing Event */}
-        <Modal size="lg" show={this.state.edit} onHide={this.handleCloseCreate}>
+        {/* Modal for editing Event */}
+        <Modal
+          size="lg"
+          show={this.state.edit}
+          onHide={this.handleCloseCreate}
+          backdrop="static"
+        >
           <Modal.Header closeButton>
             <Modal.Title>Edit Event</Modal.Title>
           </Modal.Header>
@@ -377,9 +422,14 @@ export class Calendar extends Component<Props, State> {
                 <h6 className="title">Title</h6>
                 <Form.Control
                   type="text"
-                  value={this.state.tempEvent.title}
+                  value={this.state.title}
                   onChange={this.setTitle}
                 />
+                {this.state.errors.title && (
+                  <div className="alert alert-danger">
+                    {this.state.errors.title}
+                  </div>
+                )}
               </Form.Group>
               <div>
                 <Row>
@@ -388,7 +438,8 @@ export class Calendar extends Component<Props, State> {
                     <Form.Group>
                       <Datetime
                         inputProps={{ placeholder: "Datetime Picker Here" }}
-                        defaultValue={new Date()}
+                        defaultValue={this.state.start}
+                        onChange={this.setStartTime}
                       />
                     </Form.Group>
                   </Col>
@@ -397,7 +448,8 @@ export class Calendar extends Component<Props, State> {
                     <Form.Group>
                       <Datetime
                         inputProps={{ placeholder: "Datetime Picker Here" }}
-                        defaultValue={new Date()}
+                        defaultValue={this.state.end}
+                        onChange={this.setEndTime}
                       />
                     </Form.Group>
                   </Col>
@@ -408,9 +460,14 @@ export class Calendar extends Component<Props, State> {
                 <Form.Control
                   as="textarea"
                   rows="3"
-                  value={this.state.tempEvent.description}
+                  value={this.state.description}
                   onChange={this.setDescription}
                 />
+                {this.state.errors.description && (
+                  <div className="alert alert-danger">
+                    {this.state.errors.description}
+                  </div>
+                )}
               </Form.Group>
               {/* <Form.Group>
                 <Form.Label>Tags</Form.Label>
@@ -426,8 +483,8 @@ export class Calendar extends Component<Props, State> {
           <Modal.Footer>
             <Form>
               <ButtonToolbar>
-                <Button variant="outline-primary" onClick={this.submitForm}>
-                  Submit
+                <Button variant="outline-primary" onClick={this.submitChanges}>
+                  Submit Changes
                 </Button>
                 &nbsp;&nbsp;
                 {/* conditional rendering */}
