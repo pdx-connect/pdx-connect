@@ -13,7 +13,8 @@ interface Props {
 }
 
 interface State {
-    picture: string;
+    picture: Blob | null | string;
+    src: null | string;
 }
 
 /**
@@ -24,7 +25,8 @@ export class Sidebar extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            picture: ""
+            picture: null,
+            src: null
         };
     }
 
@@ -33,16 +35,40 @@ export class Sidebar extends Component<Props, State> {
      */
     public async componentDidMount() {
         this.getUserProfilePicture().then(picture => {
-            console.log('picture returned: ', picture);
+           
+            //const blob = this.b64toBlob(picture, "application/json");
+
             this.setState({
-                picture: picture
+                //picture: blob,
+                src: picture
             });
         });
     }
 
+    private readonly b64toBlob = (b64Data: any, contentType='', sliceSize=512) => {
+        const byteCharacters = atob(b64Data);
+        const byteArrays = [];
+      
+        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+          const slice = byteCharacters.slice(offset, offset + sliceSize);
+      
+          const byteNumbers = new Array(slice.length);
+          for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+          }
+      
+          const byteArray = new Uint8Array(byteNumbers);
+          byteArrays.push(byteArray);
+        }
+      
+        const blob = new Blob(byteArrays, {type: contentType});
+        return blob;
+      }
+
     private readonly getUserProfilePicture = async () => {
         const data = await getJSON("/api/user-profile/picture");
-        return data.picture;
+        console.log(data);
+        return data.picture
     };
 
     /**
@@ -54,18 +80,23 @@ export class Sidebar extends Component<Props, State> {
             displayName = "";
         }
 
-        console.log("picture render: ", this.state.picture);
+        let url = null;
+        if(this.state.picture != null) {
+            url = this.state.picture && URL.createObjectURL(this.state.picture);
+        } else {
+            url = "../resources/matilda.png";
+        } 
+
+        console.log('url: ', url);
+        console.log('src: ', this.state.src);
+        
 
         return (
                 <Menu width={'25%'}>
                     <span className="space"></span>
                     <span className="sidebarProfileImg">
-                        {this.state.picture === "" ?
-                            <img className="userImage" id="img" src="../resources/matilda.png" alt="user picture"></img>
-                            :
-                            <img className="userImage" id="img" src={this.state.picture} alt="user picture"></img>
-                        }
-
+                            <img className="userImage" id="img" src={url} alt="user picture"></img>
+                            {this.state.src != null ? <img className="userImage" id="img-src" src={this.state.src} alt="base64 test"/>:null}
                         <h3 className="greeting"><span className="hi">hi</span> {displayName}</h3>
                     </span>
                     <span className="sidebarMenuItem" onClick={() => this.props.updateHistory("/")}><FaHome className="icon" /><span className="sidebarMenuItemTitle">home</span></span>

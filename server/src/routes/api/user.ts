@@ -439,8 +439,9 @@ export function route(app: Express, db: Connection) {
                 const userProfilePicture: string|null = await userProfile.picture;
 
                 if (userProfilePicture != null) {
-                    const picture = await Buffer.from(userProfilePicture).toString('base64');
-                    
+                    const picture64 = await Buffer.from(userProfilePicture).toString('base64');
+                    const picture = (new Buffer(picture64, 'base64')).toString('utf8');
+
                     response.send(JSON.stringify({
                         picture: picture
                     }));
@@ -471,7 +472,8 @@ export function route(app: Express, db: Connection) {
 
         // Get the request and the major.
         const body: any = request.body;
-        const picture: unknown = Buffer.from(body.picture).toString('base64');;
+        const picture64 =  await Buffer.from(body.picture).toString('base64');
+        const picture = (new Buffer(picture64, 'base64')).toString('utf8');
 
         // The incoming major should be a number.
         if (typeof picture !== "string") {
