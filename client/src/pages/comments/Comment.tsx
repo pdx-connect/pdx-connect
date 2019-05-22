@@ -7,6 +7,7 @@ import {RouteChildrenProps} from "react-router";
 interface CommentFormat {
     id: number,
     userID: number,
+    displayName: string,
     timePosted: Date,
     content: string
 }
@@ -44,7 +45,7 @@ export class Comment extends Component<Props, State> {
         return (
             <Container>
                 <Row className='comment-user-and-timestamp'>
-                    <Col className='comment-user' onClick={this.onClick}> {this.props.comment.userID} </Col>
+                    <Col className='comment-user' onClick={this.onClick}> {this.props.comment.displayName} </Col>
                     <Col className='comment-timestamp'>{this.props.comment.timePosted}</Col>
                 </Row>
                 <Row className='comment-body'>
