@@ -1,39 +1,41 @@
-.listings {
+@import "../root.css";
+
+.listings-listings {
 
 }
 
-.categoryCol {
+.listings-categoryCol {
     max-height: 600px;
-    background-color: lightgray;
+    background-color: var(--faint-contrast);
     overflow-y: scroll;
 }
 
-.listingCol {
+.listings-listingCol {
     height: 600px;
     overflow-y: scroll;
 }
 
-.createButton {
+.listings-createButton {
     padding-bottom: 5%;
     cursor: pointer;
 }
 
-.bookmarkButton {
+.listings-bookmarkButton {
     cursor: pointer;
 }
 
 
-.editButton {
+.listings-editButton {
     cursor: pointer;
 }
 
-.deleteButton {
+.listings-deleteButton {
     cursor: pointer;
 }
 
-.notComplete
+.listings-notComplete
 {
-    color: red;
+    color: var(--warning);
     text-transform: uppercase;
     letter-spacing: .2vw;
     text-align: center;
@@ -41,56 +43,58 @@
     font-family: 'Varela Round', sans-serif;
 }
 
-.myListingCheckbox {
+.listings-myListingCheckbox {
     
 }
 
 
-.theListing:hover {
+.listings-theListing:hover {
     text-decoration: underline;
-    color: lightseagreen;
+    color: var(--rainbow-blue);
 }
 
 
-.ID {
+.listings-ID {
     width: 7%;
 }
 
-.Title {
+.listings-Title {
     width: 40%;
 }
 
-.edit {
+.listings-edit {
     width: 20%;
 }
 
 
-.parentTag {
+.listings-parentTag {
     font-weight: bold;
     text-decoration: underline;
     cursor: pointer;
 }
 
-.childTag {
+.listings-childTag {
     cursor: pointer;
 }
 
+/* class from the library,
+    just to hide the default searchbox */
 .react-infinity-menu-default-search-input {
     display: none;
     visibility: hidden;
 }
 
-.infinity-menu-node-container {
+.listings-infinity-menu-node-container {
     width: 100%;
 	height: 40px;
 	padding-left: 10px;
     padding-top: 20px;
 }
 
-/* .infinity-menu-node-container label {
+/* .listings-infinity-menu-node-container label {
     display: inline-block;
 } */
 
-.infinity-menu-node-container:hover {
+.listings-infinity-menu-node-container:hover {
 	/* background-color: rgb(73, 73, 73); */
 }

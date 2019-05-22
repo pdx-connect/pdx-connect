@@ -32,7 +32,6 @@ interface State {
     tagTree: {
         id: number;
         name: string;
-        isOpen: boolean;
         children: Node[];
     }[];
     optionTags: OptionType[];
@@ -349,7 +348,7 @@ export class Listings extends Component<Props, State>{
                         <Form>
                             {this.state.isFormIncomplete ?
                                 <Form.Group>
-                                    <Form.Label className="notComplete">Fileds incomplete</Form.Label>
+                                    <Form.Label className="listings-notComplete">Fileds incomplete</Form.Label>
                                 </Form.Group>
                             : null }
 
@@ -486,13 +485,32 @@ export class Listings extends Component<Props, State>{
     };
   
     private readonly getTagTrees = async () => {
-        const data = await getJSON("/api/tags/tagTree");
+        var data = await getJSON("/api/tags/tagTree");
+
+        let final: any[] = [];
+        for(const head of data)
+        {
+            let temp:any[] = [];
+            temp = this.traverse(head, temp);
+            final.push(temp);
+        }
 
         this.setState({
-            tagTree: data,
+            tagTree: final,
             completed: true
         });
     };    
+
+    // Traverse the tree and add the property "isOpen"
+    private readonly traverse = (parent: any, TagTree: any[]):any[] => {
+        for(const child of parent.children)
+        {
+            child.isOpen = false;
+            let temp:any[] = this.traverse(child, TagTree);
+            TagTree.push(temp);
+        }
+        return parent;
+    }
 
 
     private readonly onNodeMouseClick = (event:any, tree:any, node:any, level:any, keyPath:any) => {
@@ -603,7 +621,7 @@ export class Listings extends Component<Props, State>{
         }
         
         views.push(
-            <tr className="theListing" onClick={this.handleShowView.bind(this, this.state.listings[i].id)}>
+            <tr className="listings-theListing" onClick={this.handleShowView.bind(this, this.state.listings[i].id)}>
                 <th>{this.state.listings[i].id}</th>
                 <th>{this.state.listings[i].title}</th>
                 <th>{tags}</th>
@@ -651,9 +669,9 @@ export class Listings extends Component<Props, State>{
                                 <Col md={4}>
                                     {this.state.bookmarked
                                         ?
-                                        <FaStar size="2vw" className="bookmarkButton" onClick={this.handleUnbookmark.bind(this, listing.id)}/> 
+                                        <FaStar size="2vw" className="listings-bookmarkButton" onClick={this.handleUnbookmark.bind(this, listing.id)}/> 
                                         :
-                                        <FaStarHalfAlt size="2vw" className="bookmarkButton" onClick={this.handleBookmark.bind(this, listing.id)}/> 
+                                        <FaStarHalfAlt size="2vw" className="listings-bookmarkButton" onClick={this.handleBookmark.bind(this, listing.id)}/> 
                                     }
                                 </Col>
                                 <Col md={4}>
@@ -683,10 +701,10 @@ export class Listings extends Component<Props, State>{
                         <Container>
                             <Row>
                                 <Col md={1}>
-                                    {editable? <FaPencilAlt size="1vw" className="editButton" onClick={this.handleEdit}/> : null}
+                                    {editable? <FaPencilAlt size="1vw" className="listings-editButton" onClick={this.handleEdit}/> : null}
                                 </Col>
                                 <Col md={1}>
-                                    {editable? <FaTrash size="1vw" className="deleteButton" onClick={this.handleDelete}/> : null}
+                                    {editable? <FaTrash size="1vw" className="listings-deleteButton" onClick={this.handleDelete}/> : null}
                                 </Col>
                                 <Col md={7}></Col>
                                 <Col md={3}>
@@ -737,10 +755,10 @@ export class Listings extends Component<Props, State>{
         let listingViews = this.createListingsView();
 
         return (
-            <Container fluid className="listings">
+            <Container fluid className="listings-listings">
                 <Row>
                     <Col md={2}>
-                        <FaPlus size="3vw" className="createButton" onClick={this.handleShowCreate}/>
+                        <FaPlus size="3vw" className="listings-createButton" onClick={this.handleShowCreate}/>
                     </Col>
                     <Col md={5}>Filter By ->  {this.state.filterTag}</Col>
                     <Col md={2}>
@@ -761,7 +779,7 @@ export class Listings extends Component<Props, State>{
                                 <Form.Check 
                                     type="checkbox" 
                                     label="My Listings" 
-                                    className="myListingCheckbox" 
+                                    className="listings-myListingCheckbox" 
                                     onClick={this.showOnlyMyListings}
                                     checked={this.state.myListings}
                                 />
@@ -771,19 +789,19 @@ export class Listings extends Component<Props, State>{
                 </Row>
 
                 <Row>
-                    <Col sm={2} className="categoryCol">
+                    <Col sm={2} className="listings-categoryCol">
                        {this.state.completed? this.createCategories() : null}
                     </Col>
-                    <Col sm={10} className="listingCol">
+                    <Col sm={10} className="listings-listingCol">
                         <Table responsive>
                             <thead>
                                 <tr>
-                                    <th className="ID">ID</th>
-                                    <th className="Title">Title</th>
-                                    <th className="Tags">Tags</th>
-                                    <th className="Author">Author</th>
-                                    <th className="Date">Date</th>
-                                    <th className="Reply">Reply</th>
+                                    <th className="listings-ID">ID</th>
+                                    <th className="listings-Title">Title</th>
+                                    <th className="listings-Tags">Tags</th>
+                                    <th className="listings-Author">Author</th>
+                                    <th className="listings-Date">Date</th>
+                                    <th className="listings-Reply">Reply</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -802,7 +820,7 @@ export class Listings extends Component<Props, State>{
                         <Form>
                             {this.state.isFormIncomplete ?
                                 <Form.Group>
-                                    <Form.Label className="notComplete">Fileds incomplete</Form.Label>
+                                    <Form.Label className="listings-notComplete">Fileds incomplete</Form.Label>
                                 </Form.Group>
                             : null }
 

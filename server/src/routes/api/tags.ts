@@ -10,7 +10,7 @@ interface TagData {
 interface Node {
     id: number;
     name: string;
-    isOpen: boolean;
+    // isOpen: boolean;
     children: Node[];
 };
 
@@ -101,7 +101,6 @@ export function route(app: Express, db: Connection) {
                     TagTree.push({
                         id: tag.id,
                         name: tag.name,
-                        isOpen: false,
                         children: []
                     });
                 }
@@ -142,7 +141,6 @@ export function route(app: Express, db: Connection) {
                 const temp: Node = {
                     id: child.id,
                     name: child.name,
-                    isOpen: false,
                     children: []
                 }
                 subtrees.push(temp);
