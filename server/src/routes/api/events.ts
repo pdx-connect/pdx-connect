@@ -4,6 +4,7 @@ import { CalendarEvent } from "../../entity/CalendarEvent";
 import { Tag } from "../../entity/Tag";
 import { CalendarEventComment } from "../../entity/CalendarEventComment";
 import { User } from "../../entity/User";
+import { EventAttending } from "../../entity/EventAttending";
 
 async function parseEventByID(
   request: Request
@@ -61,7 +62,13 @@ export function route(app: Express, db: Connection) {
     const start = body.start;
     const end = body.end;
     if (user != null) {
-      const newEvent: CalendarEvent = await (new CalendarEvent(user, title, description, start, end).save());
+      const newEvent: CalendarEvent = await new CalendarEvent(
+        user,
+        title,
+        description,
+        start,
+        end
+      ).save();
     }
 
     response.send(JSON.stringify("Success"));
@@ -84,11 +91,13 @@ export function route(app: Express, db: Connection) {
       event.title = request.body.title;
       event.description = request.body.description;
       event.start = request.body.start;
-      event.end = request.body.end; 
+      event.end = request.body.end;
       await event.save();
-      response.send(JSON.stringify({
-        success: true
-    }));
+      response.send(
+        JSON.stringify({
+          success: true
+        })
+      );
     }
   });
 
@@ -107,12 +116,74 @@ export function route(app: Express, db: Connection) {
     } else {
       event.deleted = true;
       await event.save();
-      response.send(JSON.stringify({
-        success: true
-    }));
-
+      response.send(
+        JSON.stringify({
+          success: true
+        })
+      );
     }
   });
+
+  app.get(
+    "/api/event/attending",
+    async (request: Request, response: Response) => {
+      if (!request.isAuthenticated()) {
+        response.send(JSON.stringify("Not logged in."));
+        return;
+      }
+
+      const eventAttending: EventAttending[] = await EventAttending.find();
+      // const allEvents = unfilteredEvents.filter(e => {
+      //   return e.deleted == false;
+      // });
+      response.send(
+        JSON.stringify(
+          eventAttending.map(e => {
+            return {
+              event_id: e.eventID,
+              userID: e.userID
+            };
+          })
+        )
+      );
+    }
+  );
+
+  app.post(
+    "/api/event/attending/:id",
+    async (request: Request, response: Response) => {
+      if (!request.isAuthenticated()) {
+        response.send(JSON.stringify("Not logged in."));
+        return;
+      }
+      const user: User | undefined = request.user;
+      const eventId = Number.parseInt(request.params.id);
+      if (user !== undefined) {
+        const attending:
+          | EventAttending
+          | undefined = await EventAttending.findOne({
+          where: {
+            userID: user.id,
+            eventID: eventId
+          }
+        });
+        if (attending == null) {
+          const addCount = new EventAttending();
+          addCount.userID = user.id;
+          addCount.eventID = eventId;
+          await addCount.save();
+          response.send(JSON.stringify("Success"));
+          return;
+        }else{
+          response.send(JSON.stringify("Already registered"));
+          return;
+        }
+      } else {
+        response.send(JSON.stringify("Error - not attending"));
+        return;
+      }
+    }
+  );
 
   app.get("/api/event/:id", async (request: Request, response: Response) => {
     if (!request.isAuthenticated()) {
@@ -177,7 +248,6 @@ export function route(app: Express, db: Connection) {
                 id: t.id,
                 name: t.name
               };
-
             })
           )
         );
