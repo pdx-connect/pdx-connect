@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Container, Row, Col, Form} from "react-bootstrap";
+import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {FaPencilAlt, FaSave, FaUndoAlt} from "react-icons/fa";
 import Select from 'react-select';
 import {ActionMeta, ValueType} from "react-select/lib/types";
@@ -14,6 +14,9 @@ interface State {
     optInEmail: string;
     picture: string;
     picture64: string;
+    pictureCommit: boolean;
+    pictureError: boolean;
+    pictureErrorMsg: string;
     description: string;
     commuterStatus: boolean;
     majors: {
@@ -55,6 +58,9 @@ export class Edit extends Component<Props, State> {
             optInEmail: "",
             picture: "",
             picture64: "",
+            pictureCommit: false,
+            pictureError: false,
+            pictureErrorMsg: "",
             description: "",
             commuterStatus: false,
             majors: [],
@@ -212,22 +218,37 @@ export class Edit extends Component<Props, State> {
 
         // size is in bytes
         const fileSize = files[0].size;
+        
         // medium blob = 16777215 bytes
+        const mediumBlob = 16777215;
         const fileSize64 = Math.ceil(fileSize / 3) * 4;
 
-        console.log('fileSize: ', fileSize, " fileSize64: ", fileSize64, " < 16777215");
-        
-        fileReader.onload = (e: Event) => {
+        if(fileSize64 < mediumBlob) {
+            console.log("show update picture button");
+            fileReader.onload = (e: Event) => {
             
-            if(typeof (fileReader.result) === "string") {
-                
-                this.setState({
-                    picture: URL.createObjectURL(files[0]),
-                    picture64: fileReader.result
-                });
-                this.update('picture', fileReader.result);
-            }            
-        }        
+                if(typeof (fileReader.result) === "string") {
+                    
+                    this.setState({
+                        picture: URL.createObjectURL(files[0]),
+                        picture64: fileReader.result,
+                        pictureCommit: true,
+                        pictureError: false,
+                        pictureErrorMsg: ""
+                    });
+                    //this.update('picture', fileReader.result);
+                }            
+            }     
+        } else {
+            this.setState({
+                pictureError: true,
+                pictureErrorMsg: "File is too big",
+                pictureCommit: false,
+            });
+            console.log("show error");
+        }
+        
+           
     };
 
     private readonly update = async (e: string, v: string | null) => {
@@ -440,17 +461,21 @@ export class Edit extends Component<Props, State> {
                        <Col sm={8}>
                             <Form.Group className="formBasic">
                                 <Form.Control
-                                        type="file"
-                                        onChange={(e: any) => this.handlePictureChange(e)}
-                                        id="picture"
-                                        className="generic"
+                                    type="file"
+                                    onChange={(e: any) => this.handlePictureChange(e)}
+                                    id="picture"
+                                    className="generic"
                                 />
                             </Form.Group>
                        </Col>
                    </Row>
                    <Row>
                         <Col sm={1} className="label"></Col>
-                        <Col sm={11} className="edit"> {this.state.picture != "" ? <img src={this.state.picture} className="profile-picture-halfsize"/> : null} </Col>
+                        <Col sm={11} className="edit">
+                            {this.state.picture != "" ? <img src={this.state.picture} className="profile-picture-halfsize"/> : null}
+                            {this.state.pictureCommit === true ? <Button>Commit Profile Img</Button> : null}
+                            {this.state.pictureError === true ? this.state.pictureErrorMsg : null}
+                        </Col>
                     </Row>
 
 
@@ -480,8 +505,8 @@ export class Edit extends Component<Props, State> {
                                 </div>
                                     :
                                 <div>
-                                        <FaSave className="saveChanges" size="2vw" onClick={() => this.update('description', null)}></FaSave>
-                                        <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('description')}></FaUndoAlt>
+                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('description', null)}></FaSave>
+                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('description')}></FaUndoAlt>
                                 </div>
                             }
                        </Col>
