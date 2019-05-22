@@ -13,6 +13,7 @@ interface CommentFormat {
 }
 
 interface Props extends RouteChildrenProps{
+    key: number,
     comment: CommentFormat;
 }
 
@@ -41,9 +42,9 @@ export class Comment extends Component<Props, State> {
      * @override
      */
     public render(): ReactNode {
-
         return (
             <Container>
+                <Row>-----</Row>
                 <Row className='comment-user-and-timestamp'>
                     <Col className='comment-user' onClick={this.onClick}> {this.props.comment.displayName} </Col>
                     <Col className='comment-timestamp'>{this.props.comment.timePosted}</Col>

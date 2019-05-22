@@ -115,14 +115,24 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Event not found."));
         } else {
             const comments: CalendarEventComment[] = await event.comments;
-            response.send(JSON.stringify(comments.map(c => {
+            response.send(JSON.stringify(await Promise.all(comments.map(async (c) => {
+                let user: User|undefined = await User.findOne({
+                    where: {
+                        id: c.userID
+                    }
+                });
+                if (user == null) {
+                    response.send(JSON.stringify("Invalid userID"));
+                    return;
+                }
                 return {
                     id: c.id,
                     userID: c.userID,
+                    displayName: user.displayName,
                     timePosted: c.timePosted,
                     content: c.content
                 };
-            })));
+            }).filter(p => p!=null))));
         }
     });
     app.post("/api/event/:id/comment", async (request: Request, response: Response) => {
@@ -161,6 +171,7 @@ export function route(app: Express, db: Connection) {
             // Create and save the new comment
             const comment: CalendarEventComment = new CalendarEventComment(event, user, new Date(), content);
             comment.save();
+            response.send(JSON.stringify({succeeded: true}));
         }
     });
 }

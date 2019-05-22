@@ -3,7 +3,13 @@ import {Container, Row, Col, Button, Form} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 import {Comment} from "./Comment"
 import {RouteChildrenProps} from "react-router";
-import { number } from 'prop-types';
+import { postJSON, getJSON } from '../../util/json';
+/**
+ * Component usage
+ *  <Row>
+        <CommentBox type="listing|event" id={##} history={this.props.history} match={this.props.match} location={this.props.location}></CommentBox>
+    </Row>
+ */
 
 // Comment format, used to communicate between client and server
 interface CommentFormat {
@@ -24,9 +30,9 @@ interface Props extends RouteChildrenProps {
 interface State {
     commentText: string;
     comments: CommentFormat[];
-    names: {
+/*    names: {
         [keys: number]: string
-    };
+    };*/
 }
 
 /**
@@ -39,7 +45,7 @@ export class CommentBox extends Component<Props, State> {
         this.state = {
             commentText: "",
             comments: [], 
-            names: {}
+            //names: {}
         };
     };
 
@@ -55,15 +61,7 @@ export class CommentBox extends Component<Props, State> {
             let middle: string = this.props.type + "/" + this.props.id;
 
             // Send the comment to the server
-            let response: Response = await fetch("/api/" + middle + "/comment", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    content: this.state.commentText
-                })
-            });
+            await postJSON("/api/" + middle + "/comment", {content: this.state.commentText});
             // Reset the commentText field
             this.setState({commentText: ""});
             this.fetchComments();
@@ -85,7 +83,7 @@ export class CommentBox extends Component<Props, State> {
         for (let i = 0; i < this.state.comments.length; ++i) {
             toRender.push(
                 <Row>
-                    <Comment comment={this.state.comments[i]} history={this.props.history} match={this.props.match} location={this.props.location}></Comment>
+                    <Comment comment={this.state.comments[i]} key={this.state.comments[i].id} history={this.props.history} match={this.props.match} location={this.props.location}></Comment>
                 </Row>
             );
         }
@@ -123,56 +121,18 @@ export class CommentBox extends Component<Props, State> {
         // Format the middle portion of the server route
         let middle: string = this.props.type + '/' + this.props.id;
         // Request the comments for this box from the server
-        let commentsResponse: Response = await fetch('/api/' + middle + '/comments', {
-            method: 'GET', 
-        })
-        // Verify the response object
-        let comments: {
-            id: number,
-            userID: number,
-            timePosted: Date,
-            content: string        
-        }[] = await commentsResponse.json();
+        let comments: CommentFormat[] = await getJSON("/api/" + middle + "/comments");
         if (comments.length == null) {
             console.error("Comments from server aren't in expected format");
             throw comments;
         }
-        // Get the userIDs which account for all comments
-        let userIDs: number[] = [];
-        for (let i = 0; i < comments.length; ++i) {
-            if (!(comments[i].userID in userIDs)) {
-                userIDs.push(comments[i].userID);
-            }
-        }
-        // Get the names for each userID
-        let namesResponse: Response = await fetch("/api/user/names", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userIDs)
-        });
-        console.log("After fetch");
-        let names: {
-            [key: number]: string
-        } = await namesResponse.json();
 
-        // Set the comments with the new names
-        let commentsWithNames: CommentFormat[] = [];
-        for (let i = 0; i < comments.length; ++i) {
-            commentsWithNames[i] = {
-                id: comments[i].id,
-                userID: comments[i].userID,
-                displayName: names[comments[i].id],
-                timePosted: comments[i].timePosted,
-                content: comments[i].content
-            }
-        }
         // Set the state
         this.setState({
-            comments: commentsWithNames,
-            names: names
+            comments: comments,
+            //names: names
         });
+        console.log(this.state.comments);
     }
 
     /**

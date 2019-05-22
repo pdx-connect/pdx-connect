@@ -261,14 +261,24 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Event not found."));
         } else {
             const comments: ListingComment[] = await listing.comments;
-            response.send(JSON.stringify(comments.map(c => {
+            response.send(JSON.stringify(await Promise.all(comments.map(async (l) => {
+                let user: User|undefined = await User.findOne({
+                    where: {
+                        id: l.userID
+                    }
+                });
+                if (user == null) {
+                    response.send(JSON.stringify("Invalid userID"));
+                    return;
+                }
                 return {
-                    id: c.id,
-                    userID: c.userID,
-                    timePosted: c.time_posted,
-                    content: c.content
+                    id: l.id,
+                    userID: l.userID,
+                    displayName: user.displayName,
+                    timePosted: l.time_posted,
+                    content: l.content
                 };
-            })));
+            }).filter(p => p!=null))));
         }
     });
     app.post("/api/listing/:id/comment", async (request: Request, response: Response) => {
@@ -307,6 +317,7 @@ export function route(app: Express, db: Connection) {
             // Create and save the new comment
             const comment: ListingComment = new ListingComment(listing, user, content);
             comment.save();
+            response.send(JSON.stringify({succeeded: true}));
         }
     });
 }
