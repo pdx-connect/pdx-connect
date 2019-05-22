@@ -51,10 +51,8 @@ export class ReactGrid extends Component<Props, State> {
                 this.setState({style: true})
             }
             else {
-                console.log("Turning off style")
                 this.setState({style: false})
             }
-            console.log("Searchby:", this.props.searchBy)
         }
     }
 
