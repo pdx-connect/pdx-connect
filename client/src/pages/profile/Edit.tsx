@@ -209,9 +209,18 @@ export class Edit extends Component<Props, State> {
         
         const fileReader: FileReader = new FileReader();
         fileReader.readAsDataURL(files[0]);
+
+        // size is in bytes
+        const fileSize = files[0].size;
+        // medium blob = 16777215 bytes
+        const fileSize64 = Math.ceil(fileSize / 3) * 4;
+
+        console.log('fileSize: ', fileSize, " fileSize64: ", fileSize64, " < 16777215");
         
         fileReader.onload = (e: Event) => {
+            
             if(typeof (fileReader.result) === "string") {
+                
                 this.setState({
                     picture: URL.createObjectURL(files[0]),
                     picture64: fileReader.result
