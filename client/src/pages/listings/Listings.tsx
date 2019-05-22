@@ -1,5 +1,6 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
+import {RouteChildrenProps} from "react-router";
 import {Container, Row, Col, Table, Modal, Button, Form} from "react-bootstrap";
 import { FaPlus, FaTrash, FaPencilAlt, FaStar, FaStarHalfAlt} from "react-icons/fa";
 import Select from 'react-select';
@@ -9,6 +10,7 @@ import {getJSON, postJSON} from "../../util/json";
 import moment = require('moment');
 import InfinityMenu from "react-infinity-menu";
 
+import "./react-infinity-menu.d.ts";
 import "./Listings.css";
 
 
@@ -18,7 +20,7 @@ interface Node {
     children: Node[];
 };
 
-interface Props {
+interface Props extends RouteChildrenProps{
 }
 
 interface State {
@@ -99,6 +101,14 @@ export class Listings extends Component<Props, State>{
         };
     }
 
+    private readonly directUserProfile = (userID: number) => {
+        if(userID >= 0)
+        {
+            let profilePath = "/profile/" + userID;
+            this.props.history.push(profilePath);
+        }
+        return;
+    }
 
     // Used for creating a listing
     private readonly setTitle = (e: any) => {
@@ -172,7 +182,7 @@ export class Listings extends Component<Props, State>{
         // check if selected listing is bookmarked by the user,
         // change the state of bookmark
         const data = await postJSON("/api/user/isBookmark", {
-            id: id,
+            id: id
         });
         if (data.bookmarked) {
             this.setState({ 
@@ -644,9 +654,11 @@ export class Listings extends Component<Props, State>{
 
         if(listing)
         {
-            var username: string = listing.username;
             if(listing.anonymous == true)
-                username = "Anonymous";
+            {
+                listing.username = "Anonymous";
+                listing.userID = -1;
+            }
 
             var tags: string[] = [];
             for (const tag of listing.tags)
@@ -684,7 +696,8 @@ export class Listings extends Component<Props, State>{
                     <Modal.Body>
                         <h6>Description: {listing.description}</h6>
                         <br />
-                        <p>{username} {moment(listing.timePosted).format("YYYY/MM/DD")}</p>
+                        <p className="listings-listingview-directUserProfile" onClick={this.directUserProfile.bind(this, listing.userID)}>{listing.username}</p>
+                        <p>{moment(listing.timePosted).format("YYYY/MM/DD")}</p>
                     </Modal.Body>
                     <Modal.Footer>
                         <Container>
@@ -865,7 +878,6 @@ export class Listings extends Component<Props, State>{
 
                 {/* Popup for editing a listing */}
                 {this.state.edit? this.loadEditListingModal() : null}
-
             </Container>
         );
     }

@@ -66,6 +66,10 @@
     width: 20%;
 }
 
+.listings-listingview-directUserProfile {
+    cursor: pointer;
+}
+
 
 .listings-parentTag {
     font-weight: bold;
