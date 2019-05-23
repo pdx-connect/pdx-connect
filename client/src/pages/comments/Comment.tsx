@@ -26,7 +26,6 @@ export class Comment extends Component<Props, State> {
     private readonly onClick = () => {
         let profilePath = "/profile/" + this.props.comment.userID;
         this.props.history.push(profilePath);
-        return;
     };
     
     /**
