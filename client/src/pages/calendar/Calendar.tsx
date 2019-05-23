@@ -85,11 +85,28 @@ export class Calendar extends Component<Props, State> {
     });
   };
 
+  private submitAttending = async (eventID: any) => {
+    const buildPath = "/api/event/attend/" + eventID.toString();
+    const dummyObj = {};
+    const data = await postJSON(buildPath, dummyObj);
+    this.hideAlert();
+    this.getEvents();
+  }
+
   private alertReadMode = (e: any) => {
     const startTime = new Date(e.start).toString().substr(0, 21);
+    const endTime = new Date(e.start).toString().substr(0, 21);
+    const eventID = e._id;
     this.setState({
       alert: (
-        <SweetAlert title="Event Details" onConfirm={this.hideAlert}>
+        <SweetAlert title="Event Details" 
+        showCancel
+	      confirmBtnText="Attending"
+	      cancelBtnText="Not Attending"
+        onConfirm={() => this.submitAttending(eventID)}
+        onCancel={this.hideAlert}
+        confirmBtnBsStyle="success"
+        >
           <br />
           Title: {e.title}
           <br />
@@ -97,7 +114,9 @@ export class Calendar extends Component<Props, State> {
           <br />
           Start time: <time>{startTime}</time>
           <br />
-          {/* End time: {e.end}  */}
+          End time: {endTime} 
+          <br />
+          <strong>Attending:</strong> {e.attending}
         </SweetAlert>
       )
     });
@@ -249,7 +268,8 @@ export class Calendar extends Component<Props, State> {
         start: new Date(record.start),
         end: new Date(record.end),
         allDay: false,
-        color: colors[Math.floor(Math.random() * colors.length)]
+        color: colors[Math.floor(Math.random() * colors.length)],
+        attending: record.attending
       };
       eventsFormated.push(newEvent);
     }

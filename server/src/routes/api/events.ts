@@ -30,20 +30,40 @@ export function route(app: Express, db: Connection) {
       response.send(JSON.stringify("Not logged in."));
       return;
     }
+    // TODO refactor code 
+    var aggregatedCount: any = {};
+    const eventCount: EventAttending[] = await EventAttending.find();
+    for(var i = 0; i < eventCount.length; i++){
+        const eventID = eventCount[i].eventID;
+        if(eventID in aggregatedCount){
+          aggregatedCount[eventID] = aggregatedCount[eventID] + 1;
+        }else{
+          aggregatedCount[eventID] = 1;
+        }
+    }
     const unfilteredEvents: CalendarEvent[] = await CalendarEvent.find();
-    const allEvents = unfilteredEvents.filter(e => {
+    var allEvents: any = unfilteredEvents.filter(e => {
       return e.deleted == false;
     });
+    for(var i = 0; i < allEvents.length; i++){
+      const eventID = allEvents[i].id;
+      if (eventID in aggregatedCount){
+        allEvents[i].attending = aggregatedCount[eventID];
+      }else{
+        allEvents[i].attending = 0;
+      }     
+    }
     response.send(
       JSON.stringify(
-        allEvents.map(e => {
+        allEvents.map((e:any) => {
           return {
             id: e.id,
             userID: e.userID,
             title: e.title,
             description: e.description,
             start: e.start,
-            end: e.end
+            end: e.end,
+            attending: e.attending
           };
         })
       )
@@ -150,7 +170,7 @@ export function route(app: Express, db: Connection) {
   );
 
   app.post(
-    "/api/event/attending/:id",
+    "/api/event/attend/:id",
     async (request: Request, response: Response) => {
       if (!request.isAuthenticated()) {
         response.send(JSON.stringify("Not logged in."));
