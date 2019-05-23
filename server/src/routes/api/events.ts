@@ -3,6 +3,7 @@ import {Connection} from "typeorm";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 import {Tag} from "../../entity/Tag";
 import {CalendarEventComment} from "../../entity/CalendarEventComment";
+import {User} from "../../entity/User"
 
 async function parseEventByID(request: Request): Promise<CalendarEvent|null|undefined> {
     const id: number = Number.parseInt(request.params.id);
@@ -114,17 +115,45 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Event not found."));
         } else {
             const comments: CalendarEventComment[] = await event.comments;
-            response.send(JSON.stringify(comments.map(c => {
+            response.send(JSON.stringify(await Promise.all(comments.map(async (c) => {
+                const user: User = await c.user;
                 return {
                     id: c.id,
                     userID: c.userID,
+                    displayName: user.displayName,
                     timePosted: c.timePosted,
                     content: c.content
                 };
-            })));
+            }))));
         }
     });
     app.post("/api/event/:id/comment", async (request: Request, response: Response) => {
-        // TODO Create a new comment for an event
+        // Get the body of the message, validate format
+        const body: any = request.body;
+        if (body == null || typeof body !== "object" || typeof body.content !== "string") {
+            response.sendStatus(400);
+            return;
+        }
+        // Retrieve the calendar event, verify that it was found
+        const event: CalendarEvent|null|undefined = await parseEventByID(request);
+        if (event === void 0) {
+            response.sendStatus(400);
+        } else {
+            // Verify that the user is logged in
+            const user: User|undefined = request.user;
+            if (user == null) {
+                response.send(JSON.stringify("Not logged in."));
+                return;
+            }
+            if (event === null) {
+                response.send(JSON.stringify("Event not found."));
+            } else {
+                // Create and save the new comment
+                await new CalendarEventComment(event, user, new Date(), body.content).save();
+                response.send(JSON.stringify({
+                    success: true
+                }));
+            }
+        }
     });
 }
