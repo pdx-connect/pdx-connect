@@ -370,4 +370,47 @@ export function route(app: Express, db: Connection) {
             results: json
         }));
     });
+    // Route which returns display names given an array of userIDs
+    app.post("/api/user/names", async (request: Request, response: Response) => {
+        // Validate that user is logged in
+        response.send(JSON.stringify({6:"Daniel",4:"David"}));
+        return;
+        /*
+        const user: User|undefined = request.user;
+        if (user == null || user.id == undefined) {
+            response.send(JSON.stringify("Not logged in"));
+            return;
+        }
+
+        // Get the array of userIDs
+        const body = request.body;
+        const userIDs: number[]|undefined = body.userIDs;
+        if (userIDs == null) {
+            response.send(JSON.stringify("Improper request information"));
+            return;
+        }
+        console.log("UserIDs from body");
+
+        let names: {
+            [key: number]: string
+        } = {};
+        // Interate over the userIDs and define them in the names object
+        for (let i = 0; i < userIDs.length; ++i) {
+            let temp: User|undefined = await User.findOne({
+                where: {
+                    id: userIDs[i]
+                }
+            });
+            if (temp == null) {
+                console.error("User not found");
+                response.send(JSON.stringify("Error: invalid userID"));
+                return;
+            }
+            names[userIDs[i]] = temp.displayName;
+        }
+        console.log("Users found, right before response.send()");
+        response.send(JSON.stringify(names));
+        return;
+        */
+    });
 }

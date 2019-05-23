@@ -39,17 +39,16 @@ function toTagString(tags: Tag[]) {
 }
 
 function getFormattedDate(date : Date) {
-    var year = date.getFullYear();
-    var month = (1 + date.getMonth()).toString();
+    const year = date.getFullYear();
+    let month = (1 + date.getMonth()).toString();
     month = month.length > 1 ? month : '0' + month;
-    var day = date.getDate().toString();
+    let day = date.getDate().toString();
     day = day.length > 1 ? day : '0' + day;
     return year + '-' + month + '-' + day;
 }
 
 export function route(app: Express, db: Connection) {
     app.post("/api/search/profile", async (request: Request, response: Response) => {
-        let json : UserData[]
         if (typeof request.body.displayName !== "string") {
             response.sendStatus(400);
             return;
@@ -62,7 +61,7 @@ export function route(app: Express, db: Connection) {
         });
 
         // Create an array of user(s) containing their ID, displayName, major
-        json = await Promise.all(users.map(async user => {
+        const json: UserData[] = await Promise.all(users.map(async user => {
             const userProfile: UserProfile|undefined = await user.profile;
             let majorString = "Not Set";
             let tagsString = "Tags: Not Set";
@@ -90,71 +89,60 @@ export function route(app: Express, db: Connection) {
         }));
     });
     app.post("/api/search/listing", async (request: Request, response: Response) => {
-        let json: ListingData[]
-        json = [];
         if (typeof request.body.title !== "string") {
             response.sendStatus(400);
             return;
         }
         const listings: Listing[] = await Listing.find({
             where: {
-                title: Like("%" + request.body.title + "%")
+                title: Like("%" + request.body.title + "%"),
+                deleted: false
             }
         });
-        for (const listing of listings)
-        {
-            if(listing.deleted == false)
-            { 
-                let tagsString = "Tags: Not Set";
-                let date = getFormattedDate(listing.timePosted)
-                const tags: Tag[] = await listing.tags;
-                if (tags.length > 0) {
-                    tagsString = toTagString(tags);
-                }
-                json.push({
-                    title: listing.title,
-                    description: listing.description,
-                    startDate: date,
-                    tags: tagsString,
-                })
+        const json: ListingData[] = await Promise.all(listings.map(async listing => {
+            let tagsString = "Tags: Not Set";
+            let date = getFormattedDate(listing.timePosted);
+            const tags: Tag[] = await listing.tags;
+            if (tags.length > 0) {
+                tagsString = toTagString(tags);
             }
-        }
-    
+            return {
+                title: listing.title,
+                description: listing.description,
+                startDate: date,
+                tags: tagsString,
+            };
+        }));
         response.send(JSON.stringify({
             // Send back the array of found listing(s)
                 results: json
         }));
     });
     app.post("/api/search/event", async (request: Request, response: Response) => {
-        let json: EventData[]
-        json = [];
         if(typeof request.body.title !== "string") {
             response.sendStatus(400);
             return;
         }
         const events: CalendarEvent[] = await CalendarEvent.find({
             where: {
-                title: Like("%" + request.body.title + "%")
+                title: Like("%" + request.body.title + "%"),
+                deleted: false
             }
         });
-        for (const event of events)
-        {
-            if(event.deleted == false)
-            { 
-                let tagsString = "Tags: Not Set";
-                let date = getFormattedDate(event.start)
-                const tags: Tag[] = await event.tags;
-                if (tags.length > 0) {
-                    tagsString = toTagString(tags);
-                }
-                json.push({
-                    title: event.title,
-                    description: event.description,
-                    startDate: date,
-                    tags: tagsString,
-                });
+        const json: EventData[] = await Promise.all(events.map(async event => {
+            let tagsString = "Tags: Not Set";
+            let date = getFormattedDate(event.start);
+            const tags: Tag[] = await event.tags;
+            if (tags.length > 0) {
+                tagsString = toTagString(tags);
             }
-        }
+            return {
+                title: event.title,
+                description: event.description,
+                startDate: date,
+                tags: tagsString,
+            };
+        }));
         response.send(JSON.stringify({
             // Send back the array of found event(s)
             results: json

@@ -55,17 +55,17 @@ export class SearchResults extends Component<Props, State> {
                 <Row className="search-radiorow">
                     <form className="form-inline">
                         <Col sm={4}>
-                        <label>Search by Users:
+                        <label>Search by Users: &nbsp;
                             <input className="form-check-input" id="1" type="radio" name="selected" onChange={this.handleChange} defaultChecked></input>
                         </label>
                         </Col>
                         <Col sm={4}>
-                        <label>Search by Listing:
+                        <label>Search by Listing: &nbsp;
                             <input className="form-check-input" id="2" type="radio" name="selected" onChange={this.handleChange}></input>
                         </label>
                         </Col>
                         <Col sm={4}>
-                        <label>Search by Event:
+                        <label>Search by Event: &nbsp;
                             <input className="form-check-input" id="3" type="radio" name="selected" onChange={this.handleChange}></input>
                         </label>
                         </Col>
