@@ -1,13 +1,11 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Table, Button, Modal} from "react-bootstrap";
-import {FaUser} from "react-icons/fa";
-import {postJSON} from "../../util/json";
-import queryString from "query-string";
 import "./Profile.css";
 
 interface Props {
-    displayProfile: Profile
+    displayProfile: Profile;
+    getUserProfileDefault: () => string;
 }
 
 interface State {
@@ -31,14 +29,13 @@ export class ProfileContent extends Component<Props, State> {
     }
 
     public render(): ReactNode {
-        console.log('profilecontent: ', this.props.displayProfile);
-
-        let name = this.props.displayProfile.displayName ? this.props.displayProfile.displayName : "";
+        let displayName = this.props.displayProfile.displayName ? this.props.displayProfile.displayName : "";
         let major = this.props.displayProfile.major ? this.props.displayProfile.major: "";
         let commuterStatus = this.props.displayProfile.commuterStatus ? this.props.displayProfile.commuterStatus: "";
-        let aboutMe = this.props.displayProfile.description ? this.props.displayProfile.description: "";
+        let description = this.props.displayProfile.description ? this.props.displayProfile.description: "";
         let interests = this.props.displayProfile.tags ? this.props.displayProfile.tags: "";
         let isUser = this.props.displayProfile.isUser ? this.props.displayProfile.isUser: false;
+        let picture = this.props.displayProfile.picture != undefined ? this.props.displayProfile.picture : this.props.getUserProfileDefault();
 
         return (
                 <Container fluid className="profile-content">
@@ -47,10 +44,10 @@ export class ProfileContent extends Component<Props, State> {
                         <Table className="text-center profile-user-profile-img-table">
                                 <tbody>
                                     <tr>
-                                        <td><span className="profile-user-img"><FaUser size="8vw" className="profile-user-img-placeholder"></FaUser></span></td>
+                                        <td><img className="profile-picture-thumbsize" src={picture} alt="user picture"/></td>
                                     </tr>
                                     <tr>
-                                        <td className="profile-display-name">{name}</td>
+                                        <td className="profile-display-name">{displayName}</td>
                                     </tr>
                                     { isUser === true ? null :
                                         <tr>
@@ -80,7 +77,7 @@ export class ProfileContent extends Component<Props, State> {
                                         <td>about me</td>
                                     </tr>
                                     <tr>
-                                        <td>{aboutMe}</td>
+                                        <td>{description}</td>
                                     </tr>
                                     <tr>
                                         <td>interests</td>

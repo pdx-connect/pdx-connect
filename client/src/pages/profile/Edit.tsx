@@ -40,8 +40,10 @@ interface State {
 }
 
 interface Props {
-    updateDisplayName: (s: string) => void,
-    updateUserProfile: () => void,
+    updateDisplayName: (s: string) => void;
+    updateUserProfile: () => void;
+    getUserProfileDefault: () => string;
+    updatePortraitURL: () => void;
     userProfile: { [key: string]: any}
 }
 
@@ -224,7 +226,6 @@ export class Edit extends Component<Props, State> {
         const fileSize64 = Math.ceil(fileSize / 3) * 4;
 
         if(fileSize64 < mediumBlob) {
-            console.log("show update picture button");
             fileReader.onload = (e: Event) => {
             
                 if(typeof (fileReader.result) === "string") {
@@ -236,7 +237,6 @@ export class Edit extends Component<Props, State> {
                         pictureError: false,
                         pictureErrorMsg: ""
                     });
-                    //this.update('picture', fileReader.result);
                 }            
             }     
         } else {
@@ -303,13 +303,20 @@ export class Edit extends Component<Props, State> {
                     picture: v
                 });
 
-                /*if (!('success' in data)) {
+                if (!('success' in data)) {
                     this.error(e, true);
                     return;
                 } else {
+                    this.setState({
+                        picture: "",
+                        picture64: "",
+                        pictureCommit: false,
+                        pictureError: false,
+                        pictureErrorMsg: "",
+                    });
+                    this.props.updatePortraitURL();
                     this.props.updateUserProfile();
-                }*/
-                console.log('data in edit: ', data);
+                }
                 break;
             }
             case "description": {
@@ -340,15 +347,17 @@ export class Edit extends Component<Props, State> {
         let commuterStatus = this.props.userProfile.commuterStatus ? this.props.userProfile.commuterStatus : "";
         let currentOptIn = this.props.userProfile.currentOptIn ? this.props.userProfile.currentOptIn : "";
         let description = this.props.userProfile.description ? this.props.userProfile.description : "";
+        let interests = this.props.userProfile.tags ? this.props.userProfile.tags: "";
+        let picture = this.props.userProfile.picture != undefined ? this.props.userProfile.picture : this.props.getUserProfileDefault();
 
-        console.log('user profile: ', this.props.userProfile);
+        //console.log('user profile: ', this.props.userProfile);
         
         return (
                 <Container fluid className="profile">
                     
                     {/* DISPLAY NAME */}
                     <Row>
-                       <Col sm={4} className="label">display name</Col>
+                       <Col sm={4} className="profile-label">display name</Col>
                         <Col sm={4}>
                             <Form.Group className="formBasic">
                                 <Form.Control
@@ -379,7 +388,7 @@ export class Edit extends Component<Props, State> {
 
                     {/* MAJOR */}
                    <Row className="bottomMargin">
-                       <Col sm={4} className="label">major</Col>
+                       <Col sm={4} className="profile-label">major</Col>
                        <Col sm={4}>
                             <Select
                                 options={this.state.majors}
@@ -394,7 +403,7 @@ export class Edit extends Component<Props, State> {
 
                     {/* COMMUTER */}
                    <Row className="bottomMargin">
-                       <Col sm={4} className="label">commuter</Col>
+                       <Col sm={4} className="profile-label">commuter</Col>
 
                        <Col sm={4}>
                             <Select 
@@ -408,7 +417,7 @@ export class Edit extends Component<Props, State> {
 
                     {/* INTERESTS */}
                    <Row className="bottomMargin">
-                       <Col sm={4} className="label">interests</Col>
+                       <Col sm={4} className="profile-label">interests</Col>
                        <Col sm={4}>
                             <Select
                                 options={this.state.interests}
@@ -423,7 +432,7 @@ export class Edit extends Component<Props, State> {
                     
                     {/* OPT IN EMAIL */}
                    <Row >
-                       <Col sm={4} className="label">opt-in email</Col>
+                       <Col sm={4} className="profile-label">opt-in email</Col>
 
                        <Col sm={4}>
                             <Form.Group className="formBasic">
@@ -456,7 +465,7 @@ export class Edit extends Component<Props, State> {
 
                     {/* PICTURE */}
                    <Row>
-                       <Col sm={4} className="label">picture</Col>
+                       <Col sm={4} className="profile-label">picture</Col>
 
                        <Col sm={8}>
                             <Form.Group className="formBasic">
@@ -470,19 +479,31 @@ export class Edit extends Component<Props, State> {
                        </Col>
                    </Row>
                    <Row>
-                        <Col sm={1} className="label"></Col>
-                        <Col sm={11} className="edit">
-                            {this.state.picture != "" ? <img src={this.state.picture} className="profile-picture-halfsize"/> : null}
-                            {this.state.pictureCommit === true ? <Button>Commit Profile Img</Button> : null}
-                            {this.state.pictureError === true ? this.state.pictureErrorMsg : null}
-                        </Col>
-                    </Row>
+                       <Col sm={4} className="profile-label">current picture</Col>
 
+                       <Col sm={8}>
+                            <img src={picture} className="profile-picture-thumbsize"/>
+                       </Col>
+                   </Row>
+                   <Row>
+                       <Col sm={4} className="profile-label">{this.state.pictureCommit === true ? <Button className="profile-upload" onClick={() => this.update('picture', this.state.picture64)}>upload</Button> : null}</Col>
+
+                       <Col sm={8}>
+                            {this.state.picture64 != "" ? <img src={this.state.picture64} className="profile-picture-thumbsize"/> : null}
+                       </Col>
+                   </Row>
+                   <Row>
+                       <Col sm={4} className="profile-label">{this.state.pictureError === true ? "Upload Error" : null}</Col>
+
+                       <Col sm={8}>
+                            {this.state.pictureError === true ? this.state.pictureErrorMsg : null}
+                       </Col>
+                   </Row>
 
 
                    {/* DESCRIPTION */}
                    <Row>
-                       <Col sm={4} className="label">description</Col>
+                       <Col sm={4} className="profile-label">description</Col>
 
                        <Col sm={4}>
                             <Form.Group className="formBasic">

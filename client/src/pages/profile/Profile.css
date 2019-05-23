@@ -6,13 +6,29 @@
     margin-top: 1%;
 }
 
-.label
+.profile-label
 {
     color: #565656;
     text-transform: uppercase;
     letter-spacing: .5vw;
     font-weight: bold;
-    text-align: right;
+    font-size: 1.5vw;
+}
+
+.profile-upload
+{
+    color: var(--faint-contrast);
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+    font-size: 1.5vw;
+    background-color: var(--white-contrast);
+    border: none;
+}
+
+.profile-upload:hover
+{
+    background-color: var(--suggestion);
 }
 
 .editField
@@ -85,17 +101,6 @@
     padding-top: 3%;
 }
 
-.profile-user-img
-{
-    background-color: #9fc1c0;
-    border: medium solid white;
-    height: 150px;
-    width: 150px;
-    border-radius: 50%;
-    display: inline-block;
-    text-align: center;
-}
-
 .profile-user-img-placeholder
 {
     margin-top: 8%;
@@ -150,8 +155,9 @@
     text-decoration: none;
 }
 
-.profile-picture-halfsize {
-    -moz-transform:scale(0.5);
-    -webkit-transform:scale(0.5);
-    transform:scale(0.5);
+.profile-picture-thumbsize {
+    max-width: 100px;
+    height: auto;
+    margin-bottom: 5%;
+    box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.30);
 }

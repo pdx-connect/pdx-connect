@@ -383,11 +383,20 @@ export function route(app: Express, db: Connection) {
                 const listings = await user.listings
                 let descString = "Not Set"
                 let commuterString = "Not Set"
+                let picture = undefined
+
                 if (userProfile != null) {
                     const description: string|null = await userProfile.description
                     const majorTag: Tag | null = await userProfile.major;
                     const interestTags: Tag[] = await userProfile.interests;
                     const commuterStatus: boolean | null = await userProfile.isOnCampus;
+                    const userProfilePicture: string|null = await userProfile.picture;
+
+                    if (userProfilePicture != null) {
+                        const picture64 = await Buffer.from(userProfilePicture).toString('base64');
+                        picture = (new Buffer(picture64, 'base64')).toString('utf8');
+                    }
+
                     if (description != null) {
                         descString = description
                     }
@@ -416,6 +425,7 @@ export function route(app: Express, db: Connection) {
                     listings: listings,
                     description: descString,
                     commuterStatus: commuterString,
+                    picture: picture
                 };
             }));
         }

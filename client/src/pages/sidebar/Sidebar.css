@@ -3,13 +3,12 @@
 }
 
 .sidebarProfileImg {
-  background-color: #d6d6d6;
   text-align: center;
 }
 
 .userImage {
   margin-bottom: 10%;
-  width: 100%;
+  max-width: 200px;
   height: auto;
 }
 
@@ -19,7 +18,8 @@
   text-transform: uppercase;
   font-family: 'Montserrat', sans-serif;
   letter-spacing: .5vw;
-  font-size: 3vw
+  font-size: 3vw;
+  background-color: #d6d6d6;
 }
 
 .hi {

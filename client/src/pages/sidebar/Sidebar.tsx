@@ -9,11 +9,11 @@ import "./Sidebar.css";
 
 interface Props {
     displayName?: string;
-    updateHistory: (value: string) => void,
+    updateHistory: (value: string) => void;
+    portraitURL: string;
 }
 
 interface State {
-    src: null | string;
 }
 
 /**
@@ -24,26 +24,8 @@ export class Sidebar extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            src: null
         };
     }
-
-    /**
-     * @override
-     */
-    public async componentDidMount() {
-        this.getUserProfilePicture().then(picture => {
-        
-            this.setState({
-                src: picture
-            });
-        });
-    }
-
-    private readonly getUserProfilePicture = async () => {
-        const data = await getJSON("/api/user-profile/picture");
-        return data.picture;
-    };
 
     /**
      * @override
@@ -54,18 +36,11 @@ export class Sidebar extends Component<Props, State> {
             displayName = "";
         }
 
-        let url = null;
-        if(this.state.src != null) {
-            url = this.state.src;
-        } else {
-            url = "../resources/matilda.png";
-        } 
-
         return (
                 <Menu width={'25%'}>
                     <span className="space"></span>
                     <span className="sidebarProfileImg">
-                        <img className="userImage" id="img" src={url} alt="user picture"></img>
+                        <img className="userImage" src={this.props.portraitURL} alt="user picture"></img>
                         <h3 className="greeting"><span className="hi">hi</span> {displayName}</h3>
                     </span>
                     <span className="sidebarMenuItem" onClick={() => this.props.updateHistory("/")}><FaHome className="icon" /><span className="sidebarMenuItemTitle">home</span></span>

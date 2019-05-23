@@ -55,6 +55,7 @@ interface State {
     windowWidth: number;
     windowHeight: number;
     conversations: ConversationEntry[];
+    portraitURL: string;
 }
 
 /**
@@ -74,6 +75,7 @@ export class Home extends Page<Props, State> {
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
             conversations: [],
+            portraitURL: ""
         };
         this.socket = null;
     }
@@ -82,17 +84,12 @@ export class Home extends Page<Props, State> {
     
     private readonly getUserProfileData = async () => {
         const data = await getJSON("/api/user/name");
-        this.setState({
-            displayName: data.name,
-            userID: data.userID
-        });
+        return data;
     };
 
     private readonly getUserOOBE = async () => {
         const data = await getJSON("/api/user/oobe");
-        this.setState({
-            showOobe: !data.oobe
-        });
+        return !data.oobe;
     };
 
     private readonly logUserOut = async() => {
@@ -141,7 +138,7 @@ export class Home extends Page<Props, State> {
         this.logUserOut().then();
     };
 
-    private readonly updateDimensions = () =>{
+    private readonly updateDimensions = () => {
         this.setState({ 
             windowWidth: window.innerWidth, 
             windowHeight: window.innerHeight
@@ -188,6 +185,27 @@ export class Home extends Page<Props, State> {
     private readonly updateMessages = (messages: ConversationEntry[]) => {
         this.setState({conversations: messages});
     }
+
+    private readonly updatePortraitURL = () => {
+        this.getUserProfilePicture().then(picture => {
+            this.setState({
+                portraitURL: picture
+            });
+        });
+    }
+
+    private readonly getUserProfileDefault = () => {
+        return "../resources/matilda.png";
+    }
+
+    private readonly getUserProfilePicture = async () => {
+        const data = await getJSON("/api/user-profile/picture");
+        if ('error' in data) {
+            return this.getUserProfileDefault;
+        }
+
+        return data.picture;
+    };
     
     /**
      * @override
@@ -195,8 +213,20 @@ export class Home extends Page<Props, State> {
     public async componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
         window.addEventListener('resize', this.updateDimensions);
-        this.getUserOOBE().then();
-        this.getUserProfileData().then();
+        this.getUserOOBE().then(showOobe => {
+            this.getUserProfileData().then(data => {
+                this.getUserProfilePicture().then(picture => {
+        
+                    this.setState({
+                        showOobe: showOobe,
+                        displayName: data.name,
+                        userID: data.userID,
+                        portraitURL: picture
+                    });
+                });
+            });
+        });
+        
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
     }
@@ -221,7 +251,7 @@ export class Home extends Page<Props, State> {
         return (
         <Container fluid className="home">
             <Row className="home-top-row">
-                <Sidebar displayName={this.state.displayName} updateHistory={this.updateHistory}/>
+                <Sidebar displayName={this.state.displayName} updateHistory={this.updateHistory} portraitURL={this.state.portraitURL}/>
                 <Col sm={1} md={1} className="home-top-left-col"></Col>
                 <Col sm={4} md={4} className="home-top-center-col">
                     <Form>
@@ -263,7 +293,7 @@ export class Home extends Page<Props, State> {
                                 <Route exact path="/" component={HomeContent} />
                                 <Route
                                     path="/profile"
-                                    render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} userID={this.state.userID}/>}
+                                    render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} userID={this.state.userID} updatePortraitURL={this.updatePortraitURL} getUserProfileDefault={this.getUserProfileDefault}/>}
                                 />
                                 <Route
                                     path="/calendar"

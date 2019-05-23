@@ -18,8 +18,10 @@ interface Props extends RouteComponentProps {
 }
 
 interface Props {
-    updateDisplayName: (s: string) => void,
-    userID?: number
+    updateDisplayName: (s: string) => void;
+    updatePortraitURL: () => void;
+    getUserProfileDefault: () => string;
+    userID?: number;
 }
 
 interface State {
@@ -131,11 +133,11 @@ export class Profile extends Component<Props, State> {
                     <Switch>
                         <Route
                             exact path="/profile"
-                            render={props => <ProfileContent {...props} displayProfile={this.state.displayProfile}/>}
+                            render={props => <ProfileContent {...props} displayProfile={this.state.displayProfile} getUserProfileDefault={this.props.getUserProfileDefault}/>}
                         />
                         <Route
                             path="/profile/edit"
-                            render={props => <Edit {...props} updateDisplayName={this.props.updateDisplayName} userProfile={this.state.userProfile} updateUserProfile={this.updateUserProfile}/>}
+                            render={props => <Edit {...props} updateDisplayName={this.props.updateDisplayName} userProfile={this.state.userProfile} updateUserProfile={this.updateUserProfile} getUserProfileDefault={this.props.getUserProfileDefault} updatePortraitURL={this.props.updatePortraitURL}/>}
                         />
                         <Route path="/profile/events" component={Events} />
                         <Route path="/profile/listings" component={Listings} />
