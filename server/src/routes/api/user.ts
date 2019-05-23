@@ -1,4 +1,4 @@
-import {Express, Request, Response, response} from "express";
+import {Express, Request, Response} from "express";
 import {Connection} from "typeorm";
 import {User} from "../../entity/User";
 import {UserProfile} from "../../entity/UserProfile";
@@ -347,7 +347,7 @@ export function route(app: Express, db: Connection) {
         }
     });
     // Route which returns display names given an array of userIDs
-    app.post("/api/user/names", async (request: Request, reponse: Response) => {
+    app.post("/api/user/names", async (request: Request, response: Response) => {
         // Validate that user is logged in
         response.send(JSON.stringify({6:"Daniel",4:"David"}));
         return;

@@ -1,19 +1,12 @@
 import * as React from "react";
-import {Container, Row, Col, Button} from "react-bootstrap";
+import {Container, Row, Col} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 import {RouteChildrenProps} from "react-router";
+import {CommentFormat} from "./CommentFormat";
 
 
-interface CommentFormat {
-    id: number,
-    userID: number,
-    displayName: string,
-    timePosted: Date,
-    content: string
-}
-
-interface Props extends RouteChildrenProps{
-    key: number,
+interface Props extends RouteChildrenProps {
+    key: number;
     comment: CommentFormat;
 }
 
@@ -27,16 +20,14 @@ export class Comment extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);
-        this.state = {
-        };
+        this.state = {};
     }
 
     private readonly onClick = () => {
         let profilePath = "/profile/" + this.props.comment.userID;
         this.props.history.push(profilePath);
         return;
-    }
-  
+    };
     
     /**
      * @override
