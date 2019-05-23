@@ -302,8 +302,8 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
         }
     });
-     // Post major data to the database. 
-     app.post("/api/user/commuter", async (request: Request, response: Response) => {
+    // Post major data to the database. 
+    app.post("/api/user/commuter", async (request: Request, response: Response) => {
         // Parse the request body
         // It should be an object.
         if (typeof request.body !== "object") {
@@ -313,7 +313,7 @@ export function route(app: Express, db: Connection) {
 
         // Get the request and the major.
         const body: any = request.body;
-        const isOnCampus: boolean = body.commuterStatus;
+        const isOnCampus: unknown = body.commuterStatus;
 
         // The incoming major should be a number.
         if (typeof isOnCampus !== "boolean") {
@@ -321,10 +321,10 @@ export function route(app: Express, db: Connection) {
             return;
         }
 
-        const user: User|undefined = request.user;
+        const user: User | undefined = request.user;
 
         if (user != null) {
-            const profile: UserProfile|undefined = await user.profile;
+            const profile: UserProfile | undefined = await user.profile;
             // Find a major whose ID matches what is selected.
             if (profile != null) {
                 profile.isOnCampus = isOnCampus;
