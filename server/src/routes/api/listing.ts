@@ -1,13 +1,14 @@
 import {Express, Request, Response} from "express";
-import {Connection, Like} from "typeorm";
+import {Connection} from "typeorm";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
 
 import {User} from "../../entity/User";
 import {Tag} from "../../entity/Tag";
 import {Listing} from "../../entity/Listing";
+import { ListingComment } from "../../entity/ListingComment";
 
 
-interface listing {
+interface ListingData {
     id: number,
     userID: number,
     username: string,
@@ -19,37 +20,53 @@ interface listing {
     timePosted: Date,
 }
 
+// Get the listing by its id
+async function parseListingByID(request: Request): Promise<Listing|null|undefined> {
+    const id: number = Number.parseInt(request.params.id);
+    if (Number.isNaN(id)) {
+        return void 0;
+    }
+    const listing: Listing|undefined = await Listing.findOne({
+        where: {
+            id: id
+        }
+    });
+    if (listing == null) {
+        return null;
+    }
+    return listing;
+}
+
 export function route(app: Express, db: Connection) {
     app.get("/api/listings/allListings", async (request: Request, response: Response) => {
-        let json: listing[];
-        json = [];
+        let json: ListingData[];
         if (request.isAuthenticated()) {
-            const Listings: Listing[] =  await Listing.find();
-            for (const listing of Listings)
-            {
-                if(listing.deleted == false)
-                { 
-                    json.push({
-                        id: listing.id,
-                        userID: listing.userID,
-                        username: (await listing.user).displayName,
-                        // userProfile: (await listing.user).profile,   // For profile picture
-                        title: listing.title,
-                        description: listing.description,
-                        anonymous: listing.anonymous,
-                        timePosted: listing.timePosted,
-                        tags: await listing.tags
-                    })
+            const listings: Listing[] = await Listing.find({
+                where: {
+                    deleted: false
                 }
-            }
+            });
+            json = await Promise.all(listings.map(async listing => {
+                return {
+                    id: listing.id,
+                    userID: listing.userID,
+                    username: (await listing.user).displayName,
+                    // userProfile: (await listing.user).profile,   // For profile picture
+                    title: listing.title,
+                    description: listing.description,
+                    anonymous: listing.anonymous,
+                    timePosted: listing.timePosted,
+                    tags: await listing.tags
+                };
+            }));
+        } else {
+            json = [];
         }
         response.send(JSON.stringify(json));
     });
-
-
     app.post("/api/listings/edit_listing", async (request: Request, response: Response) => {
         // Parse the request body
-        if (typeof request.body !== "object") {
+        if (request.body == null || typeof request.body !== "object") {
             response.sendStatus(400);
             return;
         }
@@ -215,6 +232,60 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify({
                 error: "Not logged in."
             }));
+        }
+    });
+    // Route for retrieving comments for a listing
+    app.get("/api/listing/:id/comments", async (request: Request, response: Response) => {
+        if (!request.isAuthenticated()) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        const listing: Listing|null|undefined = await parseListingByID(request);
+        if (listing === void 0) {
+            response.sendStatus(400);
+        } else if (listing === null) {
+            response.send(JSON.stringify("Event not found."));
+        } else {
+            const comments: ListingComment[] = await listing.comments;
+            response.send(JSON.stringify(await Promise.all(comments.map(async (l) => {
+                const user: User = await l.user;
+                return {
+                    id: l.id,
+                    userID: l.userID,
+                    displayName: user.displayName,
+                    timePosted: l.time_posted,
+                    content: l.content
+                };
+            }))));
+        }
+    });
+    app.post("/api/listing/:id/comment", async (request: Request, response: Response) => {
+        // Get the body of the message, validate format
+        const body: any = request.body;
+        if (body == null || typeof body !== "object" || typeof body.content !== "string") {
+            response.sendStatus(400);
+            return;
+        }
+        // Retrieve the calendar event, verify that it was found
+        const listing: Listing|null|undefined = await parseListingByID(request);
+        if (listing === void 0) {
+            response.sendStatus(400);
+        } else {
+            // Verify that the user is logged in
+            const user: User|undefined = request.user;
+            if (user == null) {
+                response.send(JSON.stringify("Not logged in."));
+                return;
+            }
+            if (listing === null) {
+                response.send(JSON.stringify("Listing not found."));
+            } else {
+                // Create and save the new comment
+                await new ListingComment(listing, user, body.content).save();
+                response.send(JSON.stringify({
+                    success: true
+                }));
+            }
         }
     });
 }

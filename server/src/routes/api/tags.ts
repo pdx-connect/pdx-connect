@@ -73,7 +73,6 @@ export function route(app: Express, db: Connection) {
             }
 
             // Loop through to find all their leaf nodes
-        
             for(const parent of parents)
             {
                 let temp: TagList = {
