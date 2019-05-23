@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import ReactDataGrid from 'react-data-grid';
-import { Toolbar, Data, Filters } from "react-data-grid-addons";
+import { Toolbar, Data, Filters, Formatters } from "react-data-grid-addons";
 import {getJSON, postJSON} from "../../util/json";
 import "./SearchResults.css";
 import { RouteChildrenProps } from 'react-router';
@@ -23,6 +23,7 @@ interface State {
     user: []
     style: boolean;
 }
+
 
 const {
     MultiSelectFilter,
@@ -133,6 +134,7 @@ export class ReactGrid extends Component<Props, State> {
         let columns : any
         if (this.props.searchBy == 1){
             columns = [
+                { key: "icon", name: "Icon", editable: false, filterable: false, formatter: Formatters.ImageFormatter, resizable: true},
                 { key: "displayName", name: "Name", editable: false, filterable: true, className: "searchresults-ellipsis"},
                 { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
                 { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: MultiSelectFilter}

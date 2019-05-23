@@ -80,7 +80,8 @@ export function route(app: Express, db: Connection) {
                 userID: user.id,
                 displayName: user.displayName,
                 major: majorString,
-                tags: tagsString
+                tags: tagsString,
+                icon: "../resources/matilda.png"
             };
         }));
         response.send(JSON.stringify({
