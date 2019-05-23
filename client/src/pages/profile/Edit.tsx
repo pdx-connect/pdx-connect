@@ -8,6 +8,7 @@ import {OptionType} from "../../components/types";
 import {getJSON, postJSON} from "../../util/json";
 
 import "./Profile.css";
+import { Tags } from '../oobe/preferences/Tags';
 
 interface State {
     major: string;
@@ -20,6 +21,10 @@ interface State {
     description: string;
     commuterStatus: boolean;
     majors: {
+        value: string;
+        label: string;
+    }[],
+    tags: {
         value: string;
         label: string;
     }[],
@@ -66,6 +71,7 @@ export class Edit extends Component<Props, State> {
             description: "",
             commuterStatus: false,
             majors: [],
+            tags: [],
             commuterOptions: [],
             interests: [],
             error: {
@@ -93,7 +99,7 @@ export class Edit extends Component<Props, State> {
             displayName: "",
             selectedMajors: [],
             selectedCommuterOptions: [],
-            selectedInterests: []
+            selectedInterests: [],
         }
     }
 
@@ -106,29 +112,61 @@ export class Edit extends Component<Props, State> {
             { value: 'false', label: 'remote' }
         ]
 
-        const interests = [
-            { value: 'free food', label: 'free food' },
-            { value: 'biking', label: 'biking' },
-            { value: 'art', label: 'art'},
-            { value: 'computer science', label: 'computer science'}
-        ]
+        this.getMajors().then(majors => {
+            this.getTags().then(tags => {
 
-        this.getMajors().then(data => {
-            
-            const majors = data.map((t: { id: { toString: () => void; }; name: any; }) => {
-                return {
-                    value: t.id.toString(),
-                    label:t.name
-                };
-            });
+                const interests = tags.map((t: { id: { toString: () => void; }; name: any; }) => {
+                    return {
+                        value: t.id.toString(),
+                        label:t.name
+                    };
+                });
 
-            this.setState({
-                majors: majors,
-                commuterOptions: commuterOptions,
-                interests: interests
+                const majorOptions = majors.map((t: { id: { toString: () => void; }; name: any; }) => {
+                    return {
+                        value: t.id.toString(),
+                        label:t.name
+                    };
+                });
+
+                let userInterests = this.props.userProfile.tags ? this.props.userProfile.tags: [];
+                let selectedInterests: OptionType[] = [];
+                let filteredInterests: OptionType[] = interests;
+
+                if(userInterests.length != 0) {
+
+                    selectedInterests = userInterests.map((t: { id: { toString: () => void; }; name: any; }) => {
+                        return {
+                            value: t.id.toString(),
+                            label:t.name
+                        };
+                    });
+
+                    
+                    for(const selected of selectedInterests)
+                    {
+                        filteredInterests = filteredInterests.filter(x => { return x.label != selected.label; })
+                    }
+
+
+                }
+    
+                this.setState({
+                    interests: filteredInterests,
+                    majors: majorOptions,
+                    commuterOptions: commuterOptions,
+                    selectedInterests: selectedInterests
+                });
+
             });
         });
     }
+
+    private readonly getTags = async () => {
+        const data = await getJSON("/api/tags");
+        return data;
+
+    };
 
     private readonly getMajors = async () => {
         const data = await getJSON("/api/tags/majors");
@@ -347,9 +385,10 @@ export class Edit extends Component<Props, State> {
         let commuterStatus = this.props.userProfile.commuterStatus ? this.props.userProfile.commuterStatus : "";
         let currentOptIn = this.props.userProfile.currentOptIn ? this.props.userProfile.currentOptIn : "";
         let description = this.props.userProfile.description ? this.props.userProfile.description : "";
-        let interests = this.props.userProfile.tags ? this.props.userProfile.tags: "";
+        let interests = this.props.userProfile.tags ? this.props.userProfile.tags: [];
         let picture = this.props.userProfile.picture != undefined ? this.props.userProfile.picture : this.props.getUserProfileDefault();
 
+        //console.log('interests: ', interests, ' ', typeof interests);
         //console.log('user profile: ', this.props.userProfile);
         
         return (

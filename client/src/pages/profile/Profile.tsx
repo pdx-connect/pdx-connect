@@ -25,12 +25,49 @@ interface Props {
 }
 
 interface State {
-    userProfile: DisplayProfile;
-    displayProfile: DisplayProfile;
+    userProfile: UserProfile;
+    displayProfile: UserProfile;
 }
 
-interface DisplayProfile {
-    [key: string]: any;
+interface Event {
+    deleted: number;
+    description: string;
+    end: string;
+    id: number;
+    start: string;
+    title: string;
+    userID: number;
+}
+
+interface Listing {
+    anonymous: boolean;
+    deleted: boolean;
+    description: string;
+    id: number;
+    timePosted: string;
+    title: string;
+    userID: number;
+}
+
+interface Tag {
+    value: string;
+    label: string;
+}
+
+
+interface UserProfile {
+    commuterStatus: string;
+    creationDate: string;
+    description: string;
+    displayName: string;
+    events: Event[];
+    isUser: boolean | undefined;
+    listings: Listing[];
+    major: string;
+    picture: string;
+    tags: Tag[];
+    userID: number | undefined;
+    
 }
 
 /**
@@ -41,8 +78,32 @@ export class Profile extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            userProfile: {},
-            displayProfile: {}
+            userProfile: {
+                commuterStatus: "",
+                creationDate: "",
+                description: "",
+                displayName: "",
+                events: [],
+                isUser: undefined,
+                listings: [],
+                major: "",
+                picture: "",
+                tags: [],
+                userID: undefined,
+            },
+            displayProfile: {
+                commuterStatus: "",
+                creationDate: "",
+                description: "",
+                displayName: "",
+                events: [],
+                isUser: undefined,
+                listings: [],
+                major: "",
+                picture: "",
+                tags: [],
+                userID: undefined,
+            }
         };
     }
 

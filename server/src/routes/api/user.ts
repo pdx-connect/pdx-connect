@@ -377,10 +377,10 @@ export function route(app: Express, db: Connection) {
             json = await Promise.all(users.map(async user => {
                 const userProfile: UserProfile|undefined = await user.profile;
                 let majorString = "Not Set";
-                let tagsString = "Tags: Not Set";
                 const creationDate = await user.creationDate
                 const events = await user.events
                 const listings = await user.listings
+                let tags = undefined;
                 let descString = "Not Set"
                 let commuterString = "Not Set"
                 let picture = undefined
@@ -403,8 +403,8 @@ export function route(app: Express, db: Connection) {
                     if (majorTag != null) {
                         majorString = majorTag.name;
                     }
-                    if (interestTags.length > 0) {
-                        tagsString = toTagString(interestTags);
+                    if (interestTags != null) {
+                        tags = interestTags;
                     }
                     if (commuterStatus != null) {
                         if (commuterStatus == true) {
@@ -419,7 +419,7 @@ export function route(app: Express, db: Connection) {
                     userID: user.id,
                     displayName: user.displayName,
                     major: majorString,
-                    tags: tagsString,
+                    tags: tags,
                     creationDate: creationDate,
                     events: events,
                     listings: listings,

@@ -1,6 +1,8 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Table, Button, Modal} from "react-bootstrap";
+import Select from 'react-select';
+import {OptionType} from "../../components/types";
 import "./Profile.css";
 
 interface Props {
@@ -9,7 +11,7 @@ interface Props {
 }
 
 interface State {
-    showComposeMessage: boolean
+    showComposeMessage: boolean;
 }
 
 interface Profile {
@@ -24,7 +26,7 @@ export class ProfileContent extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            showComposeMessage: false
+            showComposeMessage: false,
         };
     }
 
@@ -36,6 +38,14 @@ export class ProfileContent extends Component<Props, State> {
         let interests = this.props.displayProfile.tags ? this.props.displayProfile.tags: "";
         let isUser = this.props.displayProfile.isUser ? this.props.displayProfile.isUser: false;
         let picture = this.props.displayProfile.picture != undefined ? this.props.displayProfile.picture : this.props.getUserProfileDefault();
+
+
+        let userInterests = interests.map((t: { id: { toString: () => void; }; name: any; }) => {
+            return {
+                value: t.id.toString(),
+                label:t.name
+            };
+        });
 
         return (
                 <Container fluid className="profile-content">
@@ -83,7 +93,14 @@ export class ProfileContent extends Component<Props, State> {
                                         <td>interests</td>
                                     </tr>
                                     <tr>
-                                        <td>{interests}</td>
+                                        <td>
+                                        <Select
+                                            options={userInterests}
+                                            isDisabled={true}
+                                            isMulti={true}
+                                            value={userInterests}
+                                        />
+                                        </td>
                                     </tr>
                                 </tbody>
                                 </Table>
