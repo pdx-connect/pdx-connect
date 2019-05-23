@@ -9,6 +9,7 @@ import {OptionType} from "../../components/types";
 import {getJSON, postJSON} from "../../util/json";
 import moment = require('moment');
 import InfinityMenu from "react-infinity-menu";
+import {CommentBox} from "../comments/CommentBox";
 
 import "./react-infinity-menu.d.ts";
 import "./Listings.css";
@@ -770,10 +771,7 @@ export class Listings extends Component<Props, State>{
         if(listing)
         {
             if(listing.anonymous == true)
-            {
                 listing.username = "Anonymous";
-                listing.userID = -1;
-            }
 
             var tags: string[] = [];
             for (const tag of listing.tags)
@@ -811,7 +809,10 @@ export class Listings extends Component<Props, State>{
                     <Modal.Body>
                         <h6>Description: {listing.description}</h6>
                         <br />
-                        <p className="listings-listingview-directUserProfile" onClick={this.directUserProfile.bind(this, listing.userID)}>{listing.username}</p>
+                        {listing.anonymous
+                            ? <p className="listings-listingview-directUserProfile" onClick={this.directUserProfile.bind(this, listing.userID)}>{listing.username}</p>
+                            : <p className="listings-listingview-directUserProfile">{listing.username}</p>
+                        }
                         <p>{moment(listing.timePosted).format("YYYY/MM/DD")}</p>
                     </Modal.Body>
                     <Modal.Footer>
@@ -828,20 +829,27 @@ export class Listings extends Component<Props, State>{
                     <Modal.Footer>
                         <Container>
                             <Row>
+                                <Col md={10}></Col>
                                 <Col md={1}>
-                                    {editable? <FaPencilAlt size="1vw" className="listings-editButton" onClick={this.handleEdit}/> : null}
+                                    {editable? <FaPencilAlt size="2vw" className="listings-editButton" onClick={this.handleEdit}/> : null}
                                 </Col>
                                 <Col md={1}>
-                                    {editable? <FaTrash size="1vw" className="listings-deleteButton" onClick={this.handleDelete}/> : null}
+                                    {editable? <FaTrash size="2vw" className="listings-deleteButton" onClick={this.handleDelete}/> : null}
                                 </Col>
-                                <Col md={7}></Col>
-                                <Col md={3}>
+                                {/* <Col md={3}>
                                     <Form>
                                         <Form.Group>
                                             <Button size="sm" variant="light" onClick={() => {} }>Comments</Button>
                                         </Form.Group>
                                     </Form>
-                                </Col>
+                                </Col> */}
+                            </Row>
+                        </Container>
+                    </Modal.Footer>
+                    <Modal.Footer>
+                        <Container>
+                            <Row>
+                                <CommentBox type="listing" id={listing.id} history={this.props.history} match={this.props.match} location={this.props.location} />
                             </Row>
                         </Container>
                     </Modal.Footer>
