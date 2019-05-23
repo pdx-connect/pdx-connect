@@ -20,6 +20,11 @@ interface Node {
     children: Node[];
 };
 
+interface TagData {
+    id: number;
+    name: string;
+}
+
 interface Props extends RouteChildrenProps{
 }
 
@@ -27,15 +32,17 @@ interface State {
     create?: boolean;
     view?: boolean;
     open: boolean;
-    tags: {
-        id: number;
-        name: string;
+    TagLists: {
+        parent: TagData;
+        children: TagData[];
     }[];
     tagTree: {
         id: number;
         name: string;
         children: Node[];
     }[];
+    optionTagTypes: OptionType[];
+    selectedTagType: OptionType;
     optionTags: OptionType[];
     selectedTags: OptionType[];
     title: string;
@@ -80,8 +87,13 @@ export class Listings extends Component<Props, State>{
             create: false,
             view: false,
             open: false,
-            tags: [],
+            TagLists: [],
             tagTree: [],
+            optionTagTypes: [],
+            selectedTagType: {
+                label: "",
+                value: ""
+            },
             optionTags: [],
             selectedTags: [],
             title: "",
@@ -162,6 +174,9 @@ export class Listings extends Component<Props, State>{
 
     // Open the create listing modal
     private readonly handleShowCreate = () => {
+        // Load in the default selectedTagType and optionTagTypes before loading in the modal for Type field
+        this.setDefaultTypeAndTagFields();
+
         this.setState({ create: true});
     };
 
@@ -214,7 +229,11 @@ export class Listings extends Component<Props, State>{
             if(this.state.listings[i].id == this.state.currentViewListing)
                 listing = this.state.listings[i];
         }
-        // Load back in the selectedTags and optionTags before loading in the modal
+
+        // Load in the default selectedTagType and optionTagTypes before loading in the modal for Type field
+        this.setDefaultTypeAndTagFields();
+
+        // Load back in the selectedTags and optionTags before loading in the modal for Tags field
         const selectedTags: OptionType[] = [];
         for (const tag of listing.tags)
         {
@@ -312,15 +331,96 @@ export class Listings extends Component<Props, State>{
         });
     }
 
-    private readonly handleTagChange = (value: ValueType<OptionType>) => {
-        // Get the remove tag, add back to options
-        let difference = this.state.selectedTags.filter(x => !OptionType.resolve(value).includes(x));
-        if(!this.isEmpty(difference))
+    // Use to set default type and tag field for create and view listing modal
+    private readonly setDefaultTypeAndTagFields = () => {
+        var types: OptionType[] = [];
+        types.push({
+            value: this.state.TagLists[0].parent.id.toString(),
+            label: this.state.TagLists[0].parent.name
+        })
+
+        var options: OptionType[] = [];
+        var temp: {
+            id: number;
+            name: string;
+        }[] = this.state.TagLists[0].children;
+        for(let i = 0; i < temp.length; i++)
         {
-            for(const dif of difference)
-                this.state.optionTags.push(dif);
+            options.push({
+                value:  temp[i].id.toString(),
+                label:  temp[i].name
+            });
         }
 
+        this.setState({
+            selectedTagType: types[0],
+            optionTags: options
+        });
+    }
+
+    private readonly handleTagTypeChange = (value: ValueType<OptionType>) => {
+        let type: any[] = OptionType.resolve(value);
+        var temp: TagData[] = [];
+        for(const tagList of this.state.TagLists)
+        {
+            if(tagList.parent.id == type[0].value)
+                temp = tagList.children;
+        }
+
+        var options: OptionType[] = [];
+        for(let i = 0; i < temp.length; i++)
+        {
+            options.push({
+                value:  temp[i].id.toString(),
+                label:  temp[i].name
+            });
+        }
+
+        // If in edit mode, filter out the selected tags
+        if(this.state.edit)
+        {
+            let temp: OptionType[] = options;
+            for(const selected of this.state.selectedTags)
+            {
+                temp = temp.filter(x => { return x.label != selected.label; })
+            }
+            this.setState({
+                selectedTagType: type[0],
+                optionTags: temp
+            });
+        }
+        else 
+        {
+            this.setState({
+                selectedTagType: type[0],
+                optionTags: options
+            });
+        }
+    }
+
+    private readonly handleTagChange = (value: ValueType<OptionType>) => {
+        // Only need to manual fix tag field during edit(when there is existing selected tags)
+        if(this.state.edit)
+        {
+            let difference = this.state.selectedTags.filter(x => !OptionType.resolve(value).includes(x));
+            if(!this.isEmpty(difference))
+            {
+                // Get the type this tag belongs to
+                let tag: any[] = OptionType.resolve(difference);
+                let typeID : number = 0;
+                for(const tagList of this.state.TagLists)
+                {
+                    for(const tags of tagList.children)
+                    {
+                        if(tags.id == tag[0].value)
+                            typeID = tagList.parent.id;
+                    }
+                }
+                // If the diff. tag belongs to current selected type
+                if(typeID.toString() == this.state.selectedTagType.value)
+                    this.state.optionTags.push(difference[0]);
+            }
+        }
         this.setState({
             selectedTags: OptionType.resolve(value)
         });
@@ -368,7 +468,11 @@ export class Listings extends Component<Props, State>{
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Type</Form.Label>
-                                <Form.Control type="text" disabled/>
+                                <Select
+                                    options={this.state.optionTagTypes}
+                                    value={this.state.selectedTagType}
+                                    onChange={this.handleTagTypeChange}   
+                                />
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Description</Form.Label>
@@ -469,18 +573,27 @@ export class Listings extends Component<Props, State>{
 
     // Load in tags
     private readonly getTags = async () => {
-        const data = await getJSON("/api/tags/allBaseTags");
+        const data = await getJSON("/api/tags/topParentAndChildTags");
         if (!Array.isArray(data)) {
             // Not logged in, throw exception
             throw data;
         }
 
-        // Add to a optiontype[] in order for users to select
+        // Add all the tag types for user to select in type field
+        var types: OptionType[] = [];
+        for(const type of data)
+        {
+            types.push({
+                value: type.parent.id.toString(),
+                label: type.parent.name
+            })
+        }
+        // Add to a optiontype[] in order for user to select in tag field
         var options: OptionType[] = [];
         var temp: {
             id: number;
             name: string;
-        }[] = data;
+        }[] = data[0].children;
         for(let i = 0; i < temp.length; i++)
         {
             options.push({
@@ -489,8 +602,10 @@ export class Listings extends Component<Props, State>{
             });
         }
         this.setState({
+            selectedTagType: types[0],
+            optionTagTypes: types,
             optionTags: options,
-            tags: data
+            TagLists: data  // All the most top level parent tag and all of its most leaf tags
         })
     };
   
@@ -843,7 +958,11 @@ export class Listings extends Component<Props, State>{
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Type</Form.Label>
-                                <Form.Control type="text" disabled/>
+                                <Select
+                                    options={this.state.optionTagTypes}
+                                    value={this.state.selectedTagType}
+                                    onChange={this.handleTagTypeChange}
+                                />
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Description</Form.Label>
