@@ -202,7 +202,7 @@ export class Home extends Page<Props, State> {
         console.log("In home component did mount");
         console.log(this.state.conversations);
 
-        console.log("Response: ", await getJSON("/api/event/test"));
+        console.log("Response: ", await getJSON("/api/tags/homeContent"));
     }
     
     /**

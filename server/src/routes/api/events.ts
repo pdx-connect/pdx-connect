@@ -208,7 +208,7 @@ export function route(app: Express, db: Connection) {
             }
         }
     });
-    app.get("/api/event/homeContent", async (request: Request, response: Response) => {
+    app.get("/api/events/homeContent", async (request: Request, response: Response) => {
         // Get user
         let user: User = request.user;
         if (user.id == null) {
@@ -258,7 +258,7 @@ export function route(app: Express, db: Connection) {
         }
         response.send(JSON.stringify(eventsEntries));
     });
-    app.get("/api/event/test", async (request: Request, response: Response) => {
+    app.get("/api/events/test", async (request: Request, response: Response) => {
         response.send(JSON.stringify("This one works"));
     });
 }
