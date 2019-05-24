@@ -134,7 +134,7 @@ export class ReactGrid extends Component<Props, State> {
         let columns : any
         if (this.props.searchBy == 1){
             columns = [
-                { key: "icon", name: "Icon", editable: false, filterable: false, formatter: Formatters.ImageFormatter},
+                { key: "icon", name: "Icon", editable: false, filterable: false, formatter: Formatters.ImageFormatter, width: 70},
                 { key: "displayName", name: "Name", editable: false, filterable: true, className: "searchresults-ellipsis"},
                 { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
                 { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: MultiSelectFilter}
