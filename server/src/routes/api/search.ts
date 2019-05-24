@@ -11,6 +11,7 @@ interface UserData {
     displayName: string;
     major: string;
     tags?: string;
+    icon: string;
 }
 
 interface ListingData {
@@ -65,6 +66,7 @@ export function route(app: Express, db: Connection) {
             const userProfile: UserProfile|undefined = await user.profile;
             let majorString = "Not Set";
             let tagsString = "Tags: Not Set";
+            let picture = "../resources/matilda.png"
             if (userProfile != null) {
                 const majorTag: Tag | null = await userProfile.major;
                 const interestTags: Tag[] = await userProfile.interests;
@@ -74,13 +76,19 @@ export function route(app: Express, db: Connection) {
                 if (interestTags.length > 0) {
                     tagsString = toTagString(interestTags);
                 }
+                const userProfilePicture: string|null = await userProfile.picture;
+
+                if (userProfilePicture != null) {
+                    const picture64 = await Buffer.from(userProfilePicture).toString('base64');
+                    picture = (new Buffer(picture64, 'base64')).toString('utf8');
+                }
             }
             return {
                 userID: user.id,
                 displayName: user.displayName,
                 major: majorString,
                 tags: tagsString,
-                icon: "../resources/matilda.png"
+                icon: picture
             };
         }));
         response.send(JSON.stringify({
