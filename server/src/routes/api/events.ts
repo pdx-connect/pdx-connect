@@ -1,9 +1,10 @@
 import {Express, Request, Response} from "express";
-import {Connection} from "typeorm";
+import {Connection, MoreThanOrEqual} from "typeorm";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 import {Tag} from "../../entity/Tag";
 import {CalendarEventComment} from "../../entity/CalendarEventComment";
 import {User} from "../../entity/User";
+import {UserProfile} from "../../entity/UserProfile"
 
 async function parseEventByID(request: Request): Promise<CalendarEvent|null|undefined> {
     const id: number = Number.parseInt(request.params.id);
@@ -206,5 +207,58 @@ export function route(app: Express, db: Connection) {
                 }));
             }
         }
+    });
+    app.get("/api/event/homeContent", async (request: Request, response: Response) => {
+        // Get user
+        let user: User = request.user;
+        if (user.id == null) {
+            response.send(JSON.stringify("Not logged in - access denied"));
+            return;
+        }
+        // Find user account
+        let profile: UserProfile|undefined = await user.profile;
+        if (profile == null) {
+            response.send(JSON.stringify("No profile for this account"));
+            return;
+        }
+        // Get tags, make array for find queries
+        let tags: Tag[] = await profile.interests;
+        let eventsEntries: {
+            id: number,
+            title: string,
+            description: string,
+            start: Date,
+            end: Date|null
+        }[] = [];
+        // Get all events which haven't endeded, ordered by start time
+        let events: CalendarEvent[] = await CalendarEvent.find({
+            where: {
+                end: MoreThanOrEqual(Date.now()),
+                deleted: false
+            },
+            order: {
+                start: "ASC"
+            }
+        });
+        // Check whether the tags match the user's tags and add them to eventEntries
+        for (let i = 0; i < events.length; ++i) {
+            let eventTags: Tag[] = await events[i].tags;
+            for (let j = 0; j < tags.length; ++j) {
+                if (eventTags.includes(tags[j])) {
+                    eventsEntries.push({
+                        id: events[i].id,
+                        title: events[i].title,
+                        description: events[i].description,
+                        start: events[i].start,
+                        end: events[i].end
+                    });
+                    break;
+                }
+            }
+        }
+        response.send(JSON.stringify(eventsEntries));
+    });
+    app.get("/api/event/test", async (request: Request, response: Response) => {
+        response.send(JSON.stringify("This one works"));
     });
 }
