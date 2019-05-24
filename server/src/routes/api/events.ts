@@ -221,9 +221,9 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("No profile for this account"));
             return;
         }
-        // Get tags, make array for find queries
+        // Get tags, make array for find query
         let tags: Tag[] = await profile.interests;
-        let eventsEntries: {
+        let eventEntries: {
             id: number,
             title: string,
             description: string,
@@ -244,19 +244,31 @@ export function route(app: Express, db: Connection) {
         for (let i = 0; i < events.length; ++i) {
             let eventTags: Tag[] = await events[i].tags;
             for (let j = 0; j < tags.length; ++j) {
-                if (eventTags.includes(tags[j])) {
-                    eventsEntries.push({
+                // Manually search the arrays :(
+                let found = false;
+                for (let k = 0; k < eventTags.length; ++k) {
+                    if (eventTags[k].id == tags[j].id) {
+                        found = true;
+                        console.log("Found match");
+                    } else {
+                        console.log("This one isn't a match");
+                    }
+                }
+                if (found) {
+                    // Get the tag names
+                    eventEntries.push({
                         id: events[i].id,
                         title: events[i].title,
                         description: events[i].description,
                         start: events[i].start,
-                        end: events[i].end
+                        end: events[i].start
                     });
                     break;
                 }
             }
         }
-        response.send(JSON.stringify(eventsEntries));
+        console.log("Entries: \n", eventEntries);
+        response.send(JSON.stringify(eventEntries));
     });
     app.get("/api/events/test", async (request: Request, response: Response) => {
         response.send(JSON.stringify("This one works"));

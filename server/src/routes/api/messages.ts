@@ -22,8 +22,6 @@ async function getMessages (conversations: ConversationParticipant[]) {
             },
             take: 30
         });
-        console.log("\nRetrieved Conversation: ");
-        console.log(messages);
         // Process the messages and pack them up for addition to messagesToSend
         for (let j = 0; j < messages.length; ++j) {
             packed.push({

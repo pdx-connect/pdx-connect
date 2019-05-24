@@ -201,8 +201,6 @@ export class Home extends Page<Props, State> {
         await this.socket.getUnreadMessages();
         console.log("In home component did mount");
         console.log(this.state.conversations);
-
-        console.log("Response: ", await getJSON("/api/tags/homeContent"));
     }
     
     /**
