@@ -352,7 +352,7 @@ export function route(app: Express, db: Connection) {
         }
     });
 
-    app.post("/api/user/findnames", async (request: Request, response: Response) => {
+    /*app.post("/api/user/findnames", async (request: Request, response: Response) => {
         let json : UserData[]
         // Search the DB to find all users
         const users: User[] = await User.find({
@@ -369,7 +369,7 @@ export function route(app: Express, db: Connection) {
             // Send back the array of found user(s)
             results: json
         }));
-    });
+    });*/
     // Route which returns display names given an array of userIDs
     app.post("/api/user/names", async (request: Request, response: Response) => {
         // Validate that user is logged in
