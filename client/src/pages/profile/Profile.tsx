@@ -116,7 +116,7 @@ export class Profile extends Component<Props, State> {
         this.setProfile(userID, userid);
     }
 
-    componentDidUpdate(prevProps: any, prevState: any) {
+    componentDidUpdate(prevProps: Props, prevState: State) {
         const { location, userID } = this.props;
 
         const values = queryString.parse(location.search);

@@ -17,7 +17,6 @@ import {getJSON} from "../util/json";
 import {Socket} from "./Socket";
 
 import "./Home.css";
-import { createBrowserHistory } from 'history';
 
 
 interface Props extends RouteComponentProps {
@@ -186,11 +185,9 @@ export class Home extends Page<Props, State> {
         this.setState({conversations: messages});
     }
 
-    private readonly updatePortraitURL = () => {
-        this.getUserProfilePicture().then(picture => {
-            this.setState({
-                portraitURL: picture
-            });
+    private readonly updatePortraitURL = async () => {
+        this.setState({
+            portraitURL: await this.getUserProfilePicture()
         });
     }
 
@@ -201,7 +198,7 @@ export class Home extends Page<Props, State> {
     private readonly getUserProfilePicture = async () => {
         const data = await getJSON("/api/user-profile/picture");
         if ('error' in data) {
-            return this.getUserProfileDefault;
+            return this.getUserProfileDefault();
         }
 
         return data.picture;
@@ -213,18 +210,18 @@ export class Home extends Page<Props, State> {
     public async componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
         window.addEventListener('resize', this.updateDimensions);
-        this.getUserOOBE().then(showOobe => {
-            this.getUserProfileData().then(data => {
-                this.getUserProfilePicture().then(picture => {
-        
-                    this.setState({
-                        showOobe: showOobe,
-                        displayName: data.name,
-                        userID: data.userID,
-                        portraitURL: picture
-                    });
-                });
-            });
+
+        const [ showOobe, data, picture ] = await Promise.all([
+            this.getUserOOBE(),
+            this.getUserProfileData(),
+            this.getUserProfilePicture()
+        ]);
+
+        this.setState({
+            showOobe: showOobe,
+            displayName: data.name,
+            userID: data.userID,
+            portraitURL: picture
         });
         
         this.socket = new Socket(this.updateMessages);
@@ -310,7 +307,7 @@ export class Home extends Page<Props, State> {
                                 />
                                 <Route
                                     path="/search-results"
-                                    render={props => (<SearchResults {...props} finalSearchField={this.state.finalSearchField} />)}
+                                    render={props => <SearchResults {...props} finalSearchField={this.state.finalSearchField} />}
                                 />
                                 <Redirect to="/" />
                             </Switch> 

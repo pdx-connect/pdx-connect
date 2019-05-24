@@ -198,16 +198,8 @@ export class Edit extends Component<Props, State> {
     };
 
     private readonly handleMajorChange = (value: ValueType<OptionType>, action: ActionMeta) => {
-        let selectedMajors: OptionType[];
+        let selectedMajors = OptionType.resolve(value);
         
-        if (value == null) {
-            selectedMajors = [];
-        } else if (Array.isArray(value)) {
-            selectedMajors = value;
-        } else {
-            selectedMajors = [value];
-        }
-
         this.setState({
             selectedMajors: selectedMajors,
             major: selectedMajors[0].label
@@ -217,15 +209,7 @@ export class Edit extends Component<Props, State> {
     };
 
     private readonly handleCommuterChange = (value: ValueType<OptionType>, action: ActionMeta) => {
-        let selectedCommuterOptions: OptionType[];
-        
-        if (value == null) {
-            selectedCommuterOptions = [];
-        } else if (Array.isArray(value)) {
-            selectedCommuterOptions = value;
-        } else {
-            selectedCommuterOptions = [value];
-        }
+        let selectedCommuterOptions = OptionType.resolve(value);
 
         this.setState({
             selectedCommuterOptions: selectedCommuterOptions,
@@ -236,15 +220,7 @@ export class Edit extends Component<Props, State> {
     };
 
     private readonly handleInterestChange = (value: ValueType<OptionType>, action: ActionMeta) => {
-        let selectedInterests: OptionType[];
-
-        if (value == null) {
-            selectedInterests = [];
-        } else if (Array.isArray(value)) {
-            selectedInterests = value;
-        } else {
-            selectedInterests = [value];
-        }
+        let selectedInterests = OptionType.resolve(value);
 
         this.setState({selectedInterests: selectedInterests});
         this.update('selectedInterests', selectedInterests[0].value);
@@ -283,7 +259,6 @@ export class Edit extends Component<Props, State> {
                 pictureErrorMsg: "File is too big",
                 pictureCommit: false,
             });
-            console.log("show error");
         }
         
            
@@ -299,6 +274,7 @@ export class Edit extends Component<Props, State> {
                     return;
                 } else {
                     this.props.updateDisplayName(this.state.displayName);
+                    this.props.updateUserProfile();
                 }
                 break;
             }
@@ -387,9 +363,6 @@ export class Edit extends Component<Props, State> {
         let description = this.props.userProfile.description ? this.props.userProfile.description : "";
         let interests = this.props.userProfile.tags ? this.props.userProfile.tags: [];
         let picture = this.props.userProfile.picture != undefined ? this.props.userProfile.picture : this.props.getUserProfileDefault();
-
-        //console.log('interests: ', interests, ' ', typeof interests);
-        //console.log('user profile: ', this.props.userProfile);
         
         return (
                 <Container fluid className="profile">

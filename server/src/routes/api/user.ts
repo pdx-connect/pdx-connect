@@ -7,17 +7,6 @@ import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 
 
-function toTagString(tags: Tag[]) {
-    let str = "Tags: ";
-    for (let i = 0; i < tags.length; ++i) {
-        str = str.concat(tags[i].name);
-        if (i < tags.length - 1) {
-            str = str.concat(", ");
-        }
-    }
-    return str;
-}
-
 export function route(app: Express, db: Connection) {
     app.get("/api/user/name", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
