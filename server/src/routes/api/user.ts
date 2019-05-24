@@ -6,6 +6,11 @@ import {Tag} from "../../entity/Tag";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 
+interface UserData {
+    userID: number;
+    displayName: string;
+}
+
 export function route(app: Express, db: Connection) {
     app.get("/api/user/name", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
@@ -346,6 +351,25 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+
+    /*app.post("/api/user/findnames", async (request: Request, response: Response) => {
+        let json : UserData[]
+        // Search the DB to find all users
+        const users: User[] = await User.find({
+        });
+
+        // Create an array of user(s) containing their ID, displayName
+        json = await Promise.all(users.map(async user => {
+            return {
+                userID: user.id,
+                displayName: user.displayName,
+            };
+        }));
+        response.send(JSON.stringify({
+            // Send back the array of found user(s)
+            results: json
+        }));
+    });*/
     // Route which returns display names given an array of userIDs
     app.post("/api/user/names", async (request: Request, response: Response) => {
         // Validate that user is logged in
