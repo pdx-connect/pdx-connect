@@ -3,7 +3,7 @@ import {Connection} from "typeorm";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 import {Tag} from "../../entity/Tag";
 import {CalendarEventComment} from "../../entity/CalendarEventComment";
-import {User} from "../../entity/User"
+import {User} from "../../entity/User";
 
 async function parseEventByID(request: Request): Promise<CalendarEvent|null|undefined> {
     const id: number = Number.parseInt(request.params.id);
@@ -12,7 +12,8 @@ async function parseEventByID(request: Request): Promise<CalendarEvent|null|unde
     }
     const event: CalendarEvent|undefined = await CalendarEvent.findOne({
         where: {
-            id: id
+            id: id,
+            deleted: false
         }
     });
     if (event == null) {
@@ -27,7 +28,11 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const allEvents: CalendarEvent[] = await CalendarEvent.find();
+        const allEvents: CalendarEvent[] = await CalendarEvent.find({
+            where: {
+                deleted: false
+            }
+        });
         response.send(JSON.stringify(allEvents.map(e => {
             return {
                 id: e.id,
@@ -40,11 +45,18 @@ export function route(app: Express, db: Connection) {
         })));
     });
     app.post("/api/event", async (request: Request, response: Response) => {
-        if (!request.isAuthenticated()) {
+        const user: User | undefined = request.user;
+        if (user == null) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        // TODO Create a new event
+        const body = request.body;
+        const title = body.title;
+        const description = body.description;
+        const start = body.start;
+        const end = body.end;
+        await new CalendarEvent(user, title, description, start, end).save();
+        response.send(JSON.stringify("Success"));
     });
     app.get("/api/event/:id", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
@@ -66,6 +78,27 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+    app.put("/api/event/:id", async (request: Request, response: Response) => {
+        if (!request.isAuthenticated()) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
+        if (event === void 0) {
+            response.sendStatus(400);
+        } else if (event === null) {
+            response.send(JSON.stringify("Event not found."));
+        } else {
+            event.title = request.body.title;
+            event.description = request.body.description;
+            event.start = request.body.start;
+            event.end = request.body.end;
+            await event.save();
+            response.send(JSON.stringify({
+                success: true
+            }));
+        }
+    });
     app.post("/api/event/:id", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
             response.send(JSON.stringify("Not logged in."));
@@ -78,6 +111,24 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Event not found."));
         } else {
             // TODO Edit an existing event
+        }
+    });
+    app.delete("/api/event/:id", async (request: Request, response: Response) => {
+        if (!request.isAuthenticated()) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
+        if (event === void 0) {
+            response.sendStatus(400);
+        } else if (event === null) {
+            response.send(JSON.stringify("Event not found."));
+        } else {
+            event.deleted = true;
+            await event.save();
+            response.send(JSON.stringify({
+                success: true
+            }));
         }
     });
     app.get("/api/event/:id/tags", async (request: Request, response: Response) => {
