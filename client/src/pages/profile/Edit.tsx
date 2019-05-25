@@ -223,7 +223,7 @@ export class Edit extends Component<Props, State> {
         let selectedInterests = OptionType.resolve(value);
 
         this.setState({selectedInterests: selectedInterests});
-        this.update('selectedInterests', selectedInterests[0].value);
+        this.update('selectedInterests', JSON.stringify(selectedInterests));
     };
 
     private readonly handlePictureChange = (e: any) => {
@@ -304,7 +304,28 @@ export class Edit extends Component<Props, State> {
                 break;
             }
             case "selectedInterests": {
-                console.log('selectedIntrests: ', v);
+                if(v != null) {
+                    let selectedTags = JSON.parse(v);
+
+                    const selectedInterests: number[] = selectedTags.map((option: OptionType): number => {
+                        const id: number = Number.parseInt(option.value);
+                        if (Number.isNaN(id)) {
+                            throw new Error("Option value is not a number!");
+                        }
+                        return id;
+                    });
+                        
+                    const data = await postJSON("/api/user/interests", {
+                        interests: selectedInterests
+                    });
+
+                    if (!('success' in data)) {
+                        this.error(e, true);
+                        return;
+                    } else {
+                        this.props.updateUserProfile();
+                    }
+                }
                 break;
             }
             case "optInEmail": {
