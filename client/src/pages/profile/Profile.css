@@ -8,7 +8,7 @@
 
 .profile-label
 {
-    color: #565656;
+    color: var(--white-contrast);
     text-transform: uppercase;
     letter-spacing: .5vw;
     font-weight: bold;
@@ -33,7 +33,7 @@
 
 .editField
 {
-    color: #565656;
+    color: var(--white-contrast);
     cursor: pointer;
     text-align: left;
     cursor: pointer;
@@ -41,7 +41,7 @@
 
 .saveChanges
 {
-    color: #565656;
+    color: var(--white-contrast);
     cursor: pointer;
     text-align: left;
     cursor: pointer;
@@ -50,7 +50,7 @@
 
 .undoEdit
 {
-    color: #565656;
+    color: var(--white-contrast);
     cursor: pointer;
     text-align: left;
     cursor: pointer;
@@ -58,29 +58,29 @@
 
 .editField:hover
 {
-    color: #297d7d;
+    color: var(--suggestion);
 }
 
 .saveChanges:hover
 {
-    color: #297d7d;
+    color: var(--suggestion);
 }
 
 .undoEdit:hover
 {
-    color: #297d7d;
+    color: var(--suggestion);
 }
 
 .profile-right-container
 {
-    background-color: #f2f2f2;
+    background-color: var(--faint-contrast);
     border-radius: 5px;
-    border: solid thin #e0e0e0;
+    border: solid thin var(--far-white-contrast);
 }
 
 .nav.profile-nav a.nav-link
 {
-    color: #9fc1c0;
+    color: var(--suggestion);
     text-transform: uppercase;
     letter-spacing: .5vw;
     font-weight: bold;
@@ -88,7 +88,7 @@
 
 .nav.profile-nav a.nav-link:hover
 {
-    color: #297d7d;
+    color: var(--thing-2);
 }
 
 .profile-content
@@ -101,53 +101,43 @@
     margin-top: 8%;
 }
 
-.profile-display-name
+.profile-attribute-header
 {
-    color: #565656;
-    text-transform: capitalize;
-    font-size: 2vw;
-}
-
-.profile-user-profile-table td, .profile-user-profile-img-table td
-{
-    border-top: none;
-}
-
-.profile-user-profile-table tr:nth-child(odd)
-{
-    color: #297d7d;
+    color: var(--thing-2);
     text-transform: uppercase;
     letter-spacing: .5vw;
     font-weight: bold;
 }
 
-.profile-user-profile-table tr:nth-child(even)
+.profile-attribute-display-name
 {
-    color: #297d7d;
+    color: var(--white-contrast);
+    text-transform: uppercase;
+    letter-spacing: .5vw;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.profile-attribute-content
+{
+    color: var(--thing-2);
     text-indent: 5%;
+    font-weight: normal;
+    text-transform: capitalize;
+}
+
+.profile-message-me-button {
+    color: var(--suggestion);
+  }
+  
+.profile-message-me-button:hover {
+    color: var(--far-white-contrast);
+    cursor: pointer;
 }
 
 .indent
 {
     text-indent: 15%;
-}
-
-.profile-message-me-button {
-    background-color: var(--suggestion);
-    font-weight: bold;
-    width: 100%;
-    color: var(--white);
-    text-transform: uppercase;
-    letter-spacing: .4vw;
-    font-weight: bold;
-    font-size: 1em;
-    height: 100%;
-    font-family: var(--soft-font);
-}
-
-.profile-message-me-button:hover {
-    color: var(--white-contrast);
-    text-decoration: none;
 }
 
 .profile-picture-thumbsize {

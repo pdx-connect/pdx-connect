@@ -1,8 +1,8 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Container, Row, Col, Table, Button, Modal} from "react-bootstrap";
+import {Container, Row, Col, Modal} from "react-bootstrap";
+import {FaComment} from "react-icons/fa";
 import Select from 'react-select';
-import {OptionType} from "../../components/types";
 import "./Profile.css";
 
 interface Props {
@@ -36,7 +36,7 @@ export class ProfileContent extends Component<Props, State> {
         let commuterStatus = this.props.displayProfile.commuterStatus ? this.props.displayProfile.commuterStatus: "";
         let description = this.props.displayProfile.description ? this.props.displayProfile.description: "";
         let interests = this.props.displayProfile.tags ? this.props.displayProfile.tags: "";
-        let isUser = this.props.displayProfile.isUser ? this.props.displayProfile.isUser: false;
+        let isUser = this.props.displayProfile.isUser === true || this.props.displayProfile.isUser === undefined  ? true : false;
         let picture = this.props.displayProfile.picture != undefined ? this.props.displayProfile.picture : this.props.getUserProfileDefault();
 
 
@@ -49,63 +49,59 @@ export class ProfileContent extends Component<Props, State> {
 
         return (
                 <Container fluid className="profile-content">
-                    <Row> 
-                        <Col sm={3}>
-                        <Table className="text-center profile-user-profile-img-table">
-                                <tbody>
-                                    <tr>
-                                        <td><img className="profile-picture-thumbsize" src={picture} alt="user picture"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td className="profile-display-name">{displayName}</td>
-                                    </tr>
-                                    { isUser === true ? null :
-                                        <tr>
-                                            <td><Button size="sm" variant="light" className="profile-message-me-button" onClick={() => this.setState({ showComposeMessage: true })}>message me</Button></td>
-                                        </tr>
-                                    }
-                                </tbody>
-                                </Table>
-                        </Col>
-                        <Col sm={1}></Col>
-                        <Col sm={8}>
-                            <Table className="profile-user-profile-table">
-                                <tbody>
-                                    <tr>
-                                        <td>major</td>
-                                    </tr>
-                                    <tr>
-                                        <td>{major}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>commuter</td>
-                                    </tr>
-                                    <tr>
-                                        <td>{commuterStatus}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>about me</td>
-                                    </tr>
-                                    <tr>
-                                        <td>{description}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>interests</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <Select
-                                            options={userInterests}
-                                            isDisabled={true}
-                                            isMulti={true}
-                                            value={userInterests}
-                                        />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                </Table>
-                        </Col>
-                    </Row>
+                        <Row>
+                            <Col sm={12} className="text-right">
+                                { isUser === true ? null :
+                                    <FaComment size={'2em'} className="profile-message-me-button" onClick={() => this.setState({ showComposeMessage: true })}/>
+                                }
+                            </Col>
+                        </Row>
+                        {/* MAJOR */}
+                        <Row className="mb-3">
+                            <Row>
+                                <Col sm={4}>
+                                    <Row className="text-center">
+                                        <Col sm={12}><img className="profile-picture-thumbsize" src={picture} alt="user picture"/></Col>
+                                        <Col sm={12} className="profile-attribute-display-name">{displayName}</Col>
+                                    </Row>
+                                </Col>
+                                <Col sm={8} className="profile-attribute-header">
+                                    <Row>
+                                        {/* MAJOR */}
+                                        <Col sm={12} className="profile-attribute-header mb-1">major</Col>
+                                        <Col sm={12} className="profile-attribute-content">{major}</Col>
+                                        {/* COMMUTER */}
+                                        <Col sm={12} className="profile-attribute-header mb-1">commuter</Col>
+                                        <Col sm={12} className="profile-attribute-content">{commuterStatus}</Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        </Row>
+
+                        
+
+                        {/* DESCRIPTION */}
+                        <Row className="mb-3">
+                            <Col sm={12} className="profile-attribute-header">description</Col>
+                        </Row>
+                        <Row className="mb-3">
+                            <Col sm={12} className="profile-attribute-content">{description}</Col>
+                        </Row>
+
+                        {/* INTERESTS */}
+                        <Row>
+                            <Col sm={12} className="profile-attribute-header">interests</Col>
+                        </Row>
+                        <Row className="mb-3">
+                            <Col sm={12}>
+                                <Select
+                                    options={userInterests}
+                                    isDisabled={true}
+                                    isMulti={true}
+                                    value={userInterests}
+                                />
+                            </Col>
+                        </Row>
                     { isUser === true ? null :
                         <Modal size="lg" show={this.state.showComposeMessage} onHide={() => this.setState({ showComposeMessage: false })} dialogClassName="profile-compose-message-modal" backdrop="static">
                             <Modal.Header closeButton><h4>Hey {name}!</h4></Modal.Header>
@@ -118,5 +114,4 @@ export class ProfileContent extends Component<Props, State> {
 
         );
     }
-
 }
