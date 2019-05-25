@@ -45,7 +45,7 @@
     cursor: pointer;
     text-align: left;
     cursor: pointer;
-    margin-right: 10%
+    margin-right: 5%
 }
 
 .undoEdit
@@ -69,11 +69,6 @@
 .undoEdit:hover
 {
     color: #297d7d;
-}
-
-.bottomMargin
-{
-    margin-bottom: 2%;
 }
 
 .profile-right-container
@@ -160,4 +155,8 @@
     height: auto;
     margin-bottom: 5%;
     box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.30);
+}
+
+.profile-move-edit-icon-up {
+    margin-top: -3%;
 }

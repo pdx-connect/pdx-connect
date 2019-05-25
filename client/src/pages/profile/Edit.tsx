@@ -292,7 +292,6 @@ export class Edit extends Component<Props, State> {
                 break;
             }
             case "commuterStatus": {
-                console.log('commuter status: ', v);
                 const data = await postJSON("/api/user/on_campus", {
                     commuterStatus: v === "true" ? true : false
                 });
@@ -368,9 +367,9 @@ export class Edit extends Component<Props, State> {
                 <Container fluid className="profile">
                     
                     {/* DISPLAY NAME */}
-                    <Row>
-                       <Col sm={4} className="profile-label">display name</Col>
-                        <Col sm={4}>
+                    <Row className="pt-3">
+                        <Col sm={4} className="profile-label">display name</Col>
+                        <Col sm={8}>
                             <Form.Group className="formBasic">
                                 <Form.Control
                                     type="text"
@@ -383,14 +382,16 @@ export class Edit extends Component<Props, State> {
                                 />
                             </Form.Group>
                         </Col>
-
-                        <Col sm={4} className="edit">
+                    </Row>
+                    <Row className="pb-3">
+                        <Col sm={4} className="profile-label"></Col>
+                        <Col sm={8} className="edit profile-move-edit-icon-up">
                             {this.state.disabled['displayName']?
-                                <div>
+                                <div className="text-right">
                                     <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('displayName')}/>
                                 </div>
                                     :
-                                <div>
+                                <div className="text-right">
                                     <FaSave className="saveChanges" size="2vw" onClick={() => this.update('displayName', null)}></FaSave>
                                     <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('displayName')}></FaUndoAlt>
                                 </div>
@@ -399,9 +400,9 @@ export class Edit extends Component<Props, State> {
                    </Row>
 
                     {/* MAJOR */}
-                   <Row className="bottomMargin">
+                   <Row className="pb-3">
                        <Col sm={4} className="profile-label">major</Col>
-                       <Col sm={4}>
+                       <Col sm={8}>
                             <Select
                                 options={this.state.majors}
                                 value={this.state.selectedMajors}
@@ -414,10 +415,10 @@ export class Edit extends Component<Props, State> {
 
 
                     {/* COMMUTER */}
-                   <Row className="bottomMargin">
+                   <Row className="pb-3">
                        <Col sm={4} className="profile-label">commuter</Col>
 
-                       <Col sm={4}>
+                       <Col sm={8}>
                             <Select 
                                 options={this.state.commuterOptions} 
                                 onChange={this.handleCommuterChange}
@@ -428,9 +429,9 @@ export class Edit extends Component<Props, State> {
 
 
                     {/* INTERESTS */}
-                   <Row className="bottomMargin">
+                   <Row className="pb-3">
                        <Col sm={4} className="profile-label">interests</Col>
-                       <Col sm={4}>
+                       <Col sm={8}>
                             <Select
                                 options={this.state.interests}
                                 value={this.state.selectedInterests}
@@ -438,15 +439,14 @@ export class Edit extends Component<Props, State> {
                                 isMulti={true}
                             />
                        </Col>
-                       <Col sm={4} className="edit"></Col>
                    </Row>
 
                     
                     {/* OPT IN EMAIL */}
-                   <Row >
+                   <Row>
                        <Col sm={4} className="profile-label">opt-in email</Col>
 
-                       <Col sm={4}>
+                       <Col sm={8}>
                             <Form.Group className="formBasic">
                                 <Form.Control
                                     type="text"
@@ -459,14 +459,16 @@ export class Edit extends Component<Props, State> {
                                 />
                             </Form.Group>
                        </Col>
-                       
-                       <Col sm={4} className="edit">
+                    </Row>
+                    <Row className="pb-3">
+                        <Col sm={4} className="profile-label"></Col>
+                        <Col sm={8} className="edit profile-move-edit-icon-up">
                             {this.state.disabled['optInEmail']?
-                                <div>
+                                <div className="text-right">
                                     <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('optInEmail')}/>
                                 </div>
                                     :
-                                <div>
+                                <div className="text-right">
                                     <FaSave className="saveChanges" size="2vw" onClick={() => this.update('optInEmail', null)}></FaSave>
                                     <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('optInEmail')}></FaUndoAlt>
                                 </div>
@@ -476,7 +478,7 @@ export class Edit extends Component<Props, State> {
 
 
                     {/* PICTURE */}
-                   <Row>
+                   <Row className="pb-3">
                        <Col sm={4} className="profile-label">picture</Col>
 
                        <Col sm={8}>
@@ -490,21 +492,21 @@ export class Edit extends Component<Props, State> {
                             </Form.Group>
                        </Col>
                    </Row>
-                   <Row>
+                   <Row className="pb-3">
                        <Col sm={4} className="profile-label">current picture</Col>
 
                        <Col sm={8}>
                             <img src={picture} className="profile-picture-thumbsize"/>
                        </Col>
                    </Row>
-                   <Row>
+                   <Row className="pb-3">
                        <Col sm={4} className="profile-label">{this.state.pictureCommit === true ? <Button className="profile-upload" onClick={() => this.update('picture', this.state.picture64)}>upload</Button> : null}</Col>
 
                        <Col sm={8}>
                             {this.state.picture64 != "" ? <img src={this.state.picture64} className="profile-picture-thumbsize"/> : null}
                        </Col>
                    </Row>
-                   <Row>
+                   <Row className="pb-3">
                        <Col sm={4} className="profile-label">{this.state.pictureError === true ? "Upload Error" : null}</Col>
 
                        <Col sm={8}>
@@ -517,7 +519,7 @@ export class Edit extends Component<Props, State> {
                    <Row>
                        <Col sm={4} className="profile-label">description</Col>
 
-                       <Col sm={4}>
+                       <Col sm={8}>
                             <Form.Group className="formBasic">
                                 <Form.Control
                                     as="textarea"
@@ -529,15 +531,17 @@ export class Edit extends Component<Props, State> {
                                     disabled={this.state.disabled['description']}
                                 />
                             </Form.Group>
-                       </Col>
-                       
-                       <Col sm={4} className="edit">
+                        </Col>
+                   </Row>
+                   <Row className="pb-3">
+                        <Col sm={4} className="profile-label"></Col>
+                        <Col sm={8} className="edit profile-move-edit-icon-up">
                             {this.state.disabled['description']?
-                                <div>
+                                <div className="text-right">
                                     <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('description')}/>
                                 </div>
                                     :
-                                <div>
+                                <div className="text-right">
                                     <FaSave className="saveChanges" size="2vw" onClick={() => this.update('description', null)}></FaSave>
                                     <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('description')}></FaUndoAlt>
                                 </div>
