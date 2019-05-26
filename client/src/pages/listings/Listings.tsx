@@ -694,7 +694,7 @@ export class Listings extends Component<Props, State>{
 
         if(this.state.myListings)   // Show only my listings
         {
-            for(let i=0; i < this.state.listings.length; i++)
+            for(let i=this.state.listings.length-1; i >= 0; i--)
             {
                 if(this.state.listings[i].userID == this.state.myUserID)
                     views = this.createListings(i, views);
@@ -702,7 +702,7 @@ export class Listings extends Component<Props, State>{
         }
         else if(this.state.myBookmarkedListings)    // Show only my bookmarked listings
         {
-            for(let i=0; i < this.state.listings.length; i++)
+            for(let i=this.state.listings.length-1; i >= 0; i--)
             {
                 for(const id of this.state.bookmarkedListings)
                 {
@@ -713,7 +713,7 @@ export class Listings extends Component<Props, State>{
         }
         else if(this.state.filterTag)   // Show filtered listings
         {
-            for(let i=0; i < this.state.listings.length; i++)
+            for(let i=this.state.listings.length-1; i >= 0; i--)
             {
                 for(const tag of this.state.listings[i].tags)
                 {
@@ -724,7 +724,7 @@ export class Listings extends Component<Props, State>{
         }
         else    // Show all listings
         {
-            for(let i=0; i < this.state.listings.length; i++)
+            for(let i=this.state.listings.length-1; i >= 0; i--)
             {
                views = this.createListings(i, views);
             }
