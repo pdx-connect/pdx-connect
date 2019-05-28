@@ -3764,6 +3764,11 @@ lodash-es@^4.2.1:
   resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.11.tgz#145ab4a7ac5c5e52a3531fb4f310255a152b4be0"
   integrity sha512-DHb1ub+rMjjrxqlB3H56/6MXtm1lSksDp2rA2cNWjG8mlDUYFhUj3Di2Zn5IwSU87xLv8tNIQ7sSwE/YOX/D/Q==
 
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+  integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
+
 lodash.isfinite@^3.3.2:
   version "3.3.2"
   resolved "https://registry.npmjs.org/lodash.isfinite/-/lodash.isfinite-3.3.2.tgz#fb89b65a9a80281833f0b7478b3a5104f898ebb3"
@@ -4136,6 +4141,11 @@ neo-async@^2.5.0:
   version "2.6.1"
   resolved "https://registry.npmjs.org/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
   integrity sha512-iyam8fBuCUpWeKPGpaNMetEocMt364qkCsfL9JuhjXX6dRnguRVOfk2GZaDpPjcOKiiXCPINZC1GczQ7iTq3Zw==
+
+nested-objects@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/nested-objects/-/nested-objects-0.0.2.tgz#dffcc35bbbed73affb857e89fa7c9ee969bc7780"
+  integrity sha1-3/zDW7vtc6/7hX6J+nye6Wm8d4A=
 
 next-tick@^1.0.0:
   version "1.0.0"
@@ -5168,6 +5178,14 @@ react-icons@^3.5.0:
   integrity sha512-7MyPwjIhuyW0D2N3s4DEd0hGPGFf0sK+IIRKhc1FvSpZNVmnUoGvHbmAwzGJU+3my+fvihVWgwU5SDtlAri56Q==
   dependencies:
     camelcase "^5.0.0"
+
+react-infinity-menu@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/react-infinity-menu/-/react-infinity-menu-4.0.0.tgz#b3f03513aece5c71d3669f35ba15e0a18bd1c6c6"
+  integrity sha512-MM3TLXkUj9sJYEjaaHi5DjgItEOagMwePuVnczUevXHQ03lSUW12+WYIP0NvrqK4tgPf5MnYFqAQSrUkpXvpJQ==
+  dependencies:
+    lodash.get "^4.4.2"
+    nested-objects "0.0.2"
 
 react-input-autosize@^2.1.2, react-input-autosize@^2.2.1:
   version "2.2.1"
