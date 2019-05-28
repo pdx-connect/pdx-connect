@@ -62,7 +62,7 @@ interface State {
 export class Home extends Page<Props, State> {
     
     constructor(props: Props) {
-        super(props);
+        super(props);   
         this.state = {
             alerts: {},
             searchField: "",
@@ -267,8 +267,7 @@ export class Home extends Page<Props, State> {
                                     render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} />}
                                 />
                                 <Route
-                                    path="/calendar"
-                                    render={props => <Calendar {...props} userID={this.state.userID} />}
+                                    path="/calendar" component={Calendar}
                                 />
                                 <Route path="/listings" component={Listings} />
                                 <Route path="/inbox"
