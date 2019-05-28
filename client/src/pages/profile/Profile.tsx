@@ -41,7 +41,7 @@ interface Event {
 }
 
 interface Listing {
-    anonymous: boolean;
+    anonymous: number;
     deleted: number;
     description: string;
     id: number;
@@ -217,7 +217,7 @@ export class Profile extends Component<Props, State> {
                         />
                         <Route
                             path="/profile/listings"
-                            render={props => <Listings {...props} listings={this.state.userProfile.listings} updateUserProfile={this.updateUserProfile} />}
+                            render={props => <Listings {...props} listings={this.state.userProfile.listings} updateUserProfile={this.updateUserProfile} displayName={this.state.userProfile.displayName} />}
                         />
                         <Route
                             path="/profile/settings"

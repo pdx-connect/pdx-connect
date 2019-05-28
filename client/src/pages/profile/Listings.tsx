@@ -7,6 +7,7 @@ import {getJSON, postJSON} from "../../util/json";
 interface Props {
     listings: Listing[];
     updateUserProfile: () => void;
+    displayName: string;
 }
 
 interface State {
@@ -15,7 +16,7 @@ interface State {
 }
 
 interface Listing {
-    anonymous: boolean;
+    anonymous: number;
     deleted: number;
     description: string;
     id: number;
@@ -87,10 +88,13 @@ export class Listings extends Component<Props, State> {
         let listing = this.state.listing;
         
         let hideEditButtons = true;
+        let postingDate = "";
+        let poster = this.props.displayName;
 
         if(listing != undefined) {
             hideEditButtons= listing.deleted === 1? true: false;
-
+            postingDate = new Date(listing.timePosted).toDateString();
+            poster = listing.anonymous === 1? "Posted Anonymously" : this.props.displayName;
         }
         
         return (
@@ -107,7 +111,7 @@ export class Listings extends Component<Props, State> {
                                     title
                                 </th>
                                 <th>
-                                    posted
+                                    post date
                                 </th>
                                 <th>
                                     description
@@ -120,35 +124,44 @@ export class Listings extends Component<Props, State> {
                     </Table>
                     </Col>
                 </Row>
-                <Modal size="lg" show={this.state.showEditListing} onHide={() => this.setState({ showEditListing: false })} dialogClassName="profile-my-events-modal" backdrop="static">
+                <Modal size="lg" show={this.state.showEditListing} onHide={() => this.setState({ showEditListing: false })} className="profile-my-events-modal" backdrop="static">
                 <Modal.Header closeButton>
-                    <Modal.Title>My Listing</Modal.Title>
+                    <div className="profile-modal-header">
+                        <span className="profile-modal-title">my listing</span>
+                        <span className="profile-modal-sub-title">{listing != undefined? listing.title : "My Listing"}</span>
+                    </div>
                 </Modal.Header>
                     <Modal.Body>
                         {listing != undefined?
-                            <div>
-                                <span>anonymous: {listing.anonymous}</span>
-                                <span>deleted: {listing.deleted}</span>
-                                <span>description: {listing.description}</span>
-                                <span>id: {listing.id}</span>
-                                <span>timePosted: {listing.timePosted}</span>
-                                <span>title: {listing.title}</span>
-                                <span>userID: {listing.userID}</span>
-                            </div>
+                            <Container fluid>
+                                <Row className="pb-3">
+                                    <Col sm={4} className="profile-label">Poster</Col>
+                                    <Col sm={8} className="profile-listing-content">{poster}</Col>
+                                </Row>
+                                <Row className="pb-3">
+                                    <Col sm={4} className="profile-label">description</Col>
+                                    <Col sm={8} className="profile-listing-content">{listing.description}</Col>
+                                </Row>
+                                <Row className="pb-3">
+                                    <Col sm={4} className="profile-label">posting date</Col>
+                                    <Col sm={8} className="profile-listing-content">{postingDate}</Col>
+                                </Row>
+                            </Container>
                             :
                             null
                         }
-                        {hideEditButtons === true? null
-                        :
-                        <div>
-                            <FaPencilAlt className="profile-fa-icon ml-auto pl-1 mt-1" size="2vw" />
-                            <FaTrash className="profile-fa-icon ml-auto" size="2vw" onClick={() => this.removeListing(listing)} />
-                        </div>
-                        }
                     </Modal.Body>
-                    <Modal.Footer>
-                        {hideEditButtons === true? null : <Button variant="light">save</Button>}
-                    </Modal.Footer>
+                        {hideEditButtons === true?
+                        <div className="profile-modal-footer text-center"><span className="profile-modal-footer-content-center">this listing was deleted and cannot be edited</span></div>
+                            :
+                            <div className="profile-modal-footer">
+                                <span className="profile-modal-footer-content-left">
+                                    <FaPencilAlt className="profile-fa-icon" size="2vw" />
+                                    <FaTrash className="profile-fa-icon" size="2vw" onClick={() => this.removeListing(listing)} />
+                                </span>
+                                <span className="profile-modal-footer-content-right"><Button variant="light">save</Button></span>
+                            </div>
+                        }
                 </Modal>
         </Container>
         );
