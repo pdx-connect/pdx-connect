@@ -45,14 +45,16 @@ interface Listing {
     deleted: number;
     description: string;
     id: number;
-    timePosted: string;
+    datePosted: string;
     title: string;
     userID: number;
+    tags: Tag[];
+
 }
 
 interface Tag {
-    value: string;
-    label: string;
+    id: number;
+    name: string;
 }
 
 interface UserEmail {
@@ -198,7 +200,6 @@ export class Profile extends Component<Props, State> {
 
     public render(): ReactNode {
 
-        console.log('user profile: ', this.state.userProfile);
         return (
             <Container fluid className="profile">
             <Row>

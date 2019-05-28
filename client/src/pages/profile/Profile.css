@@ -173,11 +173,22 @@
     text-align: left;
 }
 
+.profile-my-listings-table tr th, .profile-my-events-table tr th {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    width: 33%;
+}
+
 .profile-my-listings-table tr td, .profile-my-events-table tr td {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: inline-block;
+    width: 33%;
 }
+
 
 .profile-my-listings, .profile-my-events {
     color: var(--white-contrast);

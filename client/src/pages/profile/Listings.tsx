@@ -2,6 +2,8 @@ import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Table, Modal, Button, Form} from "react-bootstrap";
 import {FaPencilAlt, FaTrash} from "react-icons/fa";
+import Select from 'react-select';
+import {OptionType} from "../../components/types";
 import {postJSON} from "../../util/json";
 
 interface Props {
@@ -22,14 +24,15 @@ interface Listing {
     deleted: number;
     description: string;
     id: number;
-    timePosted: string;
+    datePosted: string;
     title: string;
     userID: number;
+    tags: Tag[]
 }
 
 interface Tag {
-    value: string;
-    label: string;
+    id: number;
+    name: string;
 }
 
 /**
@@ -113,13 +116,13 @@ export class Listings extends Component<Props, State> {
 
         for(let i = 0; i < listings.length; i++)
         {
-            let date = new Date(listings[0].timePosted);
+            let date = new Date(listings[i].datePosted);
 
             listingGrid.push(
-                <tr key={i} onClick={() => this.viewListing(listings[0].id, i)} className="profile-my-listings">
-                    <td className="profile-my-listings-title">{listings[0].title}</td>
+                <tr key={i} onClick={() => this.viewListing(listings[i].id, i)} className="profile-my-listings">
+                    <td className="profile-my-listings-title">{listings[i].title}</td>
                     <td className="profile-my-listings-timePosted">{date.toDateString()}</td>
-                    <td className="profile-my-listings-description">{listings[0].description}</td>
+                    <td className="profile-my-listings-description">{listings[i].description}</td>
                 </tr>
             );
         }
@@ -136,17 +139,29 @@ export class Listings extends Component<Props, State> {
 
 
     public render(): ReactNode {
+        console.log('listings: ', this.props.listings);
         let listings = this.createListings(this.props.listings);
         let listing = this.state.listing;
         
         let hideEditButtons = true;
         let postingDate = "";
         let poster = this.props.displayName;
+        let tags: OptionType[]= [];
+
 
         if(listing != undefined) {
             hideEditButtons= listing.deleted === 1? true: false;
-            postingDate = new Date(listing.timePosted).toDateString();
+            postingDate = new Date(listing.datePosted).toDateString();
             poster = listing.anonymous === 1? "Posted Anonymously" : this.props.displayName;
+
+            const tagged = listing.tags.map((t: { id: { toString: () => void; }; name: any; }) => {
+                return {
+                    value: t.id.toString(),
+                    label: t.name
+                };
+            });
+
+            console.log('tagged: ', tagged);
         }
         
         return (
@@ -197,6 +212,17 @@ export class Listings extends Component<Props, State> {
                                 <Row className="pb-3">
                                     <Col sm={4} className="profile-label">posting date</Col>
                                     <Col sm={8} className="profile-listing-content">{postingDate}</Col>
+                                </Row>
+                                <Row className="pb-3">
+                                    <Col sm={4} className="profile-label">tags</Col>
+                                    <Col sm={8} className="profile-listing-tags">
+                                        <Select
+                                            options={tags}
+                                            isDisabled={true}
+                                            isMulti={true}
+                                            value={tags}
+                                        />
+                                    </Col>
                                 </Row>
                             </Container>
                             :

@@ -412,16 +412,13 @@ export function route(app: Express, db: Connection) {
                     if (!listObj.deleted) {
                         // Get the tags and translate them to tag names
                         let listTags: Tag[] = await listObj.tags;
-                        let tagNames: string[] = await Promise.all(listTags.map(async tag => {
-                            return await tag.name;
-                        }));
-                        // Return the mapped objects
+
                         return {
                             id: listObj.id,
                             title: listObj.title,
                             description: listObj.description,
                             type: "Types not yet implemented",
-                            tags: tagNames,
+                            tags: listTags,
                             datePosted: listObj.timePosted
                         };
                     } else {
