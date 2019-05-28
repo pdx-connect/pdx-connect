@@ -13,7 +13,7 @@ import {Listings} from "./listings/Listings";
 import {Inbox} from "./inbox/Inbox";
 import {SearchResults} from "./search-results/SearchResults";
 import {Oobe} from "./oobe/Oobe";
-import {getJSON} from "../util/json";
+import {getJSON, postJSON} from "../util/json";
 import {Socket} from "./Socket";
 
 import "./Home.css";
@@ -226,6 +226,9 @@ export class Home extends Page<Props, State> {
         
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
+        console.log("Getting user info: \n", await postJSON("/api/user/finduser", {
+            userID: 4
+        }));
     }
     
     /**

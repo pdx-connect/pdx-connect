@@ -354,7 +354,8 @@ export function route(app: Express, db: Connection) {
 
     app.post("/api/user/finduser", async (request: Request, response: Response) => {
         let json : any
-        if(request.body.userId)     // If there is a userid to search
+        console.log(request.body);
+        if(request.body.userId != null)     // If there is a userid to search
         {
             // Search the DB to find the user with the userID
             const users: User[] = await User.find({
@@ -406,6 +407,35 @@ export function route(app: Express, db: Connection) {
                         }
                     }
                 }
+                // Create returnable objects for listings
+                let listingEntries = await Promise.all(listings.map(async listObj => {
+                    // Make sure the listing hasn't been deleted
+                    if (!listObj.deleted) {
+                        // Get the tags and translate them to tag names
+                        let listTags: Tag[] = await listObj.tags;
+                        let tagNames: string[] = await Promise.all(listTags.map(async tag => {
+                            return await tag.name;
+                        }));
+                        // Return the mapped objects
+                        return {
+                            id: listObj.id,
+                            title: listObj.title,
+                            description: listObj.description,
+                            type: "Types not yet implemented",
+                            tags: tagNames,
+                            datePosted: listObj.timePosted
+                        };
+                    } else {
+                        return {
+                            id: -1,
+                            title: "",
+                            description: "",
+                            type: "",
+                            tags: [],
+                            datePosted: new Date(0)
+                        };
+                    }
+                }));
                 return {
                     userID: user.id,
                     displayName: user.displayName,
@@ -413,7 +443,7 @@ export function route(app: Express, db: Connection) {
                     tags: tags,
                     creationDate: creationDate,
                     events: events,
-                    listings: listings,
+                    listings: listingEntries,
                     description: descString,
                     commuterStatus: commuterString,
                     picture: picture,
