@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import ReactDataGrid from 'react-data-grid';
-import { Toolbar, Data, Filters } from "react-data-grid-addons";
+import { Toolbar, Data, Filters, Formatters } from "react-data-grid-addons";
 import {getJSON, postJSON} from "../../util/json";
 import "./SearchResults.css";
 import { RouteChildrenProps } from 'react-router';
@@ -21,7 +21,9 @@ interface State {
     filters: any;
     reset: any;
     user: []
+    style: boolean;
 }
+
 
 const {
     MultiSelectFilter,
@@ -37,7 +39,8 @@ export class ReactGrid extends Component<Props, State> {
             tags: [{id: 1, name: ""}],
             filters: {},
             reset: 0,
-            user: []
+            user: [],
+            style: true
         };
     }
 
@@ -45,6 +48,12 @@ export class ReactGrid extends Component<Props, State> {
         if (this.props.searchBy !== prevProps.searchBy || this.props.searchField !== prevProps.searchField) {
             this.getResults(this.props.searchBy, this.props.searchField).then();
             this.setState({reset: this.state.reset + 1})
+            if (this.props.searchBy == 1) {
+                this.setState({style: true})
+            }
+            else {
+                this.setState({style: false})
+            }
         }
     }
 
@@ -94,26 +103,21 @@ export class ReactGrid extends Component<Props, State> {
             data = await postJSON("/api/search/profile", {
                 displayName: searchString
             });
+            this.setState({style: true})
         }
         else if (searchBy == 2) { //Search by listing
             data = await postJSON("/api/search/listing", {
                 title: searchString
             });
+            this.setState({style: false})
         }
         else if (searchBy == 3) { //Search by event
             data = await postJSON("/api/search/event", {
                 title: searchString
             });
+            this.setState({style: false})
         }
         this.setState({rows: data.results});
-        return data
-    };
-
-    private readonly getProfile = async (userId: number) => {
-        const data = await postJSON("/api/search/finduser", {
-            userId: userId,
-        });
-        this.setState({user: data.user});
         return data
     };
 
@@ -122,7 +126,6 @@ export class ReactGrid extends Component<Props, State> {
             let userID = row["userID"]
             let profileString = "/profile/" + userID
             this.props.history.push(profileString)
-            //this.getProfile(row["userID"]).then(userdata => console.log("User:", this.state.user))
         }
     }
 
@@ -131,6 +134,7 @@ export class ReactGrid extends Component<Props, State> {
         let columns : any
         if (this.props.searchBy == 1){
             columns = [
+                { key: "icon", name: "Icon", editable: false, filterable: false, formatter: Formatters.ImageFormatter, width: 70},
                 { key: "displayName", name: "Name", editable: false, filterable: true, className: "searchresults-ellipsis"},
                 { key: "major", name: "Major", editable: false, filterable: true, filterRenderer: AutoCompleteFilter},
                 { key: "tags", name: "Tags", editable: false, filterable: true, filterRenderer: MultiSelectFilter}
@@ -155,7 +159,7 @@ export class ReactGrid extends Component<Props, State> {
         };
 
         return (
-            <div key={this.state.reset}>
+            <div key={this.state.reset} className={this.state.style? "styleOn": "styleOff"}>
                 <ReactDataGrid
                     columns={columns}
                     rowGetter={i => filteredRows[i]}

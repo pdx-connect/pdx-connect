@@ -108,6 +108,13 @@ export class UserProfile extends BaseEntity {
         unsigned: true
     })
     isProfileComment!: boolean;
+
+    @Column({
+        name: "picture",
+        type: "mediumblob",
+        comment: "About me"
+    })
+    picture!: string|null;
     
     /**
      * Internal constructor.
@@ -138,6 +145,7 @@ export class UserProfile extends BaseEntity {
             this.isMiscellaneous = true;
             this.isDirectMessage = true;
             this.isProfileComment = true;
+            this.picture = null;
 
         }
     }
