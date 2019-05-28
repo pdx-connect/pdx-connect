@@ -10,6 +10,15 @@ import {getJSON, postJSON} from "../../util/json";
 import "./Profile.css";
 import { Tags } from '../oobe/preferences/Tags';
 
+
+interface UserEmail {
+    activePriority: boolean;
+    email: string;
+    userID: number;
+    verificationCode: string | null;
+    verificationTime: string;
+}
+
 interface State {
     major: string;
     optInEmail: string;
@@ -36,12 +45,17 @@ interface State {
         value: string;
         label: string;
     }[],
+    emails: {
+        value: string;
+        label: string;
+    }[],
     error: { [key: string]: boolean },
     disabled: { [key: string]: boolean },
     displayName: string,
     selectedMajors: OptionType[],
     selectedCommuterOptions: OptionType[],
     selectedInterests: OptionType[];
+    selectedEmails: OptionType[];
 }
 
 interface Props {
@@ -74,6 +88,7 @@ export class Edit extends Component<Props, State> {
             tags: [],
             commuterOptions: [],
             interests: [],
+            emails: [],
             error: {
                 'displayName': false,
                 'major': false,
@@ -100,6 +115,7 @@ export class Edit extends Component<Props, State> {
             selectedMajors: [],
             selectedCommuterOptions: [],
             selectedInterests: [],
+            selectedEmails: []
         }
     }
 
@@ -150,12 +166,20 @@ export class Edit extends Component<Props, State> {
 
 
                 }
+
+                const selectedEmails: OptionType[] = this.props.userProfile.emails.map((t:{ userID: { toString: () => void; }; email: string; }) => {
+                    return {
+                        value: t.userID.toString(),
+                        label: t.email
+                    };
+                });
     
                 this.setState({
                     interests: filteredInterests,
                     majors: majorOptions,
                     commuterOptions: commuterOptions,
-                    selectedInterests: selectedInterests
+                    selectedInterests: selectedInterests,
+                    selectedEmails: selectedEmails
                 });
 
             });
@@ -224,6 +248,13 @@ export class Edit extends Component<Props, State> {
 
         this.setState({selectedInterests: selectedInterests});
         this.update('selectedInterests', JSON.stringify(selectedInterests));
+    };
+
+    private readonly handleEmailChange = (value: ValueType<OptionType>, action: ActionMeta) => {
+        let selectedEmails = OptionType.resolve(value);
+
+        this.setState({selectedInterests: selectedEmails});
+        this.update('emailRemoval', JSON.stringify(selectedEmails));
     };
 
     private readonly handlePictureChange = (e: any) => {
@@ -329,7 +360,49 @@ export class Edit extends Component<Props, State> {
                 break;
             }
             case "optInEmail": {
-                console.log('optInEmail: ', v);
+                if(v != null) {
+                    console.log('optInEmail: ', v);
+                        
+                    //const data = await postJSON("/api/user/opt-in-email", {
+                    //    emails: email
+                        //userID: userID
+                    //});
+
+                    /*
+                    if (!('success' in data)) {
+                        this.error(e, true);
+                        return;
+                    } else {
+                        this.props.updateUserProfile();
+                    }
+                    */
+                }
+                break;
+            }
+            case "emailRemoval": {
+                if(v != null) {
+                    let selectedEmails = JSON.parse(v);
+                    
+                    const emails: string[] = selectedEmails.map((option: OptionType): string => {
+                        const email: string = option.value;
+                        return email;
+                    });
+
+                    console.log('emailRemoval: ', emails);
+                        
+                    //const data = await postJSON("/api/user/remove-email", {
+                    //    emails: emails,
+                    //});
+
+                    /*
+                    if (!('success' in data)) {
+                        this.error(e, true);
+                        return;
+                    } else {
+                        this.props.updateUserProfile();
+                    }
+                    */
+                }
                 break;
             }
             case "picture": {
@@ -375,15 +448,15 @@ export class Edit extends Component<Props, State> {
      * @override
     */
     public render(): ReactNode {
-
+        //let emails = this.props.userProfile.emails ? this.props.userProfile.emails : "";
         let displayName = this.props.userProfile.displayName ? this.props.userProfile.displayName : "";
         let major = this.props.userProfile.major ? this.props.userProfile.major : "";
         let commuterStatus = this.props.userProfile.commuterStatus ? this.props.userProfile.commuterStatus : "";
         let currentOptIn = this.props.userProfile.currentOptIn ? this.props.userProfile.currentOptIn : "";
         let description = this.props.userProfile.description ? this.props.userProfile.description : "";
-        let interests = this.props.userProfile.tags ? this.props.userProfile.tags: [];
-        let picture = this.props.userProfile.picture != undefined ? this.props.userProfile.picture : this.props.getUserProfileDefault();
-        
+        //let interests = this.props.userProfile.tags ? this.props.userProfile.tags: [];
+        let picture = this.props.userProfile.picture != undefined ? this.props.userProfile.picture : this.props.getUserProfileDefault();   
+
         return (
                 <Container fluid className="profile">
                     
@@ -462,8 +535,7 @@ export class Edit extends Component<Props, State> {
                        </Col>
                    </Row>
 
-                    
-                    {/* OPT IN EMAIL */}
+                    {/* ADD OPT IN EMAIL */}
                    <Row>
                        <Col sm={4} className="profile-label">opt-in email</Col>
 
@@ -490,10 +562,23 @@ export class Edit extends Component<Props, State> {
                                 </div>
                                     :
                                 <div className="text-right">
-                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('optInEmail', null)}></FaSave>
+                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('optInEmail', this.state.optInEmail)}></FaSave>
                                     <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('optInEmail')}></FaUndoAlt>
                                 </div>
                             }
+                       </Col>
+                   </Row>
+
+                    {/* EMAILS */}
+                    <Row className="pb-3">
+                       <Col sm={4} className="profile-label">emails</Col>
+                       <Col sm={8}>
+                            <Select
+                                options={this.state.emails}
+                                value={this.state.selectedEmails}
+                                onChange={this.handleEmailChange}
+                                isMulti={true}
+                            />
                        </Col>
                    </Row>
 

@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i");
 @import url("https://fonts.googleapis.com/css?family=Varela+Round");
+@import url('https://fonts.googleapis.com/css?family=Economica:400,400i,700,700i&display=swap');
 
 :root {
     --white: #ffffff;
@@ -8,6 +9,7 @@
     --near-white-contrast: #b3b3b3;
     --far-white-contrast: #e0e0e0;
     --white-contrast: #565656;
+    --black: #373a47;
     --main-bg-color: #f6f9fb;
     --main-bg-color-contrast: #eeeeee;
     --light-visibility: #cccccc;
@@ -42,13 +44,13 @@
 
 .react-select-drop-down
 {
-    color: #565656;
-    font-family: 'Montserrat', sans-serif;
+    color: var(--white-contrast);
+    font-family: var(--hard-font);
 }
 
 .react-select__placeholder 
 {
-    color: #b3b3b3 !important;
+    color: var(--near-white-contrast) !important;
     text-transform: uppercase;
     letter-spacing: .5vw;
     font-weight: bold;

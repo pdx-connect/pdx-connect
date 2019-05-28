@@ -7,6 +7,7 @@ import {ProfileContent} from "./ProfileContent";
 import {Edit} from "./Edit";
 import {Events} from "./Events";
 import {Listings} from "./Listings";
+import {Settings} from "./Settings";
 import {postJSON} from "../../util/json";
 import queryString from "query-string";
 
@@ -54,6 +55,14 @@ interface Tag {
     label: string;
 }
 
+interface UserEmail {
+    activePriority: boolean;
+    email: string;
+    userID: number;
+    verificationCode: string | null;
+    verificationTime: string;
+}
+
 
 interface UserProfile {
     commuterStatus: string;
@@ -67,6 +76,7 @@ interface UserProfile {
     picture: string;
     tags: Tag[];
     userID: number | undefined;
+    emails: UserEmail[] | null;
     
 }
 
@@ -90,6 +100,7 @@ export class Profile extends Component<Props, State> {
                 picture: "",
                 tags: [],
                 userID: undefined,
+                emails: [],
             },
             displayProfile: {
                 commuterStatus: "",
@@ -103,6 +114,7 @@ export class Profile extends Component<Props, State> {
                 picture: "",
                 tags: [],
                 userID: undefined,
+                emails: []
             }
         };
     }
@@ -151,7 +163,6 @@ export class Profile extends Component<Props, State> {
         } else {
             if(userID != undefined) {
                 this.getProfile(userID).then(data => {
-                    
                     let displayProfile = data.user[0];
                     displayProfile['isUser'] = true;
                     this.setState({
@@ -200,8 +211,19 @@ export class Profile extends Component<Props, State> {
                             path="/profile/edit"
                             render={props => <Edit {...props} updateDisplayName={this.props.updateDisplayName} userProfile={this.state.userProfile} updateUserProfile={this.updateUserProfile} getUserProfileDefault={this.props.getUserProfileDefault} updatePortraitURL={this.props.updatePortraitURL}/>}
                         />
-                        <Route path="/profile/events" component={Events} />
-                        <Route path="/profile/listings" component={Listings} />
+                        <Route
+                            path="/profile/events"
+                            render={props => <Events {...props} events={this.state.userProfile.events} />}
+                        />
+                        <Route
+                            path="/profile/listings"
+                            render={props => <Listings {...props} listings={this.state.userProfile.listings} />}
+                        />
+                        <Route
+                            path="/profile/settings"
+                            render={props => <Settings {...props} />}
+                        />
+
                         <Redirect to="/" />
                     </Switch>
                 </Col>

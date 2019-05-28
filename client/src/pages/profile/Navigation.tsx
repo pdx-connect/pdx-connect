@@ -33,6 +33,7 @@ export class Navigation extends Component<Props, State> {
                     <Nav.Link className="indent" onClick={() => this.props.updateHistory("/profile/edit")}>Edit</Nav.Link>
                     <Nav.Link onClick={() => this.props.updateHistory("/profile/events")}>Events</Nav.Link>
                     <Nav.Link onClick={() => this.props.updateHistory("/profile/listings")}>Listings</Nav.Link>
+                    <Nav.Link onClick={() => this.props.updateHistory("/profile/settings")}>Settings</Nav.Link>
                 </Nav>
             </Row>
         );

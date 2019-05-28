@@ -148,5 +148,43 @@
 }
 
 .profile-move-edit-icon-up {
-    margin-top: -3%;
+    margin-top: -2%;
+}
+
+.profile-sub-title {
+    color: var(--white-contrast);
+    letter-spacing: 1vw;
+    text-align: center;
+    font-size: 3vw;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.profile-my-listings-table, .profile-my-events-table {
+    width: 100%;
+}
+
+.profile-my-listings-table-header, .profile-my-events-table-header {
+    font-size: 1.5vw;
+    text-transform: capitalize;
+    color: var(--white-contrast);
+    letter-spacing: .2vw;
+    font-weight: normal;
+    text-align: left;
+}
+
+.profile-my-listings-table tr td, .profile-my-events-table tr td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-my-listings, .profile-my-events {
+    color: var(--white-contrast);
+    font-size: 1vw;
+}
+
+.profile-my-listings:hover, .profile-my-events:hover {
+    color: var(--thing-2);
+    cursor: pointer;
 }

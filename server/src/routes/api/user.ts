@@ -3,6 +3,7 @@ import {Connection} from "typeorm";
 import {User} from "../../entity/User";
 import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
+import {UserEmail} from "../../entity/UserEmail";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 
@@ -364,6 +365,7 @@ export function route(app: Express, db: Connection) {
  
             // Create an array of user(s) containing their ID, displayName, major
             json = await Promise.all(users.map(async user => {
+                const emails: UserEmail[] = await user.emails;
                 const userProfile: UserProfile|undefined = await user.profile;
                 let majorString = "Not Set";
                 const creationDate = await user.creationDate
@@ -375,7 +377,7 @@ export function route(app: Express, db: Connection) {
                 let picture = undefined
 
                 if (userProfile != null) {
-                    const description: string|null = await userProfile.description
+                    const description: string|null = await userProfile.description;
                     const majorTag: Tag | null = await userProfile.major;
                     const interestTags: Tag[] = await userProfile.interests;
                     const commuterStatus: boolean | null = await userProfile.isOnCampus;
@@ -414,7 +416,8 @@ export function route(app: Express, db: Connection) {
                     listings: listings,
                     description: descString,
                     commuterStatus: commuterString,
-                    picture: picture
+                    picture: picture,
+                    emails: emails
                 };
             }));
         }
@@ -506,5 +509,31 @@ export function route(app: Express, db: Connection) {
                 error: "Not logged in."
             }));
         }
+    });
+    // Post the user name to the database.
+    app.post("/api/user/opt-in-email", async (request: Request, response: Response) => {
+        if (typeof request.body !== "string") {
+            response.sendStatus(400);
+            return;
+        }
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const body: any = request.body;
+            const emails = body.email;
+
+            //const incomingEmail = new UserEmail(user, emails, "");
+
+            //user.emails = emails;
+            //await user.save();
+
+            response.send(JSON.stringify({
+                success: true
+            }));
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+
     });
 }
