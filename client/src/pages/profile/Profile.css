@@ -188,3 +188,12 @@
     color: var(--thing-2);
     cursor: pointer;
 }
+
+.profile-fa-icon {
+    color: var(--white-contrast);
+}
+
+.profile-fa-icon:hover {
+    color: var(--suggestion);
+    cursor: pointer;
+}

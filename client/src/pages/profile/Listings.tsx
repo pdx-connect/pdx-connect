@@ -1,9 +1,12 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Table, Modal, Button} from "react-bootstrap";
+import {FaPencilAlt, FaTrash} from "react-icons/fa";
+import {getJSON, postJSON} from "../../util/json";
 
 interface Props {
     listings: Listing[];
+    updateUserProfile: () => void;
 }
 
 interface State {
@@ -13,7 +16,7 @@ interface State {
 
 interface Listing {
     anonymous: boolean;
-    deleted: boolean;
+    deleted: number;
     description: string;
     id: number;
     timePosted: string;
@@ -41,6 +44,23 @@ export class Listings extends Component<Props, State> {
         });
     }
 
+    private readonly removeListing = (listing: Listing | undefined) => {
+       if(listing!= undefined) {
+           this.deleteListing(listing.id);
+       }
+    }
+
+    private readonly deleteListing = async (listingID: number) => {
+        const data = await postJSON("/api/listings/delete_listing", {id: listingID});
+        
+        console.log('data: ', data);
+        if(data.success) {
+            this.props.updateUserProfile();
+            this.setState({showEditListing: false});
+        }
+
+    }
+
     private readonly createListings = (listings: Listing[]) => {
         let listingGrid = [];
 
@@ -64,6 +84,14 @@ export class Listings extends Component<Props, State> {
 
     public render(): ReactNode {
         let listings = this.createListings(this.props.listings);
+        let listing = this.state.listing;
+        
+        let hideEditButtons = true;
+
+        if(listing != undefined) {
+            hideEditButtons= listing.deleted === 1? true: false;
+
+        }
         
         return (
             <Container fluid className="profile-listings">
@@ -94,26 +122,32 @@ export class Listings extends Component<Props, State> {
                 </Row>
                 <Modal size="lg" show={this.state.showEditListing} onHide={() => this.setState({ showEditListing: false })} dialogClassName="profile-my-events-modal" backdrop="static">
                 <Modal.Header closeButton>
-                    <Modal.Title>Modal title</Modal.Title>
+                    <Modal.Title>My Listing</Modal.Title>
                 </Modal.Header>
                     <Modal.Body>
-                        {this.state.listing != undefined?
+                        {listing != undefined?
                             <div>
-                                <span>anonymous: {this.state.listing.anonymous}</span>
-                                <span>deleted: {this.state.listing.deleted}</span>
-                                <span>description: {this.state.listing.description}</span>
-                                <span>id: {this.state.listing.id}</span>
-                                <span>timePosted: {this.state.listing.timePosted}</span>
-                                <span>title: {this.state.listing.title}</span>
-                                <span>userID: {this.state.listing.userID}</span>
+                                <span>anonymous: {listing.anonymous}</span>
+                                <span>deleted: {listing.deleted}</span>
+                                <span>description: {listing.description}</span>
+                                <span>id: {listing.id}</span>
+                                <span>timePosted: {listing.timePosted}</span>
+                                <span>title: {listing.title}</span>
+                                <span>userID: {listing.userID}</span>
                             </div>
                             :
                             null
                         }
+                        {hideEditButtons === true? null
+                        :
+                        <div>
+                            <FaPencilAlt className="profile-fa-icon ml-auto pl-1 mt-1" size="2vw" />
+                            <FaTrash className="profile-fa-icon ml-auto" size="2vw" onClick={() => this.removeListing(listing)} />
+                        </div>
+                        }
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="light" onClick={() => this.setState({ showEditListing: false })}>Close</Button>
-                        <Button variant="light">Save changes</Button>
+                        {hideEditButtons === true? null : <Button variant="light">save</Button>}
                     </Modal.Footer>
                 </Modal>
         </Container>
