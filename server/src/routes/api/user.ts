@@ -353,8 +353,7 @@ export function route(app: Express, db: Connection) {
     });
 
     app.post("/api/user/finduser", async (request: Request, response: Response) => {
-        let json : any
-        console.log(request.body);
+        let json : any = [];
         if(request.body.userId != null)     // If there is a userid to search
         {
             // Search the DB to find the user with the userID

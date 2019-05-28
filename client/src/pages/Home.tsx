@@ -226,9 +226,6 @@ export class Home extends Page<Props, State> {
         
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
-        console.log("Getting user info: \n", await postJSON("/api/user/finduser", {
-            userID: 4
-        }));
     }
     
     /**
