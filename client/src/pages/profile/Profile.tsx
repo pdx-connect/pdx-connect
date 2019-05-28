@@ -197,6 +197,8 @@ export class Profile extends Component<Props, State> {
 
 
     public render(): ReactNode {
+
+        console.log('user profile: ', this.state.userProfile);
         return (
             <Container fluid className="profile">
             <Row>

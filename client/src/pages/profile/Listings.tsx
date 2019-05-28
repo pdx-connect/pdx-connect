@@ -1,8 +1,8 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Container, Row, Col, Table, Modal, Button} from "react-bootstrap";
+import {Container, Row, Col, Table, Modal, Button, Form} from "react-bootstrap";
 import {FaPencilAlt, FaTrash} from "react-icons/fa";
-import {getJSON, postJSON} from "../../util/json";
+import {postJSON} from "../../util/json";
 
 interface Props {
     listings: Listing[];
@@ -11,8 +11,10 @@ interface Props {
 }
 
 interface State {
+    showListingView: boolean;
     showEditListing: boolean;
     listing: Listing | undefined;
+    updatedListingTitle: string;
 }
 
 interface Listing {
@@ -25,6 +27,11 @@ interface Listing {
     userID: number;
 }
 
+interface Tag {
+    value: string;
+    label: string;
+}
+
 /**
  * 
  */
@@ -33,34 +40,73 @@ export class Listings extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
+            showListingView: false,
             showEditListing: false,
-            listing: undefined
+            listing: undefined,
+            updatedListingTitle: ""
         };
     }
 
-    private readonly updateListing = (listingID: number, index: number) => {
+    private readonly viewListing = (listingID: number, index: number) => {
         this.setState({
-            showEditListing: true,
-            listing: this.props.listings[index]
-        });
+            listing: this.props.listings[index],
+            showListingView: true,
+        })
     }
 
     private readonly removeListing = (listing: Listing | undefined) => {
        if(listing!= undefined) {
            this.deleteListing(listing.id);
-       }
+        } else {
+            this.setState({
+                showListingView: false
+            });
+        }
     }
 
     private readonly deleteListing = async (listingID: number) => {
         const data = await postJSON("/api/listings/delete_listing", {id: listingID});
         
-        console.log('data: ', data);
         if(data.success) {
             this.props.updateUserProfile();
-            this.setState({showEditListing: false});
+            this.setState({
+                showListingView: false
+            });
         }
 
     }
+
+    private readonly updateListing = () => {
+        
+        if(this.state.listing != undefined) {
+            //this.editListing(id, title, description, anonymous, selectedTags);
+            console.log('Save users changes');
+        } else {
+            this.setState({
+                showListingView: false
+            });
+        }
+
+    }
+     
+    private readonly editListing = async (id: number, title: string, description: string, anonymous: boolean, selectedTags: Tag[]) => {
+        
+        const data = await postJSON("/api/listings/edit_listing", {
+            id: id,
+            title: title,
+            description: description,
+            anonymous: anonymous,
+            selectedTags: selectedTags,
+        });
+         
+        if(data.success) {
+            this.props.updateUserProfile();
+            this.setState({
+                showListingView: false
+            });
+        }
+ 
+     }
 
     private readonly createListings = (listings: Listing[]) => {
         let listingGrid = [];
@@ -70,7 +116,7 @@ export class Listings extends Component<Props, State> {
             let date = new Date(listings[0].timePosted);
 
             listingGrid.push(
-                <tr key={i} onClick={() => this.updateListing(listings[0].id, i)} className="profile-my-listings">
+                <tr key={i} onClick={() => this.viewListing(listings[0].id, i)} className="profile-my-listings">
                     <td className="profile-my-listings-title">{listings[0].title}</td>
                     <td className="profile-my-listings-timePosted">{date.toDateString()}</td>
                     <td className="profile-my-listings-description">{listings[0].description}</td>
@@ -80,6 +126,12 @@ export class Listings extends Component<Props, State> {
 
         return listingGrid;
     }
+
+    private readonly handleChange = (e: any) => {
+        this.setState({
+            [e.target.id]: e.target.value
+        } as any);
+    };
 
 
 
@@ -124,7 +176,7 @@ export class Listings extends Component<Props, State> {
                     </Table>
                     </Col>
                 </Row>
-                <Modal size="lg" show={this.state.showEditListing} onHide={() => this.setState({ showEditListing: false })} className="profile-my-events-modal" backdrop="static">
+                <Modal size="lg" show={this.state.showListingView} onHide={() => this.setState({ showListingView: false })} className="profile-my-events-modal" backdrop="static">
                 <Modal.Header closeButton>
                     <div className="profile-modal-header">
                         <span className="profile-modal-title">my listing</span>
@@ -132,7 +184,7 @@ export class Listings extends Component<Props, State> {
                     </div>
                 </Modal.Header>
                     <Modal.Body>
-                        {listing != undefined?
+                        {listing != undefined && this.state.showEditListing === false?
                             <Container fluid>
                                 <Row className="pb-3">
                                     <Col sm={4} className="profile-label">Poster</Col>
@@ -150,16 +202,48 @@ export class Listings extends Component<Props, State> {
                             :
                             null
                         }
+                        {listing != undefined && this.state.showEditListing === true?
+                            <Container fluid>
+                                <Row className="pb-3">
+                                    <Col sm={4} className="profile-label">title</Col>
+                                    <Col sm={8} className="profile-listing-content">
+                                        <Form.Group className="formBasic">
+                                            <Form.Control
+                                                type="text"
+                                                placeholder={listing.title}
+                                                onChange={this.handleChange}
+                                                id="title"
+                                                value={this.state.updatedListingTitle}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                                <Row className="pb-3">
+                                    <Col sm={4} className="profile-label">description</Col>
+                                    <Col sm={8} className="profile-listing-content">edit description here</Col>
+                                </Row>
+                                <Row className="pb-3">
+                                    <Col sm={4} className="profile-label">anonymous</Col>
+                                    <Col sm={8} className="profile-listing-content">edit anonymous here</Col>
+                                </Row>
+                                <Row className="pb-3">
+                                    <Col sm={4} className="profile-label">tags</Col>
+                                    <Col sm={8} className="profile-listing-content">edit tags here</Col>
+                                </Row>
+                            </Container>
+                            :
+                            null
+                        }
                     </Modal.Body>
                         {hideEditButtons === true?
                         <div className="profile-modal-footer text-center"><span className="profile-modal-footer-content-center">this listing was deleted and cannot be edited</span></div>
                             :
                             <div className="profile-modal-footer">
                                 <span className="profile-modal-footer-content-left">
-                                    <FaPencilAlt className="profile-fa-icon" size="2vw" />
+                                    <FaPencilAlt className="profile-fa-icon" size="2vw" onClick={() => this.setState({showEditListing: true})}/>
                                     <FaTrash className="profile-fa-icon" size="2vw" onClick={() => this.removeListing(listing)} />
                                 </span>
-                                <span className="profile-modal-footer-content-right"><Button variant="light">save</Button></span>
+                                {listing != undefined && this.state.showEditListing === true? <span className="profile-modal-footer-content-right"><Button variant="light" onClick={() => this.updateListing()}>save</Button></span>: <span className="profile-modal-footer-content-right"></span>}
                             </div>
                         }
                 </Modal>
