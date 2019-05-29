@@ -34,8 +34,18 @@ export class Socket {
     constructor(updateMessages: (messages: ConversationEntry[]) => void) {
         this.messages = [];
         this.updateMessages = updateMessages;
+        
+        // Detect the protocol for ws
+        let protocol: string = "";
+        if (window.location.protocol == "http:") {
+            protocol = "ws://";
+        } else if (window.location.protocol == "https:") {
+            protocol = "wss://";
+        } else {
+            throw "Error: invalid http protocol in Socket.tsx";
+        }
 
-        this.socket = new WebSocket("ws://localhost:9999");
+        this.socket = new WebSocket(protocol + window.location.host);
         // Get unread messages from before we were connected
         //this.getUnreadMessages();
         //Put in Home
@@ -85,6 +95,7 @@ export class Socket {
                     this.addToConversation(conversation);
                 };
                 this.socket.onerror = (error) => {
+                    console.log("Error: ", error);
                 };
                 this.socket.onclose = (closed) => {
                     console.log("Connection Closed");
