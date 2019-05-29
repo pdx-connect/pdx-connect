@@ -210,20 +210,20 @@ export function route(app: Express, db: Connection) {
     });
     app.get("/api/events/homeContent", async (request: Request, response: Response) => {
         // Get user
-        let user: User = request.user;
-        if (user.id == null) {
-            response.send(JSON.stringify("Not logged in - access denied"));
+        const user: User|undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in"));
             return;
         }
         // Find user account
-        let profile: UserProfile|undefined = await user.profile;
+        const profile: UserProfile|undefined = await user.profile;
         if (profile == null) {
             response.send(JSON.stringify("No profile for this account"));
             return;
         }
         // Get tags, make array for find query
-        let tags: Tag[] = await profile.interests;
-        let eventEntries: {
+        const tags: Tag[] = await profile.interests;
+        const eventEntries: {
             id: number,
             title: string,
             description: string,
@@ -231,7 +231,7 @@ export function route(app: Express, db: Connection) {
             end: Date|null
         }[] = [];
         // Get all events which haven't endeded, ordered by start time
-        let events: CalendarEvent[] = await CalendarEvent.find({
+        const events: CalendarEvent[] = await CalendarEvent.find({
             where: {
                 end: MoreThanOrEqual(Date.now()),
                 deleted: false
@@ -249,9 +249,7 @@ export function route(app: Express, db: Connection) {
                 for (let k = 0; k < eventTags.length; ++k) {
                     if (eventTags[k].id == tags[j].id) {
                         found = true;
-                        console.log("Found match");
-                    } else {
-                        console.log("This one isn't a match");
+                        break;
                     }
                 }
                 if (found) {
@@ -267,10 +265,6 @@ export function route(app: Express, db: Connection) {
                 }
             }
         }
-        console.log("Entries: \n", eventEntries);
         response.send(JSON.stringify(eventEntries));
-    });
-    app.get("/api/events/test", async (request: Request, response: Response) => {
-        response.send(JSON.stringify("This one works"));
     });
 }

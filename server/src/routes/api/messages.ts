@@ -1,5 +1,5 @@
 import {Express, Request, Response} from "express";
-import {Connection, Not, LessThanOrEqual} from "typeorm";
+import {Connection} from "typeorm";
 import { User } from "../../entity/User";
 import { ConversationParticipant } from "../../entity/ConversationParticipant";
 import { Message} from "../../entity/Message";
@@ -85,9 +85,9 @@ export function route(app: Express, db: Connection) {
         }
         // Create the new conversation and participant entities, and save them
         let conversation = new Conversation();
-        conversation.save();
+        await conversation.save();
         let thisParticipant = new ConversationParticipant(conversation, user);
-        thisParticipant.save();
+        await thisParticipant.save();
         for (let i = 0; i < userIDs.length; ++i) {
             let newUser: User|undefined = await User.findOne({
                 where: {
@@ -98,7 +98,7 @@ export function route(app: Express, db: Connection) {
                 // TODO send an error
             } else {
                 let newParticipant = new ConversationParticipant(conversation,newUser);
-                newParticipant.save();
+                await newParticipant.save();
             }
         }
         // Send conversationID because to client

@@ -291,21 +291,20 @@ export function route(app: Express, db: Connection) {
     });
     app.get("/api/listings/homeContent", async (request: Request, response: Response) => {
         // Get user
-        let user: User = request.user;
-        if (user.id == null) {
-            response.sendStatus(400);
+        const user: User|undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in"));
             return;
         }
         // Find user account
-        let profile: UserProfile|undefined = await user.profile;
+        const profile: UserProfile|undefined = await user.profile;
         if (profile == null) {
             response.send(JSON.stringify("No profile for this account"));
             return;
         }
         // Get tags, make array for find queries
-        let tags: Tag[] = await profile.interests;
-        console.log("My tags: ", tags);
-        let listingEntries: {
+        const tags: Tag[] = await profile.interests;
+        const listingEntries: {
             id: number,
             title: string,
             description: string,
@@ -314,7 +313,7 @@ export function route(app: Express, db: Connection) {
             datePosted: Date
         }[] = [];
         // Get all the listings, ordered by post date
-        let listings: Listing[] = await Listing.find({
+        const listings: Listing[] = await Listing.find({
             order: {
                 timePosted: "DESC"
             }
