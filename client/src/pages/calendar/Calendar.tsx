@@ -102,7 +102,7 @@ export class Calendar extends Component<Props, State> {
         <SweetAlert title="Event Details" 
         showCancel
 	      confirmBtnText="Attending"
-	      cancelBtnText="Not Attending"
+	      cancelBtnText="Not attending"
         onConfirm={() => this.submitAttending(eventID)}
         onCancel={this.hideAlert}
         confirmBtnBsStyle="success"
@@ -289,7 +289,7 @@ export class Calendar extends Component<Props, State> {
       this.setState({
         _id: cloneEvent._id,
         title: cloneEvent.title,
-        description: cloneEvent.title,
+        description: cloneEvent.description,
         start: cloneEvent.start,
         end: cloneEvent.end,
         edit: true
