@@ -158,18 +158,11 @@ export class Socket {
             }
         }
         // Get the messages from the server
-        const response: Response = await fetch("/api/messages/more", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                conversationID: conversationID,
-                alreadyHave: alreadyHave,
-            })
-        });
         // Turn the response into a ConversationEntry
-        const data = await response.json();
+        const data = await postJSON("/api/messages/more", {
+            conversationID: conversationID,
+            alreadyHave: alreadyHave,
+        });
         if (data == null) {
             // TODO throw an error
             console.log("error in getMoreMessages");
