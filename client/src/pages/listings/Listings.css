@@ -70,6 +70,11 @@
     cursor: pointer;
 }
 
+.listings-listingview-directUserProfile:hover {
+    text-decoration: underline;
+    color: var(--rainbow-blue);
+}
+
 
 .listings-parentTag {
     font-weight: bold;
@@ -101,4 +106,16 @@
 
 .listings-infinity-menu-node-container:hover {
 	/* background-color: rgb(73, 73, 73); */
+}
+
+.listings-viewModalContent-description {
+    word-wrap: break-word
+}
+
+.listings-viewModalContent-description h6 {
+    text-decoration: underline;
+}
+
+.listings-span {
+    width: 10px
 }

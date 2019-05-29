@@ -64,6 +64,7 @@ interface State {
         }[];
         anonymous: boolean,
         timePosted: Date,
+        reply: number
     }[];
 
     currentViewListing: number;
@@ -453,7 +454,7 @@ export class Listings extends Component<Props, State>{
                 // Create a editable modal with current listing data
                 <Modal show={this.state.edit} onHide={this.handleCloseEdit}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Edit a Listing</Modal.Title>
+                        <Modal.Title>Edit a Post</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
@@ -753,7 +754,7 @@ export class Listings extends Component<Props, State>{
                 <th>{tags}</th>
                 <th>{username}</th>
                 <th>{moment(this.state.listings[i].timePosted).format("YYYY/MM/DD")}</th>
-                <th></th>
+                <th>{this.state.listings[i].reply}</th>
             </tr>
         );
         return views;
@@ -773,11 +774,11 @@ export class Listings extends Component<Props, State>{
             if(listing.anonymous == true)
                 listing.username = "Anonymous";
 
-            var tags: string[] = [];
+            var tags: any[] = [];
             for (const tag of listing.tags)
             {
-                tags.push(tag.name);
-                tags.push("  ");
+                tags.push(<Button variant="info">{tag.name}</Button>);
+                tags.push(<span className="listings-span"></span>);
             }
 
             // Condition to check if current user owns current view listing
@@ -791,7 +792,7 @@ export class Listings extends Component<Props, State>{
                     <Modal.Header closeButton>
                         <Container>
                             <Row>
-                                <Col md={4}>
+                                <Col md={2}>
                                     {this.state.bookmarked
                                         ?
                                         <FaStar size="2vw" className="listings-bookmarkButton" onClick={this.handleUnbookmark.bind(this, listing.id)}/> 
@@ -799,53 +800,64 @@ export class Listings extends Component<Props, State>{
                                         <FaStarHalfAlt size="2vw" className="listings-bookmarkButton" onClick={this.handleBookmark.bind(this, listing.id)}/> 
                                     }
                                 </Col>
-                                <Col md={4}>
+                                <Col md={10}>
                                     <Modal.Title>{listing.title}</Modal.Title>
                                 </Col>
-                                <Col md={4}></Col>
                             </Row>
                         </Container>
                     </Modal.Header>
-                    <Modal.Body>
-                        <h6>Description: {listing.description}</h6>
+                    <Modal.Body className="listings-viewModalContent">
+                        <Row>
+                            <Col md={1}></Col>
+                            <Col md={9} className="listings-viewModalContent-description">
+                                <h6>Description: </h6>
+                                {listing.description}
+                            </Col>
+                            <Col md={1}></Col>
+                        </Row>
                         <br />
-                        {listing.anonymous
-                            ? <p className="listings-listingview-directUserProfile" onClick={this.directUserProfile.bind(this, listing.userID)}>{listing.username}</p>
-                            : <p className="listings-listingview-directUserProfile">{listing.username}</p>
-                        }
-                        <p>{moment(listing.timePosted).format("YYYY/MM/DD")}</p>
+                        <Row>
+                            <Col md={9}></Col>
+                            <Col md={3}>
+                                {listing.anonymous
+                                    ? <p className="listings-listingview-directUserProfile">{listing.username}</p>
+                                    : <p className="listings-listingview-directUserProfile" onClick={this.directUserProfile.bind(this, listing.userID)}>{listing.username}</p>
+                                }
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col md={9}></Col>
+                            <Col md={3}>
+                                <p>{moment(listing.timePosted).format("YYYY/MM/DD")}</p>
+                            </Col>
+                        </Row>
                     </Modal.Body>
                     <Modal.Footer>
                         <Container>
                             <Row>
-                                <Col md={3}></Col>
-                                <Col md={6}>
+                                {/* <Col md={3}></Col>
+                                <Col md={6}> */}
                                     {tags}
-                                </Col>
-                                <Col md={3}></Col>
+                                {/* </Col>
+                                <Col md={3}></Col> */}
                             </Row>
                         </Container>
                     </Modal.Footer>
-                    <Modal.Footer>
-                        <Container>
-                            <Row>
-                                <Col md={10}></Col>
-                                <Col md={1}>
-                                    {editable? <FaPencilAlt size="2vw" className="listings-editButton" onClick={this.handleEdit}/> : null}
-                                </Col>
-                                <Col md={1}>
-                                    {editable? <FaTrash size="2vw" className="listings-deleteButton" onClick={this.handleDelete}/> : null}
-                                </Col>
-                                {/* <Col md={3}>
-                                    <Form>
-                                        <Form.Group>
-                                            <Button size="sm" variant="light" onClick={() => {} }>Comments</Button>
-                                        </Form.Group>
-                                    </Form>
-                                </Col> */}
-                            </Row>
-                        </Container>
-                    </Modal.Footer>
+                    {editable?
+                        <Modal.Footer>
+                            <Container>
+                                <Row>
+                                    <Col md={10}></Col>
+                                    <Col md={1}>
+                                        <FaPencilAlt size="2vw" className="listings-editButton" onClick={this.handleEdit}/>
+                                    </Col>
+                                    <Col md={1}>
+                                        <FaTrash size="2vw" className="listings-deleteButton" onClick={this.handleDelete}/>
+                                    </Col>
+                                </Row>
+                            </Container>
+                        </Modal.Footer>
+                    : null}
                     <Modal.Footer>
                         <Container>
                             <Row>
@@ -866,7 +878,6 @@ export class Listings extends Component<Props, State>{
      * @override
      */
     public componentDidMount() {
-        // document.addEventListener('keydown', this.enterKeyPressed);
         this.getTags().then();
         this.loadAllListings();
         this.getCurrentUserId();
@@ -878,7 +889,6 @@ export class Listings extends Component<Props, State>{
      * @override
      */
     public componentWillUnmount() {
-        // document.removeEventListener('keydown', this.enterKeyPressed);
     }
 
 
@@ -897,24 +907,24 @@ export class Listings extends Component<Props, State>{
                         <FaPlus size="3vw" className="listings-createButton" onClick={this.handleShowCreate}/>
                     </Col>
                     <Col md={5}>Filter By ->  {this.state.filterTag}</Col>
-                    <Col md={2}>
+                    <Col md={3}>
                         <Form>
                             <Form.Group>
                                 <Form.Check 
                                     type="checkbox" 
-                                    label="Bookmarked" 
+                                    label="Bookmarked Posts" 
                                     onClick={this.showOnlyMyBookmarkedListings}
                                     checked={this.state.myBookmarkedListings}
                                 />
                             </Form.Group>
                         </Form>
                     </Col>
-                    <Col md={3}>
+                    <Col md={2}>
                         <Form>
                             <Form.Group>
                                 <Form.Check 
                                     type="checkbox" 
-                                    label="My Listings" 
+                                    label="My Posts" 
                                     className="listings-myListingCheckbox" 
                                     onClick={this.showOnlyMyListings}
                                     checked={this.state.myListings}
@@ -950,7 +960,7 @@ export class Listings extends Component<Props, State>{
                 {/* Popup for creating a listing */}
                 <Modal show={this.state.create} onHide={this.handleCloseCreate}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Create a Listing</Modal.Title>
+                        <Modal.Title>Create a Post</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>

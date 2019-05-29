@@ -5,7 +5,7 @@ import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {User} from "../../entity/User";
 import {Tag} from "../../entity/Tag";
 import {Listing} from "../../entity/Listing";
-import { ListingComment } from "../../entity/ListingComment";
+import {ListingComment} from "../../entity/ListingComment";
 
 
 interface ListingData {
@@ -47,6 +47,12 @@ export function route(app: Express, db: Connection) {
                 }
             });
             json = await Promise.all(listings.map(async listing => {
+                const replyNum: number = await ListingComment.count({
+                    where: {
+                        listingID: listing.id
+                    }
+                });
+
                 return {
                     id: listing.id,
                     userID: listing.userID,
@@ -56,7 +62,8 @@ export function route(app: Express, db: Connection) {
                     description: listing.description,
                     anonymous: listing.anonymous,
                     timePosted: listing.timePosted,
-                    tags: await listing.tags
+                    tags: await listing.tags,
+                    reply: replyNum
                 };
             }));
         } else {
