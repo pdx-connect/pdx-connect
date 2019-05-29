@@ -1,28 +1,27 @@
-import { Express, Request, Response } from "express";
-import { Connection } from "typeorm";
-import { CalendarEvent } from "../../entity/CalendarEvent";
-import { Tag } from "../../entity/Tag";
-import { CalendarEventComment } from "../../entity/CalendarEventComment";
-import { User } from "../../entity/User";
+import {Express, Request, Response} from "express";
+import {Connection} from "typeorm";
+import {CalendarEvent} from "../../entity/CalendarEvent";
+import {Tag} from "../../entity/Tag";
+import {CalendarEventComment} from "../../entity/CalendarEventComment";
+import {User} from "../../entity/User";
 import { EventAttending } from "../../entity/EventAttending";
 
-async function parseEventByID(
-  request: Request
-): Promise<CalendarEvent | null | undefined> {
-  const id: number = Number.parseInt(request.params.id);
-  if (Number.isNaN(id)) {
-    return void 0;
-  }
-  const event: CalendarEvent | undefined = await CalendarEvent.findOne({
-    where: {
-      id: id,
-      deleted: false
+
+async function parseEventByID(request: Request): Promise<CalendarEvent|null|undefined> {
+    const id: number = Number.parseInt(request.params.id);
+    if (Number.isNaN(id)) {
+        return void 0;
     }
-  });
-  if (event == null) {
-    return null;
-  }
-  return event;
+    const event: CalendarEvent|undefined = await CalendarEvent.findOne({
+        where: {
+            id: id,
+            deleted: false
+        }
+    });
+    if (event == null) {
+        return null;
+    }
+    return event;
 }
 
 export function route(app: Express, db: Connection) {
