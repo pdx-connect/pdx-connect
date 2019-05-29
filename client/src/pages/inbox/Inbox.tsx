@@ -23,6 +23,7 @@ interface State {
     composingNewConvo: boolean;
     composingNewConvoParticipants: number[];
     users?: any;
+    currentParticipates?: Map<number, string>; 
 }
 
 /**
@@ -46,8 +47,6 @@ export class Inbox extends Component<Props, State> {
 
         return;
     }
-
-
 
     /*
     *   Message textfield state is updated on each keystroke
@@ -148,27 +147,15 @@ export class Inbox extends Component<Props, State> {
             return rows; // We must return, othewise unknown behaviour because of -1 convo index and ID
         }
 
-        var participents:any = [];
+        //
+        // ELSE - will render the participants of an open conversation
+        //
 
-        // Array of strings of the participants taken from the 30 recent messages, 
-        // TODO (IMPORTANT): This will only will participants from the latest 30 messages, if you're included in the conversation but you never sent out
-        //                   a message, your name will not be included!
-        if (this.props.conversations != null && this.state.currentConversationIndex != null && this.state.users != undefined) {
-            for (let i=0; i<this.props.conversations[this.state.currentConversationIndex].entries.length; i++) {
-                if (participents.indexOf(this.props.conversations[this.state.currentConversationIndex].entries[i].userID) == -1) {
-                    if (!participents.includes(this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[this.state.currentConversationIndex!].entries[i].userID)].displayName)) {
-                        participents.push(this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[this.state.currentConversationIndex!].entries[i].userID)].displayName);
-                    }      
-                }
-            }
-        }
-
-        // Same array as above but formated with commas for rendering
-        if (this.props.conversations != null) {
-            rows.push("Participent IDs: ")
-            for (let i=0; i<participents.length; i++) {
-                rows.push(participents[i]);
-                if (i != participents.length-1)
+        if (this.props.conversations != null && this.state.currentParticipates != null) {
+            rows.push("Participents: ")
+            for (let i=0; i<this.state.currentParticipates.size; i++) {
+                rows.push(this.state.currentParticipates.get(Array.from(this.state.currentParticipates.keys())[i]));
+                if (i != this.state.currentParticipates.size-1)
                     rows.push(", ");
             }
         }
@@ -206,8 +193,8 @@ export class Inbox extends Component<Props, State> {
                                 })
                             }>
                             <Col key={i} sm={12}>
-                                ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                <br></br>Message from {this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
+                                {/* ConversationID: {this.props.conversations[i].conversationID} */}
+                                <br></br>{this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
                                 : <i>"{this.props.conversations[i].entries[0].text}"</i> {/* Gets the latest message as preview */}    
                             </Col>
                         </Row>
@@ -224,8 +211,8 @@ export class Inbox extends Component<Props, State> {
                                 })
                             }>
                             <Col key={i} sm={12}>
-                                ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                <br></br>Message from: {this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
+                                {/* ConversationID: {this.props.conversations[i].conversationID} */}
+                                <br></br>{this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
                                 : <i>"{this.props.conversations[i].entries[0].text}"</i> {/* Gets the latest message as preview */}   
                             </Col>
                         </Row>
@@ -291,29 +278,19 @@ export class Inbox extends Component<Props, State> {
         return rows;
     }
 
-    // /**
-    //  * @override
-    //  */
-    // public shouldComponentUpdate(nextProps: Props, nextState: State) {
-    //     if (nextProps != this.props) {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }
-
     public componentDidMount() {
-        this.getUsers().then(() => console.log("All users: ", this.state.users));
-        //console.log("All users: ", this.state.users.length);
+        // Pull all users
+        this.getUsers().then();
     }
 
     /**
      * @override
      */
-    public async componentDidUpdate() {
-        if  (this.state.currentConversationID) {
-            const participantsMap = await this.props.getParticipants(this.state.currentConversationID);
-            console.log("Participants Maps: ", participantsMap);
+    public async componentDidUpdate(prevProps: Props, prevState: State) {
+
+        if  (this.state.currentConversationID && prevState.currentConversationID != this.state.currentConversationID) {
+            let participantsMap = await this.props.getParticipants(this.state.currentConversationID).then();
+            this.setState({currentParticipates: participantsMap});
         }
     }
 
@@ -321,20 +298,7 @@ export class Inbox extends Component<Props, State> {
      * @override
      */
     public render(): ReactNode {
-            /* 
-            
-            == Default view of inbox page ==
-            for each convo where user is a participant of
-                list last message and icon indication # of unseen messages
 
-            == On press of any listed conversation == 
-            for last 20 messages in convo
-                sort messages by time stamp
-                if user is me
-                    print message right side
-                else 
-                    print message left side
-            */
         let participents = this.renderParticipents();
         let conversations = this.renderInbox();
         let messages = this.renderMessages();
