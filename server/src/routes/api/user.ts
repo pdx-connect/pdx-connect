@@ -3,6 +3,7 @@ import {Connection} from "typeorm";
 import {User} from "../../entity/User";
 import {UserProfile} from "../../entity/UserProfile";
 import {Tag} from "../../entity/Tag";
+import {UserEmail} from "../../entity/UserEmail";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 
@@ -40,6 +41,7 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+    // Manage the OOBE (out of box experience)
     app.get("/api/user/oobe", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         response.send(JSON.stringify({
@@ -66,6 +68,7 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+    // Manage the user's description/bio
     app.get("/api/user/description", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         let description: string|null|undefined;
@@ -107,6 +110,7 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+    // Manage the user's major as a tag and a name
     app.get("/api/user/major", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         let major: {
@@ -307,8 +311,8 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
         }
     });
-    // Post major data to the database. 
-    app.post("/api/user/commuter", async (request: Request, response: Response) => {
+     // Post major data to the database.
+     app.post("/api/user/on_campus", async (request: Request, response: Response) => {
         // Parse the request body
         // It should be an object.
         if (typeof request.body !== "object") {
@@ -350,6 +354,211 @@ export function route(app: Express, db: Connection) {
                 error: "Not logged in."
             }));
         }
+    });
+
+    app.post("/api/user/finduser", async (request: Request, response: Response) => {
+        let json : any = [];
+        if(request.body.userId != null)     // If there is a userid to search
+        {
+            // Search the DB to find the user with the userID
+            const users: User[] = await User.find({
+                where: {
+                    id: request.body.userId
+                }
+            });
+
+            // Create an array of user(s) containing their ID, displayName, major
+            json = await Promise.all(users.map(async user => {
+                const emails: UserEmail[] = await user.emails;
+                const userProfile: UserProfile|undefined = await user.profile;
+                let majorString = "Not Set";
+                const creationDate = await user.creationDate;
+                const events = await user.events;
+                const listings = await user.listings;
+                let tags = undefined;
+                let descString = "Not Set";
+                let commuterString = "Not Set";
+                let picture = undefined;
+
+                if (userProfile != null) {
+                    const description: string|null = await userProfile.description;
+                    const majorTag: Tag | null = await userProfile.major;
+                    const interestTags: Tag[] = await userProfile.interests;
+                    const commuterStatus: boolean | null = await userProfile.isOnCampus;
+                    const userProfilePicture: string|null = await userProfile.picture;
+
+                    if (userProfilePicture != null) {
+                        const picture64 = await Buffer.from(userProfilePicture).toString('base64');
+                        picture = (new Buffer(picture64, 'base64')).toString('utf8');
+                    }
+
+                    if (description != null) {
+                        descString = description
+                    }
+                    if (majorTag != null) {
+                        majorString = majorTag.name;
+                    }
+                    if (interestTags != null) {
+                        tags = interestTags;
+                    }
+                    if (commuterStatus != null) {
+                        if (commuterStatus) {
+                            commuterString = "On Campus"
+                        }
+                        else {
+                            commuterString = "Off Campus"
+                        }
+                    }
+                }
+                // Create returnable objects for listings
+                let listingEntries = await Promise.all(listings.map(async listObj => {
+                    // Make sure the listing hasn't been deleted
+                    if (!listObj.deleted) {
+                        // Get the tags and translate them to tag names
+                        let listTags: Tag[] = await listObj.tags;
+
+                        return {
+                            id: listObj.id,
+                            title: listObj.title,
+                            description: listObj.description,
+                            type: "Types not yet implemented",
+                            tags: listTags,
+                            datePosted: listObj.timePosted
+                        };
+                    } else {
+                        return {
+                            id: -1,
+                            title: "",
+                            description: "",
+                            type: "",
+                            tags: [],
+                            datePosted: new Date(0)
+                        };
+                    }
+                }));
+                return {
+                    userID: user.id,
+                    displayName: user.displayName,
+                    major: majorString,
+                    tags: tags,
+                    creationDate: creationDate,
+                    events: events,
+                    listings: listingEntries,
+                    description: descString,
+                    commuterStatus: commuterString,
+                    picture: picture,
+                    emails: emails
+                };
+            }));
+        }
+        else{
+            response.sendStatus(400);
+            return;
+        }
+
+        response.send(JSON.stringify({
+            // Send back the array of found user(s)
+            user: json
+        }));
+    });
+
+    app.get("/api/user-profile/picture", async (request: Request, response: Response) => {
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const userProfile: UserProfile|undefined = await user.profile;
+
+            if (userProfile != null) {
+                const userProfilePicture: string|null = await userProfile.picture;
+
+                if (userProfilePicture != null) {
+                    const picture64 = await Buffer.from(userProfilePicture).toString('base64');
+                    const picture = (new Buffer(picture64, 'base64')).toString('utf8');
+
+                    response.send(JSON.stringify({
+                        picture: picture
+                    }));
+
+                } else {
+                    response.send(JSON.stringify({
+                        picture: ""
+                    }));
+                }
+            } else {
+                response.send(JSON.stringify({
+                    error: "User profile not found"
+                }));
+            }
+
+        } else {
+            response.send(JSON.stringify({
+                error: "User not found"
+            }));
+        }
+    });
+    app.post("/api/user-profile/picture", async (request: Request, response: Response) => {
+
+        if (typeof request.body !== "object") {
+            response.sendStatus(400);
+            return;
+        }
+
+        // Get the request and the major.
+        const body: any = request.body;
+        const picture64 =  await Buffer.from(body.picture).toString('base64');
+        const picture = (new Buffer(picture64, 'base64')).toString('utf8');
+
+        const user: User | undefined = request.user;
+
+        if (user != null) {
+            const userProfile: UserProfile | undefined = await user.profile;
+
+            if (userProfile != null) {
+
+                userProfile.picture = picture;
+                await userProfile.save();
+
+                response.send(JSON.stringify({
+                    success: true
+                }));
+
+            } else {
+
+                response.send(JSON.stringify({
+                    error: "Picture could not be saved."
+                }));
+            }
+        } else {
+            // User is not logged in
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
+    // Post the user name to the database.
+    app.post("/api/user/opt-in-email", async (request: Request, response: Response) => {
+        if (typeof request.body !== "string") {
+            response.sendStatus(400);
+            return;
+        }
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const body: any = request.body;
+            const emails = body.email;
+
+            //const incomingEmail = new UserEmail(user, emails, "");
+
+            //user.emails = emails;
+            //await user.save();
+
+            response.send(JSON.stringify({
+                success: true
+            }));
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+
     });
 
     /*app.post("/api/user/findnames", async (request: Request, response: Response) => {

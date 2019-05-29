@@ -2,13 +2,15 @@ import * as React from "react";
 import {Component, ReactNode} from "react";
 import { FaHome, FaUser, FaCalendar, FaClipboard, FaMailBulk} from 'react-icons/fa';
 import { slide as Menu } from 'react-burger-menu';
+import {getJSON} from "../../util/json";
 
 import "./Sidebar.css";
 
 
 interface Props {
     displayName?: string;
-    updateHistory: (value: string) => void,
+    updateHistory: (value: string) => void;
+    portraitURL: string;
 }
 
 interface State {
@@ -21,7 +23,8 @@ export class Sidebar extends Component<Props, State> {
     
     constructor(props: Props) {
         super(props);
-        this.state = {};
+        this.state = {
+        };
     }
 
     /**
@@ -37,7 +40,7 @@ export class Sidebar extends Component<Props, State> {
                 <Menu width={'25%'}>
                     <span className="space"></span>
                     <span className="sidebarProfileImg">
-                        <img className="userImage" src="../resources/matilda.png"></img>
+                        <img className="userImage" src={this.props.portraitURL} alt="user picture"></img>
                         <h3 className="greeting"><span className="hi">hi</span> {displayName}</h3>
                     </span>
                     <span className="sidebarMenuItem" onClick={() => this.props.updateHistory("/")}><FaHome className="icon" /><span className="sidebarMenuItemTitle">home</span></span>
