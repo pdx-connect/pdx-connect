@@ -1,5 +1,4 @@
 import * as React from "react";
-import {Component, ReactNode} from "react";
 import {getJSON, postJSON} from "../util/json";
 
 
@@ -56,7 +55,7 @@ export class Socket {
             // When a message is received, do...
             if( this.socket != null ) { // TODO: this check is a hacky work around
                 this.socket.onmessage = (msg: MessageEvent) => {
-                    console.log("On message triggered")
+                    console.log("On message triggered");
                     let conversation: ConversationEntry;
                     let message: Message;
                     let data = msg.data;
@@ -81,7 +80,7 @@ export class Socket {
                         timeSent: msgFromServer.timeSent,
                         text: msgFromServer.content,
                         seen: false,
-                    }
+                    };
                     for (let i = 0; i < this.messages.length; ++i) {
                         if (this.messages[i].conversationID == conversationID ){
                             lastSeen = this.messages[i].lastSeen;
@@ -92,7 +91,7 @@ export class Socket {
                         conversationID: conversationID,
                         lastSeen: lastSeen,
                         entries: [message]
-                    }
+                    };
                     this.addToConversation(conversation);
                 };
                 this.socket.onerror = (error) => {
@@ -186,7 +185,7 @@ export class Socket {
                     userID: messages[i].from,
                     timeSent: messages[i].timeSent,
                     text: messages[i].content,
-                    seen: messages[i].timeSent < lastSeen ? true : false
+                    seen: messages[i].timeSent < lastSeen
                 });
             } else {
                 toReturn.push({
@@ -225,12 +224,10 @@ export class Socket {
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i]);
                 } else if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
                     console.log("Message timestamp overlap");
-                    continue;
                 } else if ( newMessages.entries[i].timeSent == tempMessages[foundAt].entries[0].timeSent 
                             &&  newMessages.entries[i].userID == tempMessages[foundAt].entries[0].userID 
                             &&  newMessages.entries[i].text == tempMessages[foundAt].entries[0].text ) {
                     console.log("Message the same");
-                    continue;
                 } else { 
                     console.log("Message added to conversation");
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i])
