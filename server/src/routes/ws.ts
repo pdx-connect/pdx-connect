@@ -20,6 +20,7 @@ class connectionsWrapper {
     }
 
     public readonly push = (conn: {socket: ws, user: number}) => {
+        console.log("Connection added to cw: ", conn);
         connectionsWrapper.connections.push(conn);
     }
 
@@ -140,10 +141,12 @@ export function route(app: Express, db: Connection) {
                     }
                 });
                 // Find connections to all logged-on participants
+                console.log("Trying to send the message...");
                 for( let i = 0; i < participants.length; ++i ) {
                     for ( let j = 0; j < cw.length(); ++j ) {
-                        // If this connection matches a participant, and isn't the sender..
+                        // If this connection matches a participant, send the message
                         if (cw.index(j).user == participants[i].userID) {
+                            console.log("Found a socket for this conversation");
                             try{
                                 cw.index(j).socket.send(JSON.stringify({
                                     conversationID: conversationID,
@@ -154,8 +157,11 @@ export function route(app: Express, db: Connection) {
                                     }
                                 }));
                             } catch {
+                                console.log("Threw an error trying to send the message");
                                 cw.index(j).socket.close();
                             }
+                        } else {
+                            console.log("Found a socket which did not belong to the conversation");
                         }
                     }
                 }
@@ -235,13 +241,14 @@ export function route(app: Express, db: Connection) {
                 }
                 // Create/save the message
                 if (conversation != null) {
-                    console.log("Making and saving new message");
                     let newMessage = new Message(conversation, user, message.content);
                     newMessage.save();
                     // Send the message to every participant
+                    console.log("Trying to send the message...");
                     for (let i = 0; i < participants.length; ++i) {
                         for (let j = 0; j < cw.length(); ++j) {
                             if (cw.index(j).user == participants[i].userID) {
+                                console.log("Found a socket for this conversation");
                                 try {
                                     cw.index(j).socket.send(JSON.stringify({
                                         conversationID: conversationID,
@@ -252,8 +259,11 @@ export function route(app: Express, db: Connection) {
                                         }
                                     }));
                                 } catch {
+                                    console.log("Threw an error trying to send the message");
                                     cw.index(j).socket.close();
                                 }
+                            } else {
+                                console.log("Found a socket which did not belong to the conversation");
                             }
                         }
                     }
@@ -275,9 +285,11 @@ export function route(app: Express, db: Connection) {
         // on Close
         socket.on("close", () => {
             // Remove from list of active connections
+            console.log("Removing connection, before: ", connectionsWrapper.connections);
             connectionsWrapper.connections = connectionsWrapper.connections.filter( (value, index, arr) => {
                 return value.socket == socket && value.user == user.id;
             })
+            console.log("Removing connection, after: ", connectionsWrapper.connections);
             console.log("Connection closing for some reason")
             return;
         });
