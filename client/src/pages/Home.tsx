@@ -56,6 +56,7 @@ interface State {
     conversations: ConversationEntry[];
     lastMessage: Date|null;
     portraitURL: any;
+    messages: Message[];
 }
 
 /**
@@ -76,7 +77,8 @@ export class Home extends Page<Props, State> {
             windowHeight: window.innerHeight,
             conversations: [],
             lastMessage: null,
-            portraitURL: null
+            portraitURL: null,
+            messages: []
         };
         this.socket = null;
     }
@@ -238,21 +240,34 @@ export class Home extends Page<Props, State> {
             if (this.socket.gotLastMessage != this.state.lastMessage) {
                 console.log("Prev convo:", prevState.conversations)
                 console.log("Current convo:", this.state.conversations)
-                console.log("Last message time:", this.state.lastMessage)
+                console.log("Last message time:", this.state.lastMessage.toISOString())
                 this.state.conversations.map((conversation) => 
                 prevState.conversations.map((prevConversation) => 
                 {if (prevConversation.conversationID == conversation.conversationID) {
                     console.log("Prev Messages:", prevConversation.entries)
                     console.log("Current messages:", conversation.entries)
-                    console.log("Message time:", conversation.entries[0].timeSent.getTime)
+                    console.log("Message time:", conversation.entries[0].timeSent.toString())
                     if (this.state.lastMessage != null) {
-                        if (conversation.entries[0].timeSent > this.state.lastMessage) {
+                        if (conversation.entries[0].timeSent.toString() > this.state.lastMessage.toISOString()) {
                             console.log("New message:", conversation.entries[0])
+                            let newMessages = this.state.messages
+                            newMessages.push(conversation.entries[0])
+                            this.setState({messages: newMessages})
                         }
                     }
                 }}))
+                this.setState({lastMessage: this.socket.gotLastMessage})
             }
         }
+    }
+
+    public showMessage(message: Message) {
+        return (
+            <div className="home-new-messages">
+            {message.text}
+            {message.timeSent}
+            </div>
+        )
     }
     
     /**
@@ -292,7 +307,7 @@ export class Home extends Page<Props, State> {
                             <Modal.Header closeButton>
                             <Modal.Title>Messages</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>TODO: Put messages here</Modal.Body>
+                            <Modal.Body>TODO: Put messages here {this.state.messages.map(message => this.showMessage(message))}</Modal.Body>
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
