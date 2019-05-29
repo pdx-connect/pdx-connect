@@ -124,8 +124,10 @@ export class ReactGrid extends Component<Props, State> {
     private onClick(rowIdx: number, row: any) {
         if (rowIdx != -1 && this.props.searchBy == 1) {
             let userID = row["userID"]
-            let profileString = "/profile/" + userID
-            this.props.history.push(profileString)
+            this.props.history.push({
+                pathname: '/profile',
+                search: '?userid=' + userID
+            });
         }
     }
 

@@ -1,9 +1,10 @@
 import {Express, Request, Response} from "express";
-import {Connection} from "typeorm";
+import {Connection, MoreThanOrEqual} from "typeorm";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 import {Tag} from "../../entity/Tag";
 import {CalendarEventComment} from "../../entity/CalendarEventComment";
 import {User} from "../../entity/User";
+import {UserProfile} from "../../entity/UserProfile"
 
 async function parseEventByID(request: Request): Promise<CalendarEvent|null|undefined> {
     const id: number = Number.parseInt(request.params.id);
@@ -75,6 +76,27 @@ export function route(app: Express, db: Connection) {
                 description: event.description,
                 start: event.start,
                 end: event.end
+            }));
+        }
+    });
+    app.put("/api/event/:id", async (request: Request, response: Response) => {
+        if (!request.isAuthenticated()) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
+        if (event === void 0) {
+            response.sendStatus(400);
+        } else if (event === null) {
+            response.send(JSON.stringify("Event not found."));
+        } else {
+            event.title = request.body.title;
+            event.description = request.body.description;
+            event.start = request.body.start;
+            event.end = request.body.end;
+            await event.save();
+            response.send(JSON.stringify({
+                success: true
             }));
         }
     });
@@ -206,5 +228,64 @@ export function route(app: Express, db: Connection) {
                 }));
             }
         }
+    });
+    app.get("/api/events/homeContent", async (request: Request, response: Response) => {
+        // Get user
+        const user: User|undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in"));
+            return;
+        }
+        // Find user account
+        const profile: UserProfile|undefined = await user.profile;
+        if (profile == null) {
+            response.send(JSON.stringify("No profile for this account"));
+            return;
+        }
+        // Get tags, make array for find query
+        const tags: Tag[] = await profile.interests;
+        const eventEntries: {
+            id: number,
+            title: string,
+            description: string,
+            start: Date,
+            end: Date|null
+        }[] = [];
+        // Get all events which haven't endeded, ordered by start time
+        const events: CalendarEvent[] = await CalendarEvent.find({
+            where: {
+                end: MoreThanOrEqual(Date.now()),
+                deleted: false
+            },
+            order: {
+                start: "ASC"
+            }
+        });
+        // Check whether the tags match the user's tags and add them to eventEntries
+        for (let i = 0; i < events.length; ++i) {
+            let eventTags: Tag[] = await events[i].tags;
+            for (let j = 0; j < tags.length; ++j) {
+                // Manually search the arrays :(
+                let found = false;
+                for (let k = 0; k < eventTags.length; ++k) {
+                    if (eventTags[k].id == tags[j].id) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    // Get the tag names
+                    eventEntries.push({
+                        id: events[i].id,
+                        title: events[i].title,
+                        description: events[i].description,
+                        start: events[i].start,
+                        end: events[i].start
+                    });
+                    break;
+                }
+            }
+        }
+        response.send(JSON.stringify(eventEntries));
     });
 }
