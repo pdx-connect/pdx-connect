@@ -2,12 +2,12 @@ import * as React from "react";
 import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
+import {getJSON, postJSON} from '../../util/json';
 
 import "./Inbox.css";
-import { postJSON } from '../../util/json'; 
 
 
-interface Props { 
+interface Props {
     sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => void;
     getMoreMessages: (conversationID: number) => void;
     seenRecent: (conversationID: number, time: Date) => void;
@@ -41,13 +41,9 @@ export class Inbox extends Component<Props, State> {
 
     private readonly getUsers = async () => {
         let data: any;
-        data = await postJSON("/api/user/findnames", {});
+        data = await getJSON("/api/user/findnames");
         this.setState({users: data.results});
-
-        return;
-    }
-
-
+    };
 
     /*
     *   Message textfield state is updated on each keystroke

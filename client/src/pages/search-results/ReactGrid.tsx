@@ -24,7 +24,6 @@ interface State {
     style: boolean;
 }
 
-
 const {
     MultiSelectFilter,
     AutoCompleteFilter,

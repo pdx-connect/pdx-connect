@@ -100,27 +100,6 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
-    app.put("/api/event/:id", async (request: Request, response: Response) => {
-        if (!request.isAuthenticated()) {
-            response.send(JSON.stringify("Not logged in."));
-            return;
-        }
-        const event: CalendarEvent | null | undefined = await parseEventByID(request);
-        if (event === void 0) {
-            response.sendStatus(400);
-        } else if (event === null) {
-            response.send(JSON.stringify("Event not found."));
-        } else {
-            event.title = request.body.title;
-            event.description = request.body.description;
-            event.start = request.body.start;
-            event.end = request.body.end;
-            await event.save();
-            response.send(JSON.stringify({
-                success: true
-            }));
-        }
-    });
     app.post("/api/event/:id", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
             response.send(JSON.stringify("Not logged in."));

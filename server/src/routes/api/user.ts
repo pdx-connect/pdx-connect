@@ -355,19 +355,20 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
-    app.post("/api/user/findnames", async (request: Request, response: Response) => {
-        let json : UserData[]
+    app.get("/api/user/findnames", async (request: Request, response: Response) => {
+        if (!request.isAuthenticated()) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
         // Search the DB to find all users
-        const users: User[] = await User.find({
-        });
-
+        const users: User[] = await User.find();
         // Create an array of user(s) containing their ID, displayName
-        json = await Promise.all(users.map(async user => {
+        const json: UserData[] = users.map(user => {
             return {
                 userID: user.id,
                 displayName: user.displayName,
             };
-        }));
+        });
         response.send(JSON.stringify({
             // Send back the array of found user(s)
             results: json

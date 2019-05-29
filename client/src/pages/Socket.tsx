@@ -1,5 +1,6 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
+import {getJSON, postJSON} from "../util/json";
 
 
 interface ServerMessage {
@@ -106,18 +107,12 @@ export class Socket {
 
     public readonly getUnreadMessages = async () => {
         let conversations: ConversationEntry[] = [];
-
-        const response: Response = await fetch("/api/messages/backlog", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        const data = await response.json();
+        
+        const data = await getJSON("/api/messages/backlog");
         if(data.length == null) {
             // TODO throw an error 
 
-            console.log("error in getUnreadMessages")
+            console.log("error in getUnreadMessages");
             return;
         }
         // For each conversation returned, put it in the messages element
@@ -125,7 +120,7 @@ export class Socket {
             // Enforce types before moving on
             if(typeof data[i] !== "object") {
                 // TODO throw an error
-                console.log("error in getUnreadMessages")
+                console.log("error in getUnreadMessages");
                 return;
             }
             const conversationID: number = data[i].conversationID;
@@ -287,7 +282,7 @@ export class Socket {
             }));
             // If the conversation does exist..
         } else {
-            console.log("Right before message send")
+            console.log("Right before message send");
             console.log(msg);    
             this.socket.send(JSON.stringify({
             type: "message",
@@ -298,21 +293,16 @@ export class Socket {
     };
 
     public readonly getParticipants = async (conversationID: number) => {
-        const response: Response = await fetch("/api/messages/participants", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({conversationID: conversationID})
-        });
         const data: {
             userID: number;
             displayName: string;
-        }[] = await response.json();
+        }[] = await postJSON("/api/messages/participants", {
+            conversationID: conversationID
+        });
         if(data.length == null) {
             // TODO throw an error 
 
-            console.log("error in getUnreadMessages")
+            console.log("error in getUnreadMessages");
             return;
         }
         let participants: Map<number,string> = new Map<number,string>();
