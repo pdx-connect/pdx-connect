@@ -1,56 +1,57 @@
 @import "../placeholder.css";
+@import "../root.css";
 
 .inbox
 {
- background-color: grey;
+ background-color: white;
 }
 
-.conversation
+.inbox-conversation
 {
     transition: all .03s ease-in-out;
-    background-color: lightgrey;
+    background-color: var(--closed-conversation-selector);
     border-radius: 10px;
     padding: 10px;
     margin: 15px;
     cursor: pointer;
 }
 
-.conversation:hover, .open-conversation:hover
+.inbox-conversation:hover, .inbox-open-conversation:hover
 {
     transform: scale(0.98);
 }
 
-.open-conversation
+.inbox-open-conversation
 {
     transition: all .1s ease-in-out;
-    background-color: bisque;
+    background-color: var(--open-conversation-selector);
     border-radius: 10px;
     padding: 10px;
     margin: 15px;
     cursor: pointer;
 }
 
-.compose-message
+.inbox-compose-message
 {
     float: left;
-    background-color: white;
+    background-color: var(--inbox-windows-bg);
     margin: 10px;
     width: 25%;
     height: 50px;
     border-radius: 10px;
 }
 
-.compose-button
+.inbox-compose-button
 {
     width: 100%;
     height: 50px;
     border-radius: 10px;
 }
 
-.participents
+.inbox-participents
 {
     float: left;
-    background-color: white;
+    background-color: var(--inbox-windows-bg);
     margin: 10px;
     width: 65%;
     height: 50px;
@@ -58,11 +59,11 @@
     text-align: center;
 }
 
-.conversations
+.inbox-conversations
 {
     clear: left;
     float: left;
-    background-color: white;
+    background-color: var(--inbox-windows-bg);
     margin: 10px;
     width: 25%;
     height: 680px;
@@ -70,10 +71,10 @@
     overflow: scroll;
 }
 
-.chat-box
+.inbox-chat-box
 {
     float: left;
-    background-color: white;
+    background-color: var(--inbox-windows-bg);
     padding: 10px;
     margin: 10px;
     width: 65%;
@@ -82,34 +83,33 @@
     overflow: scroll;
 }
 
-.message-row
+.inbox-message-row
 {
     width: 100%;
 }
 
-.my-message-bubble
+.inbox-my-message-bubble
 {
     padding: 10px 20px 10px 20px;
     margin: 5px;
     margin-left: auto;
     border-radius: 20px;
-    background-color: lightgrey;
+    background-color: var(--my-message-bubble);
     max-width: 60%;
 }
 
-.other-message-bubble
+.inbox-other-message-bubble
 {
     float: left;
     padding: 10px 20px 10px 20px;
     margin: 5px;
     margin-left: 30px;
     border-radius: 20px;
-    background-color: lightblue;
+    background-color: var(--others-message-bubble);
     max-width: 60%;
-    
 }
 
-.message-bubble-name-tag
+.inbox-message-bubble-name-tag
 {
     float: left;
     color: grey;
@@ -120,7 +120,7 @@
     width: 100%;
 }
 
-.text-box
+.inbox-text-box
 {
     display: block;
     padding: 10px;
@@ -129,18 +129,18 @@
     float: left;
 }
 
-.textField
+.inbox-textField
 {
     width: 400px;
     line-height: 28px;
 }
 
-.user-select-form
+.inbox-user-select-form
 {
     margin-left: 200px;
 }
 
-.user-select
+.inbox-user-select
 {
     box-sizing: content-box;
     -webkit-appearance: menulist-button;

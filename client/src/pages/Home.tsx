@@ -63,7 +63,7 @@ interface State {
 export class Home extends Page<Props, State> {
     
     constructor(props: Props) {
-        super(props);   
+        super(props);
         this.state = {
             alerts: {},
             searchField: "",
@@ -142,7 +142,7 @@ export class Home extends Page<Props, State> {
             windowWidth: window.innerWidth, 
             windowHeight: window.innerHeight
         });
-    }
+    };
 
     private readonly getSendMessages = () => {
         if (this.socket) {
@@ -183,17 +183,17 @@ export class Home extends Page<Props, State> {
 
     private readonly updateMessages = (messages: ConversationEntry[]) => {
         this.setState({conversations: messages});
-    }
+    };
 
     private readonly updatePortraitURL = async () => {
         this.setState({
             portraitURL: await this.getUserProfilePicture()
         });
-    }
+    };
 
     private readonly getUserProfileDefault = () => {
         return "../resources/matilda.png";
-    }
+    };
 
     private readonly getUserProfilePicture = async () => {
         const data = await getJSON("/api/user-profile/picture");

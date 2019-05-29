@@ -32,6 +32,13 @@
     --hard-font: 'Montserrat', sans-serif;
     --soft-font: 'Varela Round', sans-serif;
 
+    /* INBOX Component*/
+    --my-message-bubble: lightgrey;
+    --others-message-bubble: lightblue;
+    --open-conversation-selector: bisque;
+    --closed-conversation-selector: lightgrey;
+    --inbox-windows-bg: white;
+
 }
 
 .float-right
