@@ -228,7 +228,7 @@ export class Home extends Page<Props, State> {
         
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
-        this.setState({lastMessage : this.socket.gotLastMessage})
+        this.setState({lastMessage : await this.socket.gotLastMessage})
         console.log("In home component did mount");
         console.log(this.state.conversations);
     }
@@ -238,7 +238,7 @@ export class Home extends Page<Props, State> {
             if (this.socket.gotLastMessage != this.state.lastMessage) {
                 console.log("Prev convo:", prevState.conversations)
                 console.log("Current convo:", this.state.conversations)
-                console.log("Last message time:", this.state.lastMessage.getTime)
+                console.log("Last message time:", this.state.lastMessage)
                 this.state.conversations.map((conversation) => 
                 prevState.conversations.map((prevConversation) => 
                 {if (prevConversation.conversationID == conversation.conversationID) {
@@ -246,7 +246,7 @@ export class Home extends Page<Props, State> {
                     console.log("Current messages:", conversation.entries)
                     console.log("Message time:", conversation.entries[0].timeSent.getTime)
                     if (this.state.lastMessage != null) {
-                        if (conversation.entries[0].timeSent.getTime > this.state.lastMessage.getTime) {
+                        if (conversation.entries[0].timeSent > this.state.lastMessage) {
                             console.log("New message:", conversation.entries[0])
                         }
                     }
