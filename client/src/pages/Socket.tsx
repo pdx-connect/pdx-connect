@@ -109,9 +109,8 @@ export class Socket {
         let conversations: ConversationEntry[] = [];
         
         const data = await getJSON("/api/messages/backlog");
-        if(data.length == null) {
-            // TODO throw an error 
-
+        if (!Array.isArray(data)) {
+            // TODO throw an error
             console.log("error in getUnreadMessages");
             return;
         }
@@ -163,17 +162,12 @@ export class Socket {
             conversationID: conversationID,
             alreadyHave: alreadyHave,
         });
-        if (data == null) {
+        if (!Array.isArray(data)) {
             // TODO throw an error
             console.log("error in getMoreMessages");
             return;
         }
-        let messages: ServerMessage[] = data;
-        if (messages == null) {
-            // TODO throw an error
-            console.log("error in getMoreMessages");
-            throw new Error();
-        }
+        const messages: ServerMessage[] = data;
         conversation = {
             conversationID: conversationID,
             lastSeen: lastSeen, 
