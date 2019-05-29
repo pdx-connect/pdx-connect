@@ -153,7 +153,7 @@ export class Inbox extends Component<Props, State> {
         // Array of strings of the participants taken from the 30 recent messages, 
         // TODO (IMPORTANT): This will only will participants from the latest 30 messages, if you're included in the conversation but you never sent out
         //                   a message, your name will not be included!
-        if (this.props.conversations != null && this.state.currentConversationIndex != null) {
+        if (this.props.conversations != null && this.state.currentConversationIndex != null && this.state.users != undefined) {
             for (let i=0; i<this.props.conversations[this.state.currentConversationIndex].entries.length; i++) {
                 if (participents.indexOf(this.props.conversations[this.state.currentConversationIndex].entries[i].userID) == -1) {
                     if (!participents.includes(this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[this.state.currentConversationIndex!].entries[i].userID)].displayName)) {
@@ -193,7 +193,7 @@ export class Inbox extends Component<Props, State> {
             );
         }
 
-        if (this.props.conversations != null) {
+        if (this.props.conversations != null && this.state.users) {
             for (let i=0; i<this.props.conversations.length; i++) {
                 if (i == this.state.currentConversationIndex) {
                     rows.push(
