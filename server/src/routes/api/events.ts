@@ -15,7 +15,8 @@ async function parseEventByID(
   }
   const event: CalendarEvent | undefined = await CalendarEvent.findOne({
     where: {
-      id: id
+      id: id,
+      deleted: false
     }
   });
   if (event == null) {
