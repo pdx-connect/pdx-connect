@@ -22,3 +22,22 @@ export function postJSON(route: string, data: any): Promise<any> {
         body: JSON.stringify(data)
     }).then(response => response.json());
 }
+
+export function deleteJSON(route: string): Promise<any> {
+    return fetch(route, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        },
+    }).then(response => response.json());
+}
+
+export function updateJSON(route: string, data: any): Promise<any> {
+    return fetch(route, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    }).then(response => response.json());
+}

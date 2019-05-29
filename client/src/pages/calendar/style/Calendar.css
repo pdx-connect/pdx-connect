@@ -39,8 +39,8 @@
 .rbc-event-label,
 .rbc-row-segment .rbc-event-content,
 .rbc-show-more {
-  color: lightyellow;
-  background-color: rgb(102, 151, 38); /* remove later */
+  color: black;
+  /* background-color: rgb(102, 151, 38); remove later */
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
