@@ -186,7 +186,7 @@ export class Socket {
                     userID: messages[i].from,
                     timeSent: messages[i].timeSent,
                     text: messages[i].content,
-                    seen: true ? messages[i].timeSent < lastSeen : false
+                    seen: messages[i].timeSent < lastSeen ? true : false
                 });
             } else {
                 toReturn.push({
