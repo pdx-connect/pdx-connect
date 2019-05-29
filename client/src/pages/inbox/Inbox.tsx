@@ -7,7 +7,7 @@ import "./Inbox.css";
 import { postJSON } from '../../util/json'; 
 
 
-interface Props {
+interface Props { 
     sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => void;
     getMoreMessages: (conversationID: number) => void;
     seenRecent: (conversationID: number, time: Date) => void;
