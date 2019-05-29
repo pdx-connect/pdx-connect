@@ -1,37 +1,85 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Container, Row, Col, Form} from "react-bootstrap";
-import {FaPencilAlt, FaSave, FaUndoAlt} from "react-icons/fa";
-import Select from 'react-select';
-import {ValueType} from "react-select/lib/types";
-import {OptionType} from "../../components/types";
+import {RouteComponentProps, Redirect, Route, Switch} from "react-router";
+import {Container, Row, Col} from "react-bootstrap";
+import {Navigation} from "./Navigation";
+import {ProfileContent} from "./ProfileContent";
+import {Edit} from "./Edit";
+import {Events} from "./Events";
+import {Listings} from "./Listings";
+import {Settings} from "./Settings";
 import {postJSON} from "../../util/json";
+import queryString from "query-string";
 
 import "./Profile.css";
 
-interface Disabled {
-    displayName: boolean;
-    major: boolean;
+
+interface Props extends RouteComponentProps {
+    
 }
 
 interface Props {
-    updateDisplayName: (s: string) => void,
+    updateDisplayName: (s: string) => void;
+    updatePortraitURL: () => void;
+    getUserProfileDefault: () => string;
+    userID?: number;
 }
 
-interface SubState {
-    displayName: string;
-    major: string;
-    commuter: string;
-    interests: [];
-    optInEmail: string;
-    picture: string;
+interface State {
+    userProfile: UserProfile;
+    displayProfile: UserProfile;
+}
+
+interface Event {
+    deleted: number;
     description: string;
+    end: string;
+    id: number;
+    start: string;
+    title: string;
+    userID: number;
 }
 
-interface State extends SubState {
-    error: { [key in keyof SubState]: boolean };
-    disabled: { [key in keyof SubState]: boolean };
-    selectedOptions: OptionType[];
+interface Listing {
+    anonymous: number;
+    deleted: number;
+    description: string;
+    id: number;
+    datePosted: string;
+    title: string;
+    userID: number;
+    tags: Tag[];
+
+}
+
+interface Tag {
+    id: number;
+    name: string;
+}
+
+interface UserEmail {
+    activePriority: boolean;
+    email: string;
+    userID: number;
+    verificationCode: string | null;
+    verificationTime: string;
+}
+
+
+interface UserProfile {
+    commuterStatus: string;
+    creationDate: string;
+    description: string;
+    displayName: string;
+    events: Event[];
+    isUser: boolean | undefined;
+    listings: Listing[];
+    major: string;
+    picture: string;
+    tags: Tag[];
+    userID: number | undefined;
+    emails: UserEmail[] | null;
+    
 }
 
 /**
@@ -42,308 +90,148 @@ export class Profile extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            displayName: "",
-            major: "",
-            commuter: "",
-            interests: [],
-            optInEmail: "",
-            picture: "",
-            description: "",
-            error: {
-                'displayName': false,
-                'major': false,
-                'commuter': false,
-                'interests': false,
-                'optInEmail': false,
-                'picture': false,
-                'description': false
+            userProfile: {
+                commuterStatus: "",
+                creationDate: "",
+                description: "",
+                displayName: "",
+                events: [],
+                isUser: undefined,
+                listings: [],
+                major: "",
+                picture: "",
+                tags: [],
+                userID: undefined,
+                emails: [],
             },
-            disabled: {
-                'displayName': true,
-                'major': true,
-                'commuter': true,
-                'interests': true,
-                'optInEmail': true,
-                'picture': true,
-                'description': true
-            },
-            selectedOptions: [],
+            displayProfile: {
+                commuterStatus: "",
+                creationDate: "",
+                description: "",
+                displayName: "",
+                events: [],
+                isUser: undefined,
+                listings: [],
+                major: "",
+                picture: "",
+                tags: [],
+                userID: undefined,
+                emails: []
+            }
         };
     }
 
-    private readonly handleInterestChange = (value: ValueType<OptionType>) => {
-        this.setState({
-            selectedOptions: OptionType.resolve(value)
-        });
-    };
+    componentDidMount() {
+        const { location, userID } = this.props;
 
-    private readonly toggle = (e: keyof SubState, state?: boolean) => {
-        let updatedDisabled = this.state.disabled;
-        updatedDisabled[e] = state != null ? state : !updatedDisabled[e];
+        const values = queryString.parse(location.search);
+        const userid = Number(values.userid) ? Number(values.userid) : undefined;
 
-        this.setState({
-           disabled: updatedDisabled
-        });
-    };
+        this.setProfile(userID, userid);
+    }
 
-    private readonly error = (e: keyof SubState, state?: boolean) => {
-        let updatedError = this.state.error;
-        updatedError[e] = state != null ? state : !updatedError[e];
+    componentDidUpdate(prevProps: Props, prevState: State) {
+        const { location, userID } = this.props;
 
-        this.setState({
-           error: updatedError
-        });
-    };
+        const values = queryString.parse(location.search);
+        const userid = Number(values.userid) ? Number(values.userid) : undefined;
 
-    private readonly handleChange = (e: any) => {
-        this.setState({
-            [e.target.id]: e.target.value
-        } as any);
-    };
+        if(Object.keys(this.state.displayProfile).length === 0) {
+            this.setProfile(userID, userid);
+        } 
+    }
 
-    private readonly update = async (e: keyof SubState) => {
-        console.log('TODO: user wants to update profile setting: ', e);
-        // Update specific profile information and send changes to the
-        // DB
-        switch (e) {
-            case "displayName": {
-                const data = await postJSON("/api/user/name", this.state.displayName);
-                if (!('success' in data)) {
-                    this.error(e, true);
-                    return;
-                } else {
-                    this.props.updateDisplayName(this.state.displayName);
+    private readonly setProfile = (userID: number|undefined, userid: number|undefined) => {
+
+        if(userid != undefined) {
+            this.getProfile(userid).then(data => {
+                let displayProfile = data.user[0];
+                if(userID != undefined) {
+
+                    displayProfile['isUser'] = false;
+
+                    if(userID === userid) {
+                        displayProfile['isUser'] = true;
+                    }
+
+                    this.getProfile(userID).then(data => {
+                        this.setState({
+                            displayProfile: displayProfile,
+                            userProfile: data.user[0]
+                        });
+                    });
                 }
-                break;
+            });
+        } else {
+            if(userID != undefined) {
+                this.getProfile(userID).then(data => {
+                    let displayProfile = data.user[0];
+                    displayProfile['isUser'] = true;
+                    this.setState({
+                        displayProfile: displayProfile,
+                        userProfile: displayProfile
+                    });
+                });
             }
-            case "major":
-                break;
-            case "description": {
-                const data = await postJSON("/api/user/description", this.state.description);
-                if (!('success' in data)) {
-                    this.error(e, true);
-                    return;
-                }
-                break;
-            }
-            default:
-                console.error("Unsupported update field");
-                break;
         }
-        this.toggle(e, true);
+    }
+
+    private readonly updateUserProfile = () => {
+        this.setProfile(this.props.userID, undefined);
+    }
+
+    private readonly getProfile = async (userId: number) => {
+        const data = await postJSON("/api/user/finduser", {
+            userId: userId,
+        });
+
+        return data;
     };
 
-    /**
-     * @override
-     */
+    private readonly updateHistory = (v: string) => {
+        if(v === "/profile") {
+            this.setState({displayProfile: this.state.userProfile});
+        }
+        
+        this.props.history.push(v);
+    };
+
+
+
     public render(): ReactNode {
 
-        const currentDisplayName = "matilda";
-        const currentMajor = "english";
-        const currentBio = "New to Oregon and PSU. Looking to connect with foodies, art lovers, and other anthro majors.";
-        const currentOptIn = "mat@gmail.com";
-        const currentPicture = "matilda.png";
-
-        const commuterOptions = [
-            { value: 'on campus', label: 'campus' },
-            { value: 'remote', label: 'remote' }
-          ]
-
-        const interests = [
-            { value: 'free food', label: 'free food' },
-            { value: 'biking', label: 'biking' },
-            { value: 'art', label: 'art'},
-            { value: 'computer science', label: 'computer science'}
-        ]
-
-        
         return (
-                <Container fluid className="profile">
-                   <Row>
-                       <Col sm={4} className="label">display name</Col>
+            <Container fluid className="profile">
+            <Row>
+                <Col sm={3} className="profile-left-container"><Navigation updateHistory={this.updateHistory}/></Col>
+                <Col sm={9} className="profile-right-container">
+                    <Switch>
+                        <Route
+                            exact path="/profile"
+                            render={props => <ProfileContent {...props} displayProfile={this.state.displayProfile} getUserProfileDefault={this.props.getUserProfileDefault}/>}
+                        />
+                        <Route
+                            path="/profile/edit"
+                            render={props => <Edit {...props} updateDisplayName={this.props.updateDisplayName} userProfile={this.state.userProfile} updateUserProfile={this.updateUserProfile} getUserProfileDefault={this.props.getUserProfileDefault} updatePortraitURL={this.props.updatePortraitURL}/>}
+                        />
+                        <Route
+                            path="/profile/events"
+                            render={props => <Events {...props} events={this.state.userProfile.events} />}
+                        />
+                        <Route
+                            path="/profile/listings"
+                            render={props => <Listings {...props} listings={this.state.userProfile.listings} updateUserProfile={this.updateUserProfile} displayName={this.state.userProfile.displayName}/>}
+                        />
+                        <Route
+                            path="/profile/settings"
+                            render={props => <Settings {...props} />}
+                        />
 
-                       <Col sm={4}>
-                            <Form.Group className="formBasic">
-                                <Form.Control
-                                    type="text"
-                                    placeholder={currentDisplayName}
-                                    onChange={this.handleChange}
-                                    id="displayName"
-                                    className={this.state.error.displayName ? "error" : "generic"}
-                                    value={this.state.displayName}
-                                    disabled={this.state.disabled.displayName}
-                                />
-                            </Form.Group>
-                       </Col>
-
-                       <Col sm={4} className="edit">
-                            {this.state.disabled['displayName']?
-                            <div>
-                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('displayName')}/>
-                            </div>
-                                :
-                            <div>
-                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('displayName')}></FaSave>
-                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('displayName')}></FaUndoAlt>
-                            </div>
-                            }
-                       </Col>
-                   </Row>
-
-                   <Row>
-                       <Col sm={4} className="label">major</Col>
-
-                       <Col sm={4}>
-                            <Form.Group className="formBasic">
-                                <Form.Control
-                                    type="text"
-                                    placeholder={currentMajor}
-                                    onChange={this.handleChange}
-                                    id="major"
-                                    className="generic"
-                                    value={this.state.major}
-                                    disabled={this.state.disabled['major']}
-                                />
-                            </Form.Group>
-                       </Col>
-                       
-                       <Col sm={4} className="edit">
-                            {this.state.disabled['major']?
-                            <div>
-                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('major')}/>
-                            </div>
-                                :
-                            <div>
-                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('major')}></FaSave>
-                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('major')}></FaUndoAlt>
-                            </div>
-                            }
-                       </Col>
-                   </Row>
-
-                   <Row className="bottomMargin">
-                       <Col sm={4} className="label">commuter</Col>
-
-                       <Col sm={4}>
-                            <Select options={commuterOptions} />
-                       </Col>
-                       
-                       <Col sm={4} className="edit"></Col>
-                   </Row>
-
-
-                   <Row>
-                       <Col sm={4} className="label">interests</Col>
-                       <Col sm={4}>
-                            <Select
-                                options={interests}
-                                value={this.state.selectedOptions}
-                                onChange={this.handleInterestChange}
-                                isMulti={true}
-                            />
-                       </Col>
-                       <Col sm={4} className="edit"></Col>
-                   </Row>
-
-                    {/* Opt-in email */}
-                   <Row >
-                       <Col sm={4} className="label">opt-in email</Col>
-
-                       <Col sm={4}>
-                            <Form.Group className="formBasic">
-                                <Form.Control
-                                    type="text"
-                                    placeholder={currentOptIn}
-                                    onChange={this.handleChange}
-                                    id="optInEmail"
-                                    className="generic"
-                                    value={this.state.optInEmail}
-                                    disabled={this.state.disabled['optInEmail']}
-                                />
-                            </Form.Group>
-                       </Col>
-                       
-                       <Col sm={4} className="edit">
-                            {this.state.disabled['optInEmail']?
-                            <div>
-                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('optInEmail')}/>
-                            </div>
-                                :
-                            <div>
-                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('optInEmail')}></FaSave>
-                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('optInEmail')}></FaUndoAlt>
-                            </div>
-                            }
-                       </Col>
-                   </Row>
-
-                {/* Picture */}
-                   <Row>
-                       <Col sm={4} className="label">picture</Col>
-
-                       <Col sm={4}>
-                            <Form.Group className="formBasic">
-                                <Form.Control
-                                    type="text"
-                                    placeholder={currentPicture}
-                                    onChange={this.handleChange}
-                                    id="picture"
-                                    className="generic"
-                                    value={this.state.picture}
-                                    disabled={this.state.disabled['picture']}
-                                />
-                            </Form.Group>
-                       </Col>
-                       
-                       <Col sm={4} className="edit">
-                            {this.state.disabled['picture']?
-                            <div>
-                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('picture')}/>
-                            </div>
-                                :
-                            <div>
-                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('picture')}></FaSave>
-                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('picture')}></FaUndoAlt>
-                            </div>
-                            }
-                       </Col>
-                   </Row>
-
-                    {/* Biography */}
-                   <Row>
-                       <Col sm={4} className="label">description</Col>
-
-                       <Col sm={4}>
-                            <Form.Group className="formBasic">
-                                <Form.Control
-                                    as="textarea"
-                                    placeholder={currentBio}
-                                    onChange={this.handleChange}
-                                    id="description"
-                                    className="generic"
-                                    value={this.state.description}
-                                    disabled={this.state.disabled['description']}
-                                />
-                            </Form.Group>
-                       </Col>
-                       
-                       <Col sm={4} className="edit">
-                            {this.state.disabled['description']?
-                            <div>
-                                <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('description')}/>
-                            </div>
-                                :
-                            <div>
-                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('description')}></FaSave>
-                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('description')}></FaUndoAlt>
-                            </div>
-                            }
-                       </Col>
-                   </Row>
-
-
-                </Container>
-
+                        <Redirect to="/" />
+                    </Switch>
+                </Col>
+            </Row>
+            </Container> 
         );
     }
 

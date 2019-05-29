@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Component, ReactNode} from "react";
+import {getJSON, postJSON} from "../util/json";
 
 
 interface ServerMessage {
@@ -55,7 +55,7 @@ export class Socket {
             // When a message is received, do...
             if( this.socket != null ) { // TODO: this check is a hacky work around
                 this.socket.onmessage = (msg: MessageEvent) => {
-                    console.log("On message triggered")
+                    console.log("On message triggered");
                     let conversation: ConversationEntry;
                     let message: Message;
                     let data = msg.data;
@@ -80,7 +80,7 @@ export class Socket {
                         timeSent: msgFromServer.timeSent,
                         text: msgFromServer.content,
                         seen: false,
-                    }
+                    };
                     for (let i = 0; i < this.messages.length; ++i) {
                         if (this.messages[i].conversationID == conversationID ){
                             lastSeen = this.messages[i].lastSeen;
@@ -91,7 +91,7 @@ export class Socket {
                         conversationID: conversationID,
                         lastSeen: lastSeen,
                         entries: [message]
-                    }
+                    };
                     this.addToConversation(conversation);
                 };
                 this.socket.onerror = (error) => {
@@ -106,18 +106,11 @@ export class Socket {
 
     public readonly getUnreadMessages = async () => {
         let conversations: ConversationEntry[] = [];
-
-        const response: Response = await fetch("/api/messages/backlog", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        const data = await response.json();
-        if(data.length == null) {
-            // TODO throw an error 
-
-            console.log("error in getUnreadMessages")
+        
+        const data = await getJSON("/api/messages/backlog");
+        if (!Array.isArray(data)) {
+            // TODO throw an error
+            console.log("error in getUnreadMessages");
             return;
         }
         // For each conversation returned, put it in the messages element
@@ -125,7 +118,7 @@ export class Socket {
             // Enforce types before moving on
             if(typeof data[i] !== "object") {
                 // TODO throw an error
-                console.log("error in getUnreadMessages")
+                console.log("error in getUnreadMessages");
                 return;
             }
             const conversationID: number = data[i].conversationID;
@@ -163,29 +156,17 @@ export class Socket {
             }
         }
         // Get the messages from the server
-        const response: Response = await fetch("/api/messages/more", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                conversationID: conversationID,
-                alreadyHave: alreadyHave,
-            })
-        });
         // Turn the response into a ConversationEntry
-        const data = await response.json();
-        if (data == null) {
+        const data = await postJSON("/api/messages/more", {
+            conversationID: conversationID,
+            alreadyHave: alreadyHave,
+        });
+        if (!Array.isArray(data)) {
             // TODO throw an error
             console.log("error in getMoreMessages");
             return;
         }
-        let messages: ServerMessage[] = data;
-        if (messages == null) {
-            // TODO throw an error
-            console.log("error in getMoreMessages");
-            throw new Error();
-        }
+        const messages: ServerMessage[] = data;
         conversation = {
             conversationID: conversationID,
             lastSeen: lastSeen, 
@@ -204,7 +185,7 @@ export class Socket {
                     userID: messages[i].from,
                     timeSent: messages[i].timeSent,
                     text: messages[i].content,
-                    seen: true ? messages[i].timeSent < lastSeen : false
+                    seen: messages[i].timeSent < lastSeen
                 });
             } else {
                 toReturn.push({
@@ -243,12 +224,10 @@ export class Socket {
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i]);
                 } else if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
                     console.log("Message timestamp overlap");
-                    continue;
                 } else if ( newMessages.entries[i].timeSent == tempMessages[foundAt].entries[0].timeSent 
                             &&  newMessages.entries[i].userID == tempMessages[foundAt].entries[0].userID 
                             &&  newMessages.entries[i].text == tempMessages[foundAt].entries[0].text ) {
                     console.log("Message the same");
-                    continue;
                 } else { 
                     console.log("Message added to conversation");
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i])
@@ -287,7 +266,7 @@ export class Socket {
             }));
             // If the conversation does exist..
         } else {
-            console.log("Right before message send")
+            console.log("Right before message send");
             console.log(msg);    
             this.socket.send(JSON.stringify({
             type: "message",
@@ -298,21 +277,16 @@ export class Socket {
     };
 
     public readonly getParticipants = async (conversationID: number) => {
-        const response: Response = await fetch("/api/messages/participants", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({conversationID: conversationID})
-        });
         const data: {
             userID: number;
             displayName: string;
-        }[] = await response.json();
+        }[] = await postJSON("/api/messages/participants", {
+            conversationID: conversationID
+        });
         if(data.length == null) {
             // TODO throw an error 
 
-            console.log("error in getUnreadMessages")
+            console.log("error in getUnreadMessages");
             return;
         }
         let participants: Map<number,string> = new Map<number,string>();

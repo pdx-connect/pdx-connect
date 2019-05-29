@@ -319,9 +319,6 @@ export class HomeContent extends Component<Props, State> {
      */
     public render(): ReactNode {
 
-        //let imgWidth = this.state.width;
-        //let imgHeight = this.state.height;
-
         let events = this.createEvents();
         let listings = this.createListings();
 
