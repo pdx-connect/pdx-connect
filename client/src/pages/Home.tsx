@@ -296,7 +296,10 @@ export class Home extends Page<Props, State> {
                                     path="/calendar"
                                     render={props => <Calendar {...props} userID={this.state.userID} />}
                                 />
-                                <Route path="/listings" component={Listings} />
+                                <Route
+                                    path="/listings"
+                                    render={props => <Listings {...props} />}
+                                />
                                 <Route path="/inbox"
                                        render={(props) => <Inbox {...props} conversations={this.state.conversations}
                                                                  sendMessage={this.getSendMessages()}

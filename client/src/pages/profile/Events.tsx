@@ -1,6 +1,10 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Table, Modal, Button} from "react-bootstrap";
+import { RouteChildrenProps } from 'react-router';
+
+interface Props extends RouteChildrenProps{
+}
 
 
 interface Props {
@@ -8,7 +12,7 @@ interface Props {
 }
 
 interface State {
-    showEditEvent: boolean;
+    showEventView: boolean;
     event: Event | undefined;
 }
 
@@ -33,14 +37,27 @@ export class Events extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            showEditEvent: false,
+            showEventView: false,
             event: undefined
         };
     }
 
+    private editListing = (event: Event | undefined) => {
+        if(event!= undefined) {
+            this.props.history.push({
+                pathname: '/calendar',
+                search: '?eventid=' + event.id
+            });
+         } else {
+             this.setState({
+                 showEventView: false
+             });
+        }
+    }
+
     private readonly updateEvent = (eventID: number, index: number) => {
         this.setState({
-            showEditEvent: true,
+            showEventView: true,
             event: this.props.events[index]
         });
     }
@@ -101,7 +118,7 @@ export class Events extends Component<Props, State> {
                         </Table>
                     </Col>
                 </Row>
-                <Modal size="lg" show={this.state.showEditEvent} onHide={() => this.setState({ showEditEvent: false })} dialogClassName="profile-my-events-modal" backdrop="static">
+                <Modal size="lg" show={this.state.showEventView} onHide={() => this.setState({ showEventView: false })} dialogClassName="profile-my-events-modal" backdrop="static">
                 <Modal.Header closeButton>
                     <Modal.Title>Modal title</Modal.Title>
                 </Modal.Header>
@@ -120,7 +137,7 @@ export class Events extends Component<Props, State> {
                         }
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="light" onClick={() => this.setState({ showEditEvent: false })}>Close</Button>
+                        <Button variant="light" onClick={() => this.setState({ showEventView: false })}>Close</Button>
                         <Button variant="light">Save changes</Button>
                     </Modal.Footer>
                 </Modal>

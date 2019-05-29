@@ -8,20 +8,9 @@ import {OptionType} from "../../components/types";
 import {getJSON, postJSON} from "../../util/json";
 
 import "./Profile.css";
-import { Tags } from '../oobe/preferences/Tags';
-
-
-interface UserEmail {
-    activePriority: boolean;
-    email: string;
-    userID: number;
-    verificationCode: string | null;
-    verificationTime: string;
-}
 
 interface State {
     major: string;
-    optInEmail: string;
     picture: string;
     picture64: string;
     pictureCommit: boolean;
@@ -45,17 +34,12 @@ interface State {
         value: string;
         label: string;
     }[],
-    emails: {
-        value: string;
-        label: string;
-    }[],
     error: { [key: string]: boolean },
     disabled: { [key: string]: boolean },
     displayName: string,
     selectedMajors: OptionType[],
     selectedCommuterOptions: OptionType[],
     selectedInterests: OptionType[];
-    selectedEmails: OptionType[];
 }
 
 interface Props {
@@ -76,7 +60,6 @@ export class Edit extends Component<Props, State> {
         super(props);
         this.state = {
             major: "",
-            optInEmail: "",
             picture: "",
             picture64: "",
             pictureCommit: false,
@@ -88,7 +71,6 @@ export class Edit extends Component<Props, State> {
             tags: [],
             commuterOptions: [],
             interests: [],
-            emails: [],
             error: {
                 'displayName': false,
                 'major': false,
@@ -114,8 +96,7 @@ export class Edit extends Component<Props, State> {
             displayName: "",
             selectedMajors: [],
             selectedCommuterOptions: [],
-            selectedInterests: [],
-            selectedEmails: []
+            selectedInterests: []
         }
     }
 
@@ -166,20 +147,12 @@ export class Edit extends Component<Props, State> {
 
 
                 }
-
-                const selectedEmails: OptionType[] = this.props.userProfile.emails.map((t:{ userID: { toString: () => void; }; email: string; }) => {
-                    return {
-                        value: t.userID.toString(),
-                        label: t.email
-                    };
-                });
     
                 this.setState({
                     interests: filteredInterests,
                     majors: majorOptions,
                     commuterOptions: commuterOptions,
-                    selectedInterests: selectedInterests,
-                    selectedEmails: selectedEmails
+                    selectedInterests: selectedInterests
                 });
 
             });
@@ -248,13 +221,6 @@ export class Edit extends Component<Props, State> {
 
         this.setState({selectedInterests: selectedInterests});
         this.update('selectedInterests', JSON.stringify(selectedInterests));
-    };
-
-    private readonly handleEmailChange = (value: ValueType<OptionType>, action: ActionMeta) => {
-        let selectedEmails = OptionType.resolve(value);
-
-        this.setState({selectedInterests: selectedEmails});
-        this.update('emailRemoval', JSON.stringify(selectedEmails));
     };
 
     private readonly handlePictureChange = (e: any) => {
@@ -359,52 +325,6 @@ export class Edit extends Component<Props, State> {
                 }
                 break;
             }
-            case "optInEmail": {
-                if(v != null) {
-                    console.log('optInEmail: ', v);
-                        
-                    //const data = await postJSON("/api/user/opt-in-email", {
-                    //    emails: email
-                        //userID: userID
-                    //});
-
-                    /*
-                    if (!('success' in data)) {
-                        this.error(e, true);
-                        return;
-                    } else {
-                        this.props.updateUserProfile();
-                    }
-                    */
-                }
-                break;
-            }
-            case "emailRemoval": {
-                if(v != null) {
-                    let selectedEmails = JSON.parse(v);
-                    
-                    const emails: string[] = selectedEmails.map((option: OptionType): string => {
-                        const email: string = option.value;
-                        return email;
-                    });
-
-                    console.log('emailRemoval: ', emails);
-                        
-                    //const data = await postJSON("/api/user/remove-email", {
-                    //    emails: emails,
-                    //});
-
-                    /*
-                    if (!('success' in data)) {
-                        this.error(e, true);
-                        return;
-                    } else {
-                        this.props.updateUserProfile();
-                    }
-                    */
-                }
-                break;
-            }
             case "picture": {
                 const data = await postJSON("/api/user-profile/picture", {
                     picture: v
@@ -448,7 +368,7 @@ export class Edit extends Component<Props, State> {
      * @override
     */
     public render(): ReactNode {
-        //let emails = this.props.userProfile.emails ? this.props.userProfile.emails : "";
+
         let displayName = this.props.userProfile.displayName ? this.props.userProfile.displayName : "";
         let major = this.props.userProfile.major ? this.props.userProfile.major : "";
         let commuterStatus = this.props.userProfile.commuterStatus ? this.props.userProfile.commuterStatus : "";
@@ -534,54 +454,6 @@ export class Edit extends Component<Props, State> {
                             />
                        </Col>
                    </Row>
-
-                    {/* ADD OPT IN EMAIL */}
-                   <Row>
-                       <Col sm={4} className="profile-label">opt-in email</Col>
-
-                       <Col sm={8}>
-                            <Form.Group className="formBasic">
-                                <Form.Control
-                                    type="text"
-                                    placeholder={currentOptIn}
-                                    onChange={this.handleChange}
-                                    id="optInEmail"
-                                    className="generic"
-                                    value={this.state.optInEmail}
-                                    disabled={this.state.disabled['optInEmail']}
-                                />
-                            </Form.Group>
-                       </Col>
-                    </Row>
-                    <Row className="pb-3">
-                        <Col sm={4} className="profile-label"></Col>
-                        <Col sm={8} className="edit profile-move-edit-icon-up">
-                            {this.state.disabled['optInEmail']?
-                                <div className="text-right">
-                                    <FaPencilAlt className="editField" size="2vw" onClick={() => this.toggle('optInEmail')}/>
-                                </div>
-                                    :
-                                <div className="text-right">
-                                    <FaSave className="saveChanges" size="2vw" onClick={() => this.update('optInEmail', this.state.optInEmail)}></FaSave>
-                                    <FaUndoAlt className="undoEdit" size="2vw" onClick={() => this.toggle('optInEmail')}></FaUndoAlt>
-                                </div>
-                            }
-                       </Col>
-                   </Row>
-
-                    {/* EMAILS */}
-                    <Row className="pb-3">
-                       <Col sm={4} className="profile-label">emails</Col>
-                       <Col sm={8}>
-                            <Select
-                                options={this.state.emails}
-                                value={this.state.selectedEmails}
-                                onChange={this.handleEmailChange}
-                                isMulti={true}
-                            />
-                       </Col>
-                   </Row>
-
 
                     {/* PICTURE */}
                    <Row className="pb-3">

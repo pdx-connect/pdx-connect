@@ -12,7 +12,7 @@ import {postJSON} from "../../util/json";
 import queryString from "query-string";
 
 import "./Profile.css";
-import { any } from 'prop-types';
+
 
 interface Props extends RouteComponentProps {
     
@@ -220,7 +220,7 @@ export class Profile extends Component<Props, State> {
                         />
                         <Route
                             path="/profile/listings"
-                            render={props => <Listings {...props} listings={this.state.userProfile.listings} updateUserProfile={this.updateUserProfile} displayName={this.state.userProfile.displayName} />}
+                            render={props => <Listings {...props} listings={this.state.userProfile.listings} updateUserProfile={this.updateUserProfile} displayName={this.state.userProfile.displayName}/>}
                         />
                         <Route
                             path="/profile/settings"

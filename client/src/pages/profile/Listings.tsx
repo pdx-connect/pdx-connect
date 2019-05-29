@@ -5,6 +5,11 @@ import {FaPencilAlt, FaTrash} from "react-icons/fa";
 import Select from 'react-select';
 import {OptionType} from "../../components/types";
 import {postJSON} from "../../util/json";
+import { RouteChildrenProps } from 'react-router';
+
+interface Props extends RouteChildrenProps{
+}
+
 
 interface Props {
     listings: Listing[];
@@ -14,7 +19,6 @@ interface Props {
 
 interface State {
     showListingView: boolean;
-    showEditListing: boolean;
     listing: Listing | undefined;
     updatedListingTitle: string;
 }
@@ -44,10 +48,22 @@ export class Listings extends Component<Props, State> {
         super(props);
         this.state = {
             showListingView: false,
-            showEditListing: false,
             listing: undefined,
             updatedListingTitle: ""
         };
+    }
+
+    private editListing = (listing: Listing | undefined) => {
+        if(listing!= undefined) {
+            this.props.history.push({
+                pathname: '/listings',
+                search: '?listingid=' + listing.id
+            });
+         } else {
+             this.setState({
+                 showListingView: false
+             });
+        }
     }
 
     private readonly viewListing = (listingID: number, index: number) => {
@@ -82,7 +98,6 @@ export class Listings extends Component<Props, State> {
     private readonly updateListing = () => {
         
         if(this.state.listing != undefined) {
-            //this.editListing(id, title, description, anonymous, selectedTags);
             console.log('Save users changes');
         } else {
             this.setState({
@@ -91,25 +106,6 @@ export class Listings extends Component<Props, State> {
         }
 
     }
-     
-    private readonly editListing = async (id: number, title: string, description: string, anonymous: boolean, selectedTags: Tag[]) => {
-        
-        const data = await postJSON("/api/listings/edit_listing", {
-            id: id,
-            title: title,
-            description: description,
-            anonymous: anonymous,
-            selectedTags: selectedTags,
-        });
-         
-        if(data.success) {
-            this.props.updateUserProfile();
-            this.setState({
-                showListingView: false
-            });
-        }
- 
-     }
 
     private readonly createListings = (listings: Listing[]) => {
         let listingGrid = [];
@@ -139,14 +135,14 @@ export class Listings extends Component<Props, State> {
 
 
     public render(): ReactNode {
-        console.log('listings: ', this.props.listings);
+
         let listings = this.createListings(this.props.listings);
         let listing = this.state.listing;
         
         let hideEditButtons = true;
         let postingDate = "";
         let poster = this.props.displayName;
-        let tags: OptionType[]= [];
+        let tags: OptionType[] = [];
 
 
         if(listing != undefined) {
@@ -154,14 +150,13 @@ export class Listings extends Component<Props, State> {
             postingDate = new Date(listing.datePosted).toDateString();
             poster = listing.anonymous === 1? "Posted Anonymously" : this.props.displayName;
 
-            const tagged = listing.tags.map((t: { id: { toString: () => void; }; name: any; }) => {
-                return {
+            tags = listing.tags.map((t: { id: number; name: string; }) => {
+                let option: OptionType = {
                     value: t.id.toString(),
                     label: t.name
                 };
+                return option;
             });
-
-            console.log('tagged: ', tagged);
         }
         
         return (
@@ -199,7 +194,7 @@ export class Listings extends Component<Props, State> {
                     </div>
                 </Modal.Header>
                     <Modal.Body>
-                        {listing != undefined && this.state.showEditListing === false?
+                        {listing != undefined?
                             <Container fluid>
                                 <Row className="pb-3">
                                     <Col sm={4} className="profile-label">Poster</Col>
@@ -228,48 +223,15 @@ export class Listings extends Component<Props, State> {
                             :
                             null
                         }
-                        {listing != undefined && this.state.showEditListing === true?
-                            <Container fluid>
-                                <Row className="pb-3">
-                                    <Col sm={4} className="profile-label">title</Col>
-                                    <Col sm={8} className="profile-listing-content">
-                                        <Form.Group className="formBasic">
-                                            <Form.Control
-                                                type="text"
-                                                placeholder={listing.title}
-                                                onChange={this.handleChange}
-                                                id="title"
-                                                value={this.state.updatedListingTitle}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
-                                <Row className="pb-3">
-                                    <Col sm={4} className="profile-label">description</Col>
-                                    <Col sm={8} className="profile-listing-content">edit description here</Col>
-                                </Row>
-                                <Row className="pb-3">
-                                    <Col sm={4} className="profile-label">anonymous</Col>
-                                    <Col sm={8} className="profile-listing-content">edit anonymous here</Col>
-                                </Row>
-                                <Row className="pb-3">
-                                    <Col sm={4} className="profile-label">tags</Col>
-                                    <Col sm={8} className="profile-listing-content">edit tags here</Col>
-                                </Row>
-                            </Container>
-                            :
-                            null
-                        }
                     </Modal.Body>
                         {hideEditButtons === true?
-                        <div className="profile-modal-footer text-center"><span className="profile-modal-footer-content-center">this listing was deleted and cannot be edited</span></div>
+                            <div className="profile-modal-footer text-center"><span className="profile-modal-footer-content-center">this listing was deleted and cannot be edited</span></div>
                             :
                             <div className="profile-modal-footer">
                                 <span className="profile-modal-footer-content-left">
-                                    <FaPencilAlt className="profile-fa-icon" size="2vw" onClick={() => this.setState({showEditListing: true})}/>
+                                    <FaPencilAlt className="profile-fa-icon" size="2vw" onClick={() => this.editListing(listing)}/>
                                     <FaTrash className="profile-fa-icon" size="2vw" onClick={() => this.removeListing(listing)} />
                                 </span>
-                                {listing != undefined && this.state.showEditListing === true? <span className="profile-modal-footer-content-right"><Button variant="light" onClick={() => this.updateListing()}>save</Button></span>: <span className="profile-modal-footer-content-right"></span>}
                             </div>
                         }
                 </Modal>
