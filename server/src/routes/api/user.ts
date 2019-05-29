@@ -7,6 +7,10 @@ import {UserEmail} from "../../entity/UserEmail";
 import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {CalendarEvent} from "../../entity/CalendarEvent";
 
+interface UserData {
+    userID: number;
+    displayName: string;
+}
 
 export function route(app: Express, db: Connection) {
     app.get("/api/user/name", async (request: Request, response: Response) => {
@@ -307,7 +311,7 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
         }
     });
-     // Post major data to the database. 
+     // Post major data to the database.
      app.post("/api/user/on_campus", async (request: Request, response: Response) => {
         // Parse the request body
         // It should be an object.
@@ -362,19 +366,19 @@ export function route(app: Express, db: Connection) {
                     id: request.body.userId
                 }
             });
- 
+
             // Create an array of user(s) containing their ID, displayName, major
             json = await Promise.all(users.map(async user => {
                 const emails: UserEmail[] = await user.emails;
                 const userProfile: UserProfile|undefined = await user.profile;
                 let majorString = "Not Set";
-                const creationDate = await user.creationDate
-                const events = await user.events
-                const listings = await user.listings
+                const creationDate = await user.creationDate;
+                const events = await user.events;
+                const listings = await user.listings;
                 let tags = undefined;
-                let descString = "Not Set"
-                let commuterString = "Not Set"
-                let picture = undefined
+                let descString = "Not Set";
+                let commuterString = "Not Set";
+                let picture = undefined;
 
                 if (userProfile != null) {
                     const description: string|null = await userProfile.description;
@@ -398,7 +402,7 @@ export function route(app: Express, db: Connection) {
                         tags = interestTags;
                     }
                     if (commuterStatus != null) {
-                        if (commuterStatus == true) {
+                        if (commuterStatus) {
                             commuterString = "On Campus"
                         }
                         else {
@@ -448,7 +452,7 @@ export function route(app: Express, db: Connection) {
             }));
         }
         else{
-            response.sendStatus(400)
+            response.sendStatus(400);
             return;
         }
 
@@ -462,7 +466,7 @@ export function route(app: Express, db: Connection) {
         const user: User|undefined = request.user;
         if (user != null) {
             const userProfile: UserProfile|undefined = await user.profile;
-            
+
             if (userProfile != null) {
                 const userProfilePicture: string|null = await userProfile.picture;
 
@@ -473,7 +477,7 @@ export function route(app: Express, db: Connection) {
                     response.send(JSON.stringify({
                         picture: picture
                     }));
-                    
+
                 } else {
                     response.send(JSON.stringify({
                         picture: ""
@@ -484,7 +488,7 @@ export function route(app: Express, db: Connection) {
                     error: "User profile not found"
                 }));
             }
-                
+
         } else {
             response.send(JSON.stringify({
                 error: "User not found"
@@ -503,28 +507,22 @@ export function route(app: Express, db: Connection) {
         const picture64 =  await Buffer.from(body.picture).toString('base64');
         const picture = (new Buffer(picture64, 'base64')).toString('utf8');
 
-        // The incoming major should be a number.
-        if (typeof picture !== "string") {
-            response.sendStatus(400);
-            return;
-        }
-
         const user: User | undefined = request.user;
 
         if (user != null) {
             const userProfile: UserProfile | undefined = await user.profile;
 
             if (userProfile != null) {
-                
+
                 userProfile.picture = picture;
                 await userProfile.save();
-                
+
                 response.send(JSON.stringify({
                     success: true
                 }));
 
             } else {
-                
+
                 response.send(JSON.stringify({
                     error: "Picture could not be saved."
                 }));
@@ -561,5 +559,67 @@ export function route(app: Express, db: Connection) {
             }));
         }
 
+    });
+
+    /*app.post("/api/user/findnames", async (request: Request, response: Response) => {
+        let json : UserData[]
+        // Search the DB to find all users
+        const users: User[] = await User.find({
+        });
+
+        // Create an array of user(s) containing their ID, displayName
+        json = await Promise.all(users.map(async user => {
+            return {
+                userID: user.id,
+                displayName: user.displayName,
+            };
+        }));
+        response.send(JSON.stringify({
+            // Send back the array of found user(s)
+            results: json
+        }));
+    });*/
+    // Route which returns display names given an array of userIDs
+    app.post("/api/user/names", async (request: Request, response: Response) => {
+        // Validate that user is logged in
+        response.send(JSON.stringify({6:"Daniel",4:"David"}));
+        return;
+        /*
+        const user: User|undefined = request.user;
+        if (user == null || user.id == undefined) {
+            response.send(JSON.stringify("Not logged in"));
+            return;
+        }
+
+        // Get the array of userIDs
+        const body = request.body;
+        const userIDs: number[]|undefined = body.userIDs;
+        if (userIDs == null) {
+            response.send(JSON.stringify("Improper request information"));
+            return;
+        }
+        console.log("UserIDs from body");
+
+        let names: {
+            [key: number]: string
+        } = {};
+        // Interate over the userIDs and define them in the names object
+        for (let i = 0; i < userIDs.length; ++i) {
+            let temp: User|undefined = await User.findOne({
+                where: {
+                    id: userIDs[i]
+                }
+            });
+            if (temp == null) {
+                console.error("User not found");
+                response.send(JSON.stringify("Error: invalid userID"));
+                return;
+            }
+            names[userIDs[i]] = temp.displayName;
+        }
+        console.log("Users found, right before response.send()");
+        response.send(JSON.stringify(names));
+        return;
+        */
     });
 }
