@@ -7,16 +7,11 @@ interface TagData {
     name: string;
 }
 
-interface Node {
-    name: string;
-    children: Node[];
-}
-
 export function route(app: Express, db: Connection) {
     app.get("/api/tags", async (request: Request, response: Response) => {
         let json: TagData[] | string;
         if (request.isAuthenticated()) {
-            const tags: Tag[] =  await Tag.find();
+            const tags: Tag[] = await Tag.find();
             json = tags.map(tag => {
                 return {
                     id: tag.id,
@@ -47,95 +42,23 @@ export function route(app: Express, db: Connection) {
         }
         response.send(JSON.stringify(json));
     });
-    app.get("/api/tags/allBaseTags", async (request: Request, response: Response) => {
-        let json: TagData[] | string;
+    app.get("/api/tags/tree", async (request: Request, response: Response) => {
+        let tree: { [type: string]: TagData[] } = Object.create(null);
         if (request.isAuthenticated()) {
-            json = [];
-            // let parents: Tag[] = [];
-            //
-            // const tags: Tag[] =  await Tag.find();
-            // // Gets all the most top level parent tags' name
-            // for (const tag of tags) {
-            //     if(Object.keys(await tag.parents).length == 0)
-            //     {
-            //         parents.push(tag);
-            //     }
-            // }
-            //
-            // // Loop through to find all their leaf nodes
-            // for(const parent of parents)
-            // {
-            //     const children: Map<number, Tag> = await parent.getLeafDescendents();
-            //     for (const [id, tag] of children)
-            //     {
-            //         json.push({
-            //             id: id,
-            //             name: tag.name
-            //         });                
-            //     }
-            // }
-        } else {
-            json = "Not logged in.";
+            const tags: Tag[] = await Tag.find();
+            for (const tag of tags) {
+                const tagType: string = tag.type != null ? tag.type.toString() : "";
+                let treeTags: TagData[] | undefined = tree[tagType];
+                if (treeTags == null) {
+                    treeTags = [];
+                    tree[tagType] = treeTags;
+                }
+                treeTags.push({
+                    id: tag.id,
+                    name: tag.name
+                });
+            }
         }
-        response.send(JSON.stringify(json));
+        response.send(JSON.stringify(tree));
     });
-
-
-    // The most top level parent tags
-    app.get("/api/tags/tagTree", async (request: Request, response: Response) => {
-        let tagTree: Node[];
-        if (request.isAuthenticated()) {
-            // const tags: Tag[] =  await Tag.find();
-            // const topTags: Node[] = [];
-            // // Gets all the most top level parent tags' name
-            // for (const tag of tags) {
-            //     if(Object.keys(await tag.parents).length == 0)
-            //     {
-            //         topTags.push({
-            //             name: tag.name,
-            //             children: []
-            //         });
-            //     }
-            // }
-            // // Build a tree structure of the entire tag relation db
-            // tagTree = await treeTraversal(topTags);
-            tagTree = [];
-        } else {
-            tagTree = [];
-        }
-        response.send(JSON.stringify(tagTree));
-    });
-
-    // // Recursive function
-    // async function treeTraversal(parent: Node[]): Promise<Node[]> {
-    //     // Add children
-    //     for(const subtree of parent) {
-    //         subtree.children = await findChildren(subtree.name);
-    //     }
-    //
-    //     for(const subtree of parent) {
-    //         subtree.children = await treeTraversal(subtree.children);
-    //     }
-    //     return parent;
-    // }
-    //
-    // // Helper function
-    // async function findChildren(name: string):Promise<Node[]> {
-    //     let subtrees: Node[] = [];
-    //     const current: Tag|undefined = await Tag.findOne({
-    //         name: name
-    //     })
-    //     if(current)
-    //     {
-    //         for (const child of await current.children)
-    //         {
-    //             const temp: Node = {
-    //                 name: child.name,
-    //                 children: []
-    //             }
-    //             subtrees.push(temp);
-    //         }
-    //     }
-    //     return subtrees;
-    // }
 }
