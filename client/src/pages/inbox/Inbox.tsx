@@ -310,6 +310,16 @@ export class Inbox extends Component<Props, State> {
     /**
      * @override
      */
+    public async componentDidUpdate() {
+        if  (this.state.currentConversationID) {
+            const participantsMap = await this.props.getParticipants(this.state.currentConversationID);
+            console.log("Participants Maps: ", participantsMap);
+        }
+    }
+
+    /**
+     * @override
+     */
     public render(): ReactNode {
             /* 
             

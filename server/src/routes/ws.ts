@@ -142,7 +142,7 @@ export function route(app: Express, db: Connection) {
                 // Find connections to all logged-on participants
                 for( let i = 0; i < participants.length; ++i ) {
                     for ( let j = 0; j < cw.length(); ++j ) {
-                        // If this connection matches a participant, and isn't the sender..
+                        // If this connection matches a participant, send the message
                         if (cw.index(j).user == participants[i].userID) {
                             try{
                                 cw.index(j).socket.send(JSON.stringify({

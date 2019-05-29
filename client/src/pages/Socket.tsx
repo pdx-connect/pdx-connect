@@ -299,7 +299,7 @@ export class Socket {
 
     public readonly getParticipants = async (conversationID: number) => {
         const response: Response = await fetch("/api/messages/participants", {
-            method: 'GET',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
