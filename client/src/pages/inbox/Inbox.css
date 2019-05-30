@@ -14,6 +14,7 @@
     padding: 10px;
     margin: 15px;
     cursor: pointer;
+    font-size: 14px;
 }
 
 .inbox-conversation:hover, .inbox-open-conversation:hover
@@ -29,6 +30,7 @@
     padding: 10px;
     margin: 15px;
     cursor: pointer;
+    font-size: 14px;
 }
 
 .inbox-compose-message
@@ -57,13 +59,12 @@
     height: 50px;
     border-radius: 10px;
     text-align: center;
-    overflow: scroll;
+    /* overflow: scroll; */
 }
 
-.inbox-participants-label
+.inbox-participants-scrollable
 {
-    font-size: 13px;
-    display: inline-block;
+    overflow: scroll; 
 }
 
 .inbox-participant-name
@@ -166,4 +167,9 @@
     width: 200px;
     overflow: hidden;
     z-index: 10;
+}
+.basic-multi-select
+{
+    z-index: 100;
+    margin-top: auto;
 }

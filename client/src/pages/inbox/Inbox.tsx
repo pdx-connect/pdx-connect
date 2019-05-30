@@ -1,4 +1,5 @@
 import * as React from "react";
+import Select from 'react-select';
 import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
@@ -23,7 +24,8 @@ interface State {
     composingNewConvo: boolean;
     composingNewConvoParticipants: number[];
     users?: any;
-    currentParticipates?: any; 
+    currentParticipates?: any;
+    selectedOption?: any;
 }
 
 /**
@@ -37,6 +39,7 @@ export class Inbox extends Component<Props, State> {
             textField: "",
             composingNewConvo: false,
             composingNewConvoParticipants: [],
+            selectedOption: null,
         }
     }
 
@@ -108,14 +111,13 @@ export class Inbox extends Component<Props, State> {
     *
     */
     private readonly setParticipents = (e: any) => {
-        var options = e.target.options;
+
         var value = [];
 
-        for (var i = 0, len = options.length; i < len; i++) {
-            if (options[i].selected) {
-                value.push(options[i].value);
-            }
+        for (var i = 0; i < e.length; i++) {
+            value.push(e[i].value);
         }
+
         this.setState({composingNewConvoParticipants: value});
     }
 
@@ -136,18 +138,35 @@ export class Inbox extends Component<Props, State> {
 
             if (this.state.users) {
                 for(let i=0; i<this.state.users.length; i++) {
-                    users.push(<option key={i} value={this.state.users[i].userID}> {this.state.users[i].displayName}</option>);
+                    users.push({value: this.state.users[i].userID, label: this.state.users[i].displayName});
                 }
             }
 
+            let defaultVal = {
+                value: this.props.userID, 
+                label: this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.userID)].displayName
+            };
+
             rows.push(
-                <Form className="inbox-user-select-form">
-                    <Form.Control as="select" multiple className="user-select" onChange={(e: any) => this.setParticipents(e)}> 
-                        {users}
-                    </Form.Control>
-                </Form>
+                <Select 
+                    isMulti
+                    defaultValue={defaultVal}
+                    onChange={(e: any) => this.setParticipents(e)}
+                    options={users}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                />
             );
-            return rows; // We must return, othewise unknown behaviour because of -1 convo index and ID
+
+            let renderRows = []
+
+            renderRows.push(
+                <div className="inbox-participents">
+                    {rows}
+                </div>
+            );
+
+            return renderRows; // We must return, othewise unknown behaviour because of -1 convo index and ID
         }
 
         //
@@ -156,12 +175,20 @@ export class Inbox extends Component<Props, State> {
 
         // Formats commas, spacing and header
         if (this.props.conversations != null && this.state.currentParticipates != null) {
-            rows.push(<div className="inbox-participants-label">Participents:</div>);
             for (let i=0; i<this.state.currentParticipates.length; i++) {
                 rows.push(<li key={i} className="inbox-participant-name">{this.state.currentParticipates[i]}</li>);
             }
         }
-        return rows;
+
+        let renderRows = []
+
+        renderRows.push(
+            <div className="inbox-participents inbox-participants-scrollable">
+                {rows}
+            </div>
+        );
+
+        return renderRows;
     }
 
     /* 
@@ -188,7 +215,7 @@ export class Inbox extends Component<Props, State> {
                     rows.push(
                         <Row className="inbox-open-conversation" key={i}>
                             <Col key={i} sm={12}>
-                                {/* ConversationID: {this.props.conversations[i].conversationID} */}
+                                ConversationID: {this.props.conversations[i].conversationID}
                                 <br></br>{this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
                                 : <i>"{this.props.conversations[i].entries[0].text}"</i> {/* Gets the latest message as preview */}    
                             </Col>
@@ -206,7 +233,7 @@ export class Inbox extends Component<Props, State> {
                                 })
                             }>
                             <Col key={i} sm={12}>
-                                {/* ConversationID: {this.props.conversations[i].conversationID} */}
+                                ConversationID: {this.props.conversations[i].conversationID}
                                 <br></br>{this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
                                 : <i>"{this.props.conversations[i].entries[0].text}"</i> {/* Gets the latest message as preview */}   
                             </Col>
@@ -324,9 +351,7 @@ export class Inbox extends Component<Props, State> {
                     </Form>
                 </div>
 
-                <div className="inbox-participents">
                     {participents}
-                </div>
 
                 <div className="inbox-conversations">
                     {conversations}
