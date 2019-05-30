@@ -25,7 +25,6 @@ interface State {
     composingNewConvoParticipants: number[];
     users?: any;
     currentParticipates?: any;
-    selectedOption?: any;
 }
 
 /**
@@ -39,15 +38,22 @@ export class Inbox extends Component<Props, State> {
             textField: "",
             composingNewConvo: false,
             composingNewConvoParticipants: [],
-            selectedOption: null,
         }
     }
+    
+    private chatRef = React.createRef<HTMLDivElement>()
 
     private readonly getUsers = async () => {
         let data: any;
         data = await getJSON("/api/user/findnames");
         this.setState({users: data.results});
     };
+
+    private readonly scrollToBottom = () => {
+        if (this.chatRef.current) {
+            this.chatRef.current.scrollTop = this.chatRef.current.scrollHeight;
+        }
+	};
 
     /*
     *   Message textfield state is updated on each keystroke
@@ -313,6 +319,8 @@ export class Inbox extends Component<Props, State> {
         // Get Participants from the current open coversation
         if  (this.state.currentConversationID && prevState.currentConversationID != this.state.currentConversationID) {
 
+            this.scrollToBottom(); // Auto scroll to bottom of chatbox
+
             let participants = []
 
             let participantsMap = await this.props.getParticipants(this.state.currentConversationID).then();
@@ -357,7 +365,7 @@ export class Inbox extends Component<Props, State> {
                     {conversations}
                 </div>
 
-                <div className="inbox-chat-box">
+                <div className="inbox-chat-box" ref={this.chatRef}>
                     {messages}
                 </div>
 
