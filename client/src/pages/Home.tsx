@@ -69,7 +69,7 @@ interface State {
     windowHeight: number;
     conversations: ConversationEntry[];
     lastMessage: Date|null;
-    portraitURL: any;
+    portraitURL: string;
     messages: Message[];
     notifications: {
         title: string;
@@ -95,7 +95,7 @@ export class Home extends Page<Props, State> {
             windowHeight: window.innerHeight,
             conversations: [],
             lastMessage: null,
-            portraitURL: null,
+            portraitURL: "",
             messages: [],
             notifications: []
         };
@@ -249,24 +249,26 @@ export class Home extends Page<Props, State> {
         
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
-        this.setState({lastMessage : await this.socket.gotLastMessage})
+        this.setState({lastMessage : this.socket.gotLastMessage})
         this.findNewest().then()
     }
 
     public componentDidUpdate(prevProps:Props, prevState:State) {
         if (this.socket != null && this.state.lastMessage != null) {
             if (this.socket.gotLastMessage != this.state.lastMessage) {
-                this.state.conversations.map((conversation) => 
-                prevState.conversations.map((prevConversation) => 
-                {if (prevConversation.conversationID == conversation.conversationID) {
-                    if (this.state.lastMessage != null) {
-                        if (conversation.entries[0].timeSent.toString() > this.state.lastMessage.toISOString()) {
-                            let newMessages = this.state.messages
-                            newMessages.push(conversation.entries[0])
-                            this.setState({messages: newMessages})
+                for(let i: number = 0; i < this.state.conversations.length; i = i + 1) {
+                    let conversation = this.state.conversations[i]
+                    for(let j: number = 0; j < prevState.conversations.length; j = j + 1) {
+                        let prevConversation = prevState.conversations[j]
+                        if (prevConversation.conversationID == conversation.conversationID) {
+                            if (conversation.entries[0].timeSent.toString() > this.state.lastMessage.toISOString()) {
+                                let newMessages = this.state.messages
+                                newMessages.push(conversation.entries[0])
+                                this.setState({messages: newMessages})
+                            }
                         }
                     }
-                }}))
+                }
                 this.setState({lastMessage: this.socket.gotLastMessage})
             }
         }
@@ -297,8 +299,8 @@ export class Home extends Page<Props, State> {
     }
 
     public async findNewest() {
-        const events : CalendarEvent[] = await getJSON("/api/events").then();
-        let listings : Listing[] = await getJSON("/api/listings/allListings").then();
+        const events : CalendarEvent[] = await getJSON("/api/events");
+        let listings : Listing[] = await getJSON("/api/listings/allListings");
         //First two listings are being overwritten
         let newEvents: CalendarEvent[] = []
         let newListings: Listing[] = []
