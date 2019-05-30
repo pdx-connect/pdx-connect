@@ -72,7 +72,8 @@ export class Socket {
                     let msgFromServer: ServerMessage = data.message;
                     if (conversationID == null || msgFromServer == null) {
                         // TODO throw an error
-                        console.log("error in socket.onmessage - message fields bads")
+                        console.log("error in socket.onmessage - message fields bads:\n", data);
+                        console.log("Trying to print conversationID: ", data.conversationID);
                         return;
                     }
                     message = {
@@ -222,8 +223,8 @@ export class Socket {
                 if (tempMessages[foundAt].entries.length == 0) {
                     console.log("No messages found");
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i]);
-                } else if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
-                    console.log("Message timestamp overlap");
+                /*} else if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
+                    console.log("Message timestamp overlap");*/
                 } else if ( newMessages.entries[i].timeSent == tempMessages[foundAt].entries[0].timeSent 
                             &&  newMessages.entries[i].userID == tempMessages[foundAt].entries[0].userID 
                             &&  newMessages.entries[i].text == tempMessages[foundAt].entries[0].text ) {

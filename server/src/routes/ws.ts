@@ -149,7 +149,7 @@ export function route(app: Express, db: Connection) {
                             console.log("Found a socket for this conversation");
                             try{
                                 cw.index(j).socket.send(JSON.stringify({
-                                    conversationID: conversationID,
+                                    conversationID: conversation.id,
                                     message: {
                                         from: newMessage.userID,
                                         timeSent: newMessage.timeSent,
@@ -251,10 +251,10 @@ export function route(app: Express, db: Connection) {
                                 console.log("Found a socket for this conversation");
                                 try {
                                     cw.index(j).socket.send(JSON.stringify({
-                                        conversationID: conversationID,
+                                        conversationID: conversation.id,
                                         message: {
                                             from: newMessage.userID,
-                                            timeSend: newMessage.timeSent,
+                                            timeSent: newMessage.timeSent,
                                             content: newMessage.content,
                                         }
                                     }));
