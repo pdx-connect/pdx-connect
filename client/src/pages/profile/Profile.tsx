@@ -216,7 +216,7 @@ export class Profile extends Component<Props, State> {
                         />
                         <Route
                             path="/profile/events"
-                            render={props => <Events {...props} events={this.state.userProfile.events} />}
+                            render={props => <Events {...props} events={this.state.userProfile.events} updateUserProfile={this.updateUserProfile}/>}
                         />
                         <Route
                             path="/profile/listings"

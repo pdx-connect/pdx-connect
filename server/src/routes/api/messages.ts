@@ -55,7 +55,7 @@ export function route(app: Express, db: Connection) {
         response.send(JSON.stringify(messages));
     });
 
-    app.get("/api/messages/start", async (request: Request, response, Response) => {
+    app.post("/api/messages/start", async (request: Request, response, Response) => {
         if (typeof request.user == null) {
             // TODO send error
             return;
