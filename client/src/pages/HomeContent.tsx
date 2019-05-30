@@ -8,6 +8,10 @@ import { RouteChildrenProps } from 'react-router';
 interface Props extends RouteChildrenProps {
 }
 
+interface Props {
+    userID?: number;
+}
+
 interface State {
     listings: ListingEntry[],
     events: EventEntry[],
@@ -30,43 +34,6 @@ interface EventEntry {
     end?: string
 }
 
-const now = new Date();
-
-const events: EventEntry[] = [
-    {
-        id: 0,
-        title: "event 1",
-        description: "description of something 1",
-        start: "October 13, 2014 11:13:00",
-        end: "October 13, 2014 11:13:00"
-    },
-    {
-        id: 1,
-        title: "event 2",
-        description: "description of something 2",
-        start: "October 13, 2014 11:13:00",
-    }
-];
-
-const listings: ListingEntry[] = [
-    {
-        id: 0,
-        title: "listing 1",
-        description: "description of something 1",
-        type: "something",
-        tags: ['a', 'b', 'c', 'd'],
-        datePosted: "October 13, 2014 11:13:00"
-    },
-    {
-        id: 1,
-        title: "listing 2",
-        description: "description of something 2",
-        type: "something",
-        tags: ['a', 'b', 'c'],
-        datePosted: "October 13, 2014 11:13:00"
-    },
-];
-
 /**
  * 
  */
@@ -88,36 +55,67 @@ export class HomeContent extends Component<Props, State> {
         return getJSON("/api/listings/homeContent");
     };
 
-    private goToEvent = (eventid: number) => {
-        this.props.history.push({
-            pathname: '/calendar',
-            search: '?eventid=' + eventid
-        });
+    private goToEvent = (eventid: number | undefined) => {
+        if(eventid != undefined) {
+            this.props.history.push({
+                pathname: '/calendar',
+                search: '?eventid=' + eventid
+            });
+        }
     };
 
-    private goToListing = (listingid: number) => {
-        this.props.history.push({
-            pathname: '/listings',
-            search: '?listingid=' + listingid
-        });
+    private goToListing = (listingid: number | undefined) => {
+        if(listingid != undefined) {
+            this.props.history.push({
+                pathname: '/listings',
+                search: '?listingid=' + listingid + '&' + 'userid=' + this.props.userID
+            });
+        }
     };
 
-    private readonly createEvents = () => {
+    private readonly createEvents = (events: EventEntry[]) => {
         let currentEvents = [];
 
         for (let i = 0; i < events.length; i++) {
-            let start = new Date(events[i].start);
+
+            let id: number | undefined = undefined;
+            let title = "";
+            let description = "";
+            let start = "";
+            //let end = "";
+
+            if(events[i].id) {
+                id = events[i].id;
+            }
+
+            if(events[i].title){
+                title = events[i].title;
+            }
+
+            if(events[i].description){
+                description = events[i].description;
+            }
+
+            if(events[i].start){
+                start = new Date(events[i].start).toString();
+            }
+
+            /*
+            if(events[i].end != undefined){
+                end = new Date(events[i].end).toString();
+            }
+            */
 
             currentEvents.push(
                 <Card key={i} className="home-content-event-card">
-                    <Card.Header className="home-content-event-header">{events[i].title}</Card.Header>
+                    <Card.Header className="home-content-event-header">{title}</Card.Header>
                     <Card.Body>
-                        <Card.Title>{start.toString()}</Card.Title>
+                        <Card.Title>{start}</Card.Title>
                         <Card.Text className="home-content-description">
-                            {events[i].description}
+                            {description}
                         </Card.Text>
                         <Button variant="light" className="home-content-button"
-                                onClick={() => this.goToEvent(events[i].id)}>Go to event</Button>
+                                onClick={() => this.goToEvent(id)}>Go to event</Button>
                     </Card.Body>
                 </Card>
             );
@@ -126,24 +124,52 @@ export class HomeContent extends Component<Props, State> {
         return currentEvents;
     };
     
-    private readonly createListings = () => {
+    private readonly createListings = (listings: ListingEntry[]) => {
         let currentListings = [];
 
         for (let i = 0; i < listings.length; i++) {
-            let date = new Date(listings[i].datePosted);
-            let tags = listings[i].tags.toString();
+            let id: number | undefined = undefined;
+            let tags = "";
+            let title = "";
+            let description = "";
+            let type = "";
+            let date = "";
+
+            if(listings[i].id) {
+                id = listings[i].id;
+            }
+
+            if(listings[i].tags.length != 0) {
+                tags = listings[i].tags.toString();
+            }
+
+            if(listings[i].title){
+                title = listings[i].title;
+            }
+
+            if(listings[i].description){
+                description = listings[i].description;
+            }
+
+            if(listings[i].type){
+                type = listings[i].type;
+            }
+
+            if(listings[i].datePosted){
+                date = new Date(listings[i].datePosted).toString();
+            }
 
             currentListings.push(
                 <Card key={i} className="home-content-listing-card">
-                    <Card.Header className="home-content-listing-header">{listings[i].title}</Card.Header>
+                    <Card.Header className="home-content-listing-header">{title}</Card.Header>
                     <Card.Body>
-                        <Card.Title>{date.toString()}</Card.Title>
+                        <Card.Title>{date}</Card.Title>
                         <Card.Title>{tags}</Card.Title>
                         <Card.Text className="home-content-description">
-                            {listings[i].description}
+                            {description}
                         </Card.Text>
                         <Button variant="light" className="home-content-button"
-                                onClick={() => this.goToListing(listings[i].id)}>Go to listing</Button>
+                                onClick={() => this.goToListing(id)}>Go to listing</Button>
                     </Card.Body>
                 </Card>
             );
@@ -156,21 +182,18 @@ export class HomeContent extends Component<Props, State> {
      * @override
      */
     public async componentDidMount() {
-        /*
+        
         const [eventData, listingData] = await Promise.all([
             this.getEvents(),
             this.getListings()
         ]);
-        console.log("First the old ones");
-        console.log("old events: ", eventData);
-        console.log("old listings: ", listingData);
-        */
-       const listingData = await this.getListings();
-       const eventData = await this.getEvents();
+
         //TEST
+        /*
         console.log("Data read from server");
         console.log("events: ", eventData);
         console.log("listings: ", listingData);
+        */
 
         this.setState({
             listings: listingData,
@@ -183,11 +206,8 @@ export class HomeContent extends Component<Props, State> {
      */
     public render(): ReactNode {
 
-        let events = this.createEvents();
-        let listings = this.createListings();
-
-        console.log('event data: ', this.state.events);
-        console.log('listing data: ', this.state.listings);
+        let events = this.createEvents(this.state.events);
+        let listings = this.createListings(this.state.listings);
 
         return (
             <Container fluid className="home-content">
@@ -198,11 +218,34 @@ export class HomeContent extends Component<Props, State> {
 
                 <Row>
                     <Col sm={6} className="home-content-cards">
-                        {events}
+                        {events.length === 0?
+                                <Card className="home-content-event-card">
+                                    <Card.Header className="home-content-event-header">No Events</Card.Header>
+                                    <Card.Body>
+                                        <Card.Title></Card.Title>
+                                        <Card.Text className="home-content-description">
+                                        </Card.Text>
+                                        <Button variant="light" className="home-content-button"></Button>
+                                    </Card.Body>
+                                </Card>
+                             :
+                             events}
                     </Col>
 
                     <Col sm={6} className="home-content-cards">
-                        {listings}
+                        {listings.length === 0?
+                            <Card className="home-content-listing-card">
+                                <Card.Header className="home-content-listing-header">No Listings</Card.Header>
+                                <Card.Body>
+                                    <Card.Title></Card.Title>
+                                    <Card.Title></Card.Title>
+                                    <Card.Text className="home-content-description">
+                                    </Card.Text>
+                                    <Button variant="light" className="home-content-button"></Button>
+                                </Card.Body>
+                            </Card>
+                            :
+                            listings }
                     </Col>
                 </Row>
             </Container>

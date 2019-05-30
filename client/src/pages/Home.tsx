@@ -215,22 +215,11 @@ export class Home extends Page<Props, State> {
         document.addEventListener('keydown', this.enterKeyPressed);
         window.addEventListener('resize', this.updateDimensions);
 
-        const [ showOobe, data, picture, listingData ] = await Promise.all([
-            this.getUserOOBE(),
-            this.getUserProfileData(),
-            this.getUserProfilePicture(),
-            this.getListings()
-        ]);
-
-        console.log('listingData: ', listingData);
-
-        /*
         const [ showOobe, data, picture ] = await Promise.all([
             this.getUserOOBE(),
             this.getUserProfileData(),
             this.getUserProfilePicture()
         ]);
-        */
 
         this.setState({
             showOobe: showOobe,
@@ -304,7 +293,7 @@ export class Home extends Page<Props, State> {
                             <Switch>
                                 <Route
                                     exact path="/"
-                                    render={props => <HomeContent {...props} />}
+                                    render={props => <HomeContent {...props} userID={this.state.userID}/>}
                                 />
                                 <Route
                                     path="/profile"
