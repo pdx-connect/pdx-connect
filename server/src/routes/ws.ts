@@ -20,7 +20,7 @@ class connectionsWrapper {
     }
 
     public readonly push = (conn: {socket: ws, user: number}) => {
-        console.log("Connection added to cw: ", conn);
+        // console.log("Connection added to cw: ", conn);
         connectionsWrapper.connections.push(conn);
     }
 
