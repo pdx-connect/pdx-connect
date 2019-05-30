@@ -4,7 +4,7 @@ import {Container, Row, Col, Table, Modal, Button} from "react-bootstrap";
 import {FaPencilAlt, FaTrash} from "react-icons/fa";
 import Select from 'react-select';
 import {OptionType} from "../../components/types";
-import {postJSON, deleteJSON} from "../../util/json";
+import {deleteJSON} from "../../util/json";
 import { RouteChildrenProps } from 'react-router';
 
 interface Props extends RouteChildrenProps{
@@ -60,24 +60,24 @@ export class Events extends Component<Props, State> {
                  showEventView: false
              });
         }
-    }
+    };
 
     private readonly viewEvent = (eventID: number, index: number) => {
         this.setState({
             event: this.props.events[index],
             showEventView: true,
         })
-    }
+    };
 
     private readonly removeEvent = (event: Event | undefined) => {
        if(event!= undefined) {
-           this.deleteEvent(event.id);
+           this.deleteEvent(event.id).then();
         } else {
             this.setState({
                 showEventView: false
             });
         }
-    }
+    };
 
     private deleteEvent = async (eventID: number) => {
           const buildPath = "/api/event/" + eventID.toString();
@@ -90,7 +90,7 @@ export class Events extends Component<Props, State> {
                 showEventView: false
             });
         }
-    }
+    };
 
     private readonly createEvents = (events: Event[]) => {
         let eventGrid = [];
@@ -125,8 +125,8 @@ export class Events extends Component<Props, State> {
         let tags: OptionType[] = [];
 
 
-        if(event != undefined) {
-            hideEditButtons= event.deleted === 1? true: false;
+        if (event != undefined) {
+            hideEditButtons = event.deleted === 1;
             start = new Date(event.start).toDateString();
             end = new Date(event.end).toDateString();
 
@@ -210,7 +210,7 @@ export class Events extends Component<Props, State> {
                         }
                     </Modal.Body>
                     <Modal.Footer>
-                        {hideEditButtons === true?
+                        {hideEditButtons?
                             <div className="profile-modal-footer text-center"><span className="profile-modal-footer-content-center">this event was deleted and cannot be edited</span></div>
                             :
                             <div className="profile-modal-footer">
