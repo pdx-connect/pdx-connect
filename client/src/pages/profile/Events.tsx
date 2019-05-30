@@ -62,7 +62,7 @@ export class Events extends Component<Props, State> {
         }
     }
 
-    private readonly viewEvent = (listingID: number, index: number) => {
+    private readonly viewEvent = (eventID: number, index: number) => {
         this.setState({
             event: this.props.events[index],
             showEventView: true,

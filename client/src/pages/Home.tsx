@@ -13,7 +13,7 @@ import {Listings} from "./listings/Listings";
 import {Inbox} from "./inbox/Inbox";
 import {SearchResults} from "./search-results/SearchResults";
 import {Oobe} from "./oobe/Oobe";
-import {getJSON, postJSON} from "../util/json";
+import {getJSON} from "../util/json";
 import {Socket} from "./Socket";
 
 import "./Home.css";
@@ -287,7 +287,10 @@ export class Home extends Page<Props, State> {
                     <Row>
                         <Col sm={10} md={11} className="home-component" style={minHeight}>
                             <Switch>
-                                <Route exact path="/" component={HomeContent} />
+                                <Route
+                                    exact path="/" component={HomeContent}
+                                    render={props => <HomeContent {...props} />}
+                                />
                                 <Route
                                     path="/profile"
                                     render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} userID={this.state.userID} updatePortraitURL={this.updatePortraitURL} getUserProfileDefault={this.getUserProfileDefault}/>}
