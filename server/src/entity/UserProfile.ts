@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import {User} from "./User";
 import {Tag} from "./Tag";
+import {Listing} from "./Listing";
 
 @Entity("user_profile")
 export class UserProfile extends BaseEntity {
@@ -60,6 +61,18 @@ export class UserProfile extends BaseEntity {
     })
     @ManyToMany(type => Tag)
     interests!: Promise<Tag[]>;
+
+    @JoinTable({
+        name: "user_bookmarked_listings",
+        joinColumn: {
+            name: "user_id"
+        },
+        inverseJoinColumn: {
+            name: "listing_id"
+        }
+    })
+    @ManyToMany(type => Listing)
+    bookmarkedListings!: Promise<Listing[]>;
     
     @Column({
         name: "on_campus",
@@ -139,6 +152,7 @@ export class UserProfile extends BaseEntity {
             this.description = null;
             this.major = Promise.resolve(null);
             this.interests = Promise.resolve([]);
+            this.bookmarkedListings = Promise.resolve([]);
             this.isOnCampus = null;
             this.isPublic = true;
             this.isTags = true;

@@ -55,7 +55,7 @@ export function route(app: Express, db: Connection) {
         response.send(JSON.stringify(messages));
     });
 
-    app.get("/api/messages/start", async (request: Request, response, Response) => {
+    app.post("/api/messages/start", async (request: Request, response, Response) => {
         if (typeof request.user == null) {
             // TODO send error
             return;
@@ -72,16 +72,31 @@ export function route(app: Express, db: Connection) {
             return;
         }
         const userIDs: number[] = body.userIDs;
-        // REMOVE THIS TO ENABLE GROUP CHATS
-        if (userIDs.length > 1) {
-            response.sendStatus(400); // HTTP 400: Bad client request
-            return;            
-        }
         // Check if the conversation needs to be created
         if (userIDs.length == 1) {
-            // TODO look for conversation between user and userIDs[0]
-            // TODO send an error
-            return;
+            // Array to hold user conversations
+            let userConversations: Conversation[] = [];
+
+            // Get the conversation participant entities for this user
+            const userParticipating: ConversationParticipant[] = await user.conversations;
+            // Assemble all of the conversation entities
+            for (let i = 0; i < userParticipating.length; ++i) {
+                userConversations.push(await userParticipating[i].conversation);
+            }
+            // For each conversation, determine if there are two participants and the target is in the conversation
+            for (let i = 0; i < userConversations.length; ++i) {
+                const convParticipants: ConversationParticipant[] = await userConversations[i].participants;
+                // If this is the right one, send the response and end
+                if (convParticipants.length == 2
+                    && (convParticipants[0].userID == userIDs[0]
+                    || convParticipants[1].userID == userIDs[0])) {
+                    console.log("Conversation found, creation short cutted");
+                    response.send(JSON.stringify({
+                        conversationID: userConversations[i].id
+                    }));
+                    return;
+                }
+            }
         }
         // Create the new conversation and participant entities, and save them
         let conversation = new Conversation();

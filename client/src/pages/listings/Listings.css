@@ -1,35 +1,47 @@
-.listings {
+@import "../root.css";
 
+.listings-listings {
+    font-family: var(--hard-font);
 }
 
-.categoryCol {
+.listings-categoryCol {
     max-height: 600px;
-    background-color: lightgray;
+    background-color: var(--faint-contrast);
     overflow-y: scroll;
 }
 
-.listingCol {
+.listings-listingCol {
     height: 600px;
     overflow-y: scroll;
 }
 
-
-.createButton {
+.listings-createButton {
     padding-bottom: 5%;
     cursor: pointer;
 }
 
-.editButton {
+.listings-createButton:hover {
+    padding-bottom: 5%;
+    cursor: pointer;
+    color: var(--rainbow-orange);
+}
+
+.listings-bookmarkButton {
     cursor: pointer;
 }
 
-.deleteButton {
+
+.listings-editButton {
     cursor: pointer;
 }
 
-.notComplete
+.listings-deleteButton {
+    cursor: pointer;
+}
+
+.listings-notComplete
 {
-    color: red;
+    color: var(--warning);
     text-transform: uppercase;
     letter-spacing: .2vw;
     text-align: center;
@@ -37,30 +49,107 @@
     font-family: 'Varela Round', sans-serif;
 }
 
-.myListingCheckbox {
-    /* align to the most right */
+/*
+.listings-myListingCheckbox {
+    
+}
+*/
+
+.listings-theListing {
+    color: var(--white-contrast);
+    cursor: pointer;
 }
 
-
-.theListing:hover {
+.listings-theListing:hover {
     text-decoration: underline;
-    color: lightseagreen;
+    color: var(--suggestion);
+    font-weight: bold;
 }
 
-
-.ID {
+.listings-ID {
     width: 7%;
 }
 
-.Title {
+.listings-Title {
     width: 40%;
 }
 
-.edit {
+.listings-edit {
     width: 20%;
 }
 
-.parentTag {
+.listings-listingview-directUserProfile {
+    cursor: pointer;
+}
+
+.listings-listingview-directUserProfile:hover {
+    text-decoration: underline;
+    color: var(--rainbow-blue);
+}
+
+
+.listings-parentTag {
     font-weight: bold;
     text-decoration: underline;
+    cursor: pointer;
+}
+
+.listings-childTag {
+    cursor: pointer;
+}
+
+/* class from the library,
+    just to hide the default searchbox */
+.react-infinity-menu-default-search-input {
+    display: none;
+    visibility: hidden;
+}
+
+.listings-infinity-menu-node-container {
+    width: 100%;
+	height: 40px;
+	padding-left: 10px;
+    padding-top: 20px;
+}
+
+/*
+ul {
+    list-style: none;
+}
+*/
+
+label {
+    color: var(--thing-2);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+label:hover {
+    color: var(--suggestion);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+ul li {
+    cursor: pointer !important;
+    color: var(--thing-2);
+} 
+
+ul li:hover {
+    /*background-color: rgb(73, 73, 73);*/
+    color: var(--rainbow-orange);
+    font-weight: bold;
+    cursor: pointer !important;
+}
+
+.listings-viewModalContent-description {
+    word-wrap: break-word
+}
+
+.listings-viewModalContent-description h6 {
+    text-decoration: underline;
+}
+
+.listings-span {
+    width: 10px
 }

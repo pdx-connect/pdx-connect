@@ -207,7 +207,7 @@ export class Socket {
         let tempMessages: ConversationEntry[] = this.messages;
         let foundAt = -1;
 
-        // See whether an entry for the conversation exists exists
+        // See whether an entry for the conversation exists exists 
         for(let i = 0; i < tempMessages.length; ++i) {
             if (tempMessages[i].conversationID == newMessages.conversationID) {
                 foundAt = i;

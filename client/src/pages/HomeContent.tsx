@@ -1,262 +1,71 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Card, Button} from "react-bootstrap"
+import {getJSON} from "../util/json";
+import { RouteChildrenProps } from 'react-router';
 
 
-interface Props {
+interface Props extends RouteChildrenProps {
 }
 
 interface State {
+    listings: ListingEntry[],
+    events: EventEntry[],
+}
+
+interface ListingEntry {
+    id: number,
+    title: string,
+    description: string,
+    type: string,
+    tags: string[],
+    datePosted: string
+}
+
+interface EventEntry {
+    id: number,
+    title: string,
+    description: string,
+    start: string,
+    end?: string
 }
 
 const now = new Date();
 
-const events = [
-  {
-    id: 0,
-    title: 'All Day Event very long title',
-    start: new Date(2015, 3, 0),
-  },
-  {
-    id: 1,
-    title: 'Long Event',
-    start: new Date(2015, 3, 7),
-    end: new Date(2015, 3, 10),
-  },
-  {
-    id: 2,
-    title: 'DTS STARTS',
-    start: new Date(2016, 2, 13, 0, 0, 0),
-    end: new Date(2016, 2, 20, 0, 0, 0),
-  },
-  {
-    id: 3,
-    title: 'DTS ENDS',
-    start: new Date(2016, 10, 6, 0, 0, 0),
-    end: new Date(2016, 10, 13, 0, 0, 0),
-  },
-  {
-    id: 4,
-    title: 'Some Event',
-    start: new Date(2015, 3, 9, 0, 0, 0),
-    end: new Date(2015, 3, 10, 0, 0, 0),
-  },
-  {
-    id: 5,
-    title: 'Conference',
-    description: 'Big conference for important people',
-    start: new Date(2015, 3, 11),
-    end: new Date(2015, 3, 13),
-  },
-  {
-    id: 6,
-    title: 'Meeting',
-    description: 'Pre-meeting meeting, to prepare for the meeting',
-    start: new Date(2015, 3, 12, 10, 30, 0, 0),
-    end: new Date(2015, 3, 12, 12, 30, 0, 0),
-  },
-  {
-    id: 7,
-    title: 'Lunch',
-    description: 'Power lunch',
-    start: new Date(2015, 3, 12, 12, 0, 0, 0),
-    end: new Date(2015, 3, 12, 13, 0, 0, 0),
-  },
-  {
-    id: 8,
-    title: 'Meeting',
-    start: new Date(2015, 3, 12, 14, 0, 0, 0),
-    end: new Date(2015, 3, 12, 15, 0, 0, 0),
-  },
-  {
-    id: 9,
-    title: 'Happy Hour',
-    description: 'Most important meal of the day',
-    start: new Date(2015, 3, 12, 17, 0, 0, 0),
-    end: new Date(2015, 3, 12, 17, 30, 0, 0),
-  },
-  {
-    id: 10,
-    title: 'Dinner',
-    start: new Date(2015, 3, 12, 20, 0, 0, 0),
-    end: new Date(2015, 3, 12, 21, 0, 0, 0),
-  },
-  {
-    id: 11,
-    title: 'Birthday Party',
-    start: new Date(2015, 3, 13, 7, 0, 0),
-    end: new Date(2015, 3, 13, 10, 30, 0),
-  },
-  {
-    id: 12,
-    title: 'Late Night Event',
-    start: new Date(2015, 3, 17, 19, 30, 0),
-    end: new Date(2015, 3, 18, 2, 0, 0),
-  },
-  {
-    id: 13,
-    title: 'Late Same Night Event',
-    start: new Date(2015, 3, 17, 19, 30, 0),
-    end: new Date(2015, 3, 17, 23, 30, 0),
-  },
-  {
-    id: 14,
-    title: 'Multi-day Event',
-    start: new Date(2015, 3, 20, 19, 30, 0),
-    end: new Date(2015, 3, 22, 2, 0, 0),
-  },
-  {
-    id: 15,
-    title: 'Today',
-    start: new Date(new Date().setHours(new Date().getHours() - 3)),
-    end: new Date(new Date().setHours(new Date().getHours() + 3)),
-  },
-  {
-    id: 16,
-    title: 'Point in Time Event',
-    start: now,
-    end: now,
-  },
-];
-
-const listings = [
+const events: EventEntry[] = [
+    {
+        id: 0,
+        title: "event 1",
+        description: "description of something 1",
+        start: "October 13, 2014 11:13:00",
+        end: "October 13, 2014 11:13:00"
+    },
     {
         id: 1,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
+        title: "event 2",
+        description: "description of something 2",
+        start: "October 13, 2014 11:13:00",
+    }
+];
+
+const listings: ListingEntry[] = [
+    {
+        id: 0,
+        title: "listing 1",
+        description: "description of something 1",
+        type: "something",
+        tags: ['a', 'b', 'c', 'd'],
+        datePosted: "October 13, 2014 11:13:00"
     },
     {
-        id: 2,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
+        id: 1,
+        title: "listing 2",
+        description: "description of something 2",
+        type: "something",
+        tags: ['a', 'b', 'c'],
+        datePosted: "October 13, 2014 11:13:00"
     },
-    {
-        id: 3,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 4,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 5,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 6,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 7,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 8,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 9,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 10,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 11,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 12,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 13,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 14,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 15,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 16,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 16,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-  ];
+];
 
 /**
  * 
@@ -266,23 +75,49 @@ export class HomeContent extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
+            events: [],
+            listings: []
         };
     }
+
+    private readonly getEvents = () => {
+        return getJSON("/api/events/homeContent");
+    };
+
+    private readonly getListings = () => {
+        return getJSON("/api/listings/homeContent");
+    };
+
+    private goToEvent = (eventid: number) => {
+        this.props.history.push({
+            pathname: '/calendar',
+            search: '?eventid=' + eventid
+        });
+    };
+
+    private goToListing = (listingid: number) => {
+        this.props.history.push({
+            pathname: '/listings',
+            search: '?listingid=' + listingid
+        });
+    };
 
     private readonly createEvents = () => {
         let currentEvents = [];
 
-        for(let i=0; i < events.length; i++)
-        {
+        for (let i = 0; i < events.length; i++) {
+            let start = new Date(events[i].start);
+
             currentEvents.push(
                 <Card key={i} className="home-content-event-card">
-                    <Card.Header className="home-content-event-header">Title: {events[i].id}</Card.Header>
+                    <Card.Header className="home-content-event-header">{events[i].title}</Card.Header>
                     <Card.Body>
-                        <Card.Title>{events[i].title}</Card.Title>
+                        <Card.Title>{start.toString()}</Card.Title>
                         <Card.Text className="home-content-description">
-                        <span className="home-content-description">{events[i].start != null? events[i].start.toLocaleDateString(): ""}</span>
+                            {events[i].description}
                         </Card.Text>
-                        <Button variant="light" className="home-content-button">Go to event</Button>
+                        <Button variant="light" className="home-content-button"
+                                onClick={() => this.goToEvent(events[i].id)}>Go to event</Button>
                     </Card.Body>
                 </Card>
             );
@@ -290,22 +125,25 @@ export class HomeContent extends Component<Props, State> {
 
         return currentEvents;
     };
-
-
+    
     private readonly createListings = () => {
         let currentListings = [];
 
-        for(let i=0; i < listings.length; i++)
-        {
+        for (let i = 0; i < listings.length; i++) {
+            let date = new Date(listings[i].datePosted);
+            let tags = listings[i].tags.toString();
+
             currentListings.push(
                 <Card key={i} className="home-content-listing-card">
-                    <Card.Header className="home-content-listing-header">{listings[i].id}: {listings[i].title}</Card.Header>
+                    <Card.Header className="home-content-listing-header">{listings[i].title}</Card.Header>
                     <Card.Body>
-                        <Card.Title>{listings[i].type}</Card.Title>
+                        <Card.Title>{date.toString()}</Card.Title>
+                        <Card.Title>{tags}</Card.Title>
                         <Card.Text className="home-content-description">
-                            DESCRIPTION: {listings[i].description}
+                            {listings[i].description}
                         </Card.Text>
-                        <Button variant="light" className="home-content-button">Go to listing</Button>
+                        <Button variant="light" className="home-content-button"
+                                onClick={() => this.goToListing(listings[i].id)}>Go to listing</Button>
                     </Card.Body>
                 </Card>
             );
@@ -313,7 +151,23 @@ export class HomeContent extends Component<Props, State> {
 
         return currentListings;
     };
-  
+
+    /**
+     * @override
+     */
+    public async componentDidMount() {
+
+        const [eventData, listingData] = await Promise.all([
+            this.getEvents(),
+            this.getListings()
+        ]);
+
+        this.setState({
+            listings: listingData,
+            events: eventData
+        });
+    }
+    
     /**
      * @override
      */
@@ -321,6 +175,9 @@ export class HomeContent extends Component<Props, State> {
 
         let events = this.createEvents();
         let listings = this.createListings();
+
+        console.log('event data: ', this.state.events);
+        console.log('listing data: ', this.state.listings);
 
         return (
             <Container fluid className="home-content">
