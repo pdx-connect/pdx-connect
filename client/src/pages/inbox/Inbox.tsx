@@ -40,8 +40,6 @@ export class Inbox extends Component<Props, State> {
             composingNewConvoParticipants: [],
         }
     }
-    
-    private chatRef = React.createRef<HTMLDivElement>()
 
     private readonly getUsers = async () => {
         let data: any;
@@ -49,6 +47,11 @@ export class Inbox extends Component<Props, State> {
         this.setState({users: data.results});
     };
 
+    private chatRef = React.createRef<HTMLDivElement>()
+
+    /*
+    *   Auto-scroll to bottom of chat using ref 
+    */
     private readonly scrollToBottom = () => {
         if (this.chatRef.current) {
             this.chatRef.current.scrollTop = this.chatRef.current.scrollHeight;
@@ -61,6 +64,7 @@ export class Inbox extends Component<Props, State> {
     private readonly onTextFieldChange = (e: any) => {
         e.preventDefault();
         this.setState({textField: e.target.value});
+        this.scrollToBottom(); // Auto scroll to bottom of chatbox
     };
 
     /*
@@ -81,7 +85,7 @@ export class Inbox extends Component<Props, State> {
             });
         }
         else {
-            console.log("Message not sent!");
+            console.log("Conversation not started!");
         }
 
         // Replying to existing message
@@ -316,15 +320,15 @@ export class Inbox extends Component<Props, State> {
      */
     public async componentDidUpdate(prevProps: Props, prevState: State) {
 
+        if (!this.state.composingNewConvo) {
+            this.scrollToBottom(); // Auto scroll to bottom of chatbox
+        }
+
         // Get Participants from the current open coversation
         if  (this.state.currentConversationID && prevState.currentConversationID != this.state.currentConversationID) {
-
-            this.scrollToBottom(); // Auto scroll to bottom of chatbox
-
             let participants = []
 
             let participantsMap = await this.props.getParticipants(this.state.currentConversationID).then();
-            //this.setState({currentParticipates: participantsMap});
 
             if (this.props.conversations != null && participantsMap != null) {
                 //rows.push("Participents: ")

@@ -99,7 +99,7 @@
     width: 65%;
     border-radius: 10px;
     height: 600px;
-    overflow-y:scroll;
+    overflow-y: scroll;
     scroll-behavior: smooth;
 }
 
