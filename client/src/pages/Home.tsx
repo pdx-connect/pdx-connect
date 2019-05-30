@@ -15,8 +15,8 @@ import {SearchResults} from "./search-results/SearchResults";
 import {Oobe} from "./oobe/Oobe";
 import {getJSON, postJSON} from "../util/json";
 import {Socket} from "./Socket";
-
 import "./Home.css";
+import { CalendarEvent } from './calendar/CalendarEvent';
 
 
 interface Props extends RouteComponentProps {
@@ -42,6 +42,20 @@ export interface ConversationEntry {
     entries: Message[];
 }
 
+interface Listing {
+    id: number,
+    userID: number,
+    username: string,
+    title: string,
+    description: string,
+    tags: {
+        id: number,
+        name: string
+    }[];
+    anonymous: boolean,
+    timePosted: Date,
+}
+
 interface State {
     showMessages: boolean;
     showNotifications: boolean;
@@ -57,6 +71,10 @@ interface State {
     lastMessage: Date|null;
     portraitURL: any;
     messages: Message[];
+    notifications: {
+        title: string;
+        description: string|undefined;
+    }[]
 }
 
 /**
@@ -78,7 +96,8 @@ export class Home extends Page<Props, State> {
             conversations: [],
             lastMessage: null,
             portraitURL: null,
-            messages: []
+            messages: [],
+            notifications: []
         };
         this.socket = null;
     }
@@ -233,6 +252,7 @@ export class Home extends Page<Props, State> {
         this.setState({lastMessage : await this.socket.gotLastMessage})
         console.log("In home component did mount");
         console.log(this.state.conversations);
+        this.findNewest().then()
     }
 
     public componentDidUpdate(prevProps:Props, prevState:State) {
@@ -266,6 +286,62 @@ export class Home extends Page<Props, State> {
             <div className="home-new-messages">
             {message.text}
             {message.timeSent}
+            </div>
+        )
+    }
+
+    public async findNewest() {
+        const events : CalendarEvent[] = await getJSON("/api/events");
+        const listings : Listing[] = await getJSON("/api/listings/allListings")
+        let newEvents: CalendarEvent[] = []
+        let newListings: Listing[] = []
+        let times: any[] = []
+        events.map(event => listings.map(listing =>
+        {
+                if (event.start < times[0] || times[0] == null) {
+                    console.log("Notification 1 got")
+                    times[0] = event.start
+                    newEvents[0] = event
+                    if(newEvents[0].description == null) {
+                        newEvents[0].description == ""
+                    }
+                }
+                else if(event.start < times[1] || times[1] == null) {
+                    console.log("Notification 2 got")
+                    times[1] = event.start
+                    newEvents[1] = event
+                    if(newEvents[1].description == null) {
+                        newEvents[1].description == ""
+                    }
+                }
+                if(listing.timePosted < times[2] || times[2] == null) {
+                    console.log("Notification 3 got")
+                    times[2] = listing.timePosted
+                    newListings[0] = listing
+                }
+                else if(listing.timePosted < times[3] || times[3] == null) {
+                    console.log("Notification 4 got")
+                    times[3] = listing.timePosted
+                    newListings[1] = listing
+                }
+        }))
+            let notifications: {title: string, description: string|undefined}[] = []
+            notifications[0].title = newListings[0].title
+            notifications[0].description = newListings[0].description
+            notifications[1].title = newListings[1].title
+            notifications[1].description = newListings[1].description
+            notifications[2].title = newEvents[0].title
+            notifications[2].description = newEvents[0].description
+            notifications[3].title = newEvents[1].title
+            notifications[3].description = newEvents[1].description
+            this.setState({notifications: notifications})
+    }
+
+    public showNotification(notification: {title: string, description: string|undefined}) {
+        return (
+            <div className="home-new-notification">
+            {notification.title}
+            {notification.description}
             </div>
         )
     }
@@ -307,7 +383,7 @@ export class Home extends Page<Props, State> {
                             <Modal.Header closeButton>
                             <Modal.Title>Messages</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>TODO: Put messages here {this.state.messages.map(message => this.showMessage(message))}</Modal.Body>
+                            <Modal.Body>New Messages: {this.state.messages.map(message => this.showMessage(message))}</Modal.Body>
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
@@ -318,7 +394,7 @@ export class Home extends Page<Props, State> {
                             <Modal.Header closeButton>
                             <Modal.Title>Notifications</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>TODO: Put notifications here</Modal.Body>
+                            <Modal.Body>TODO: Put notifications here {this.state.notifications.map(notification => this.showNotification(notification))}</Modal.Body>
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
