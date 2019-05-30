@@ -13,7 +13,6 @@ import {CommentBox} from "../comments/CommentBox";
 import queryString from "query-string";
 
 import "./Listings.css";
-import { element } from 'prop-types';
 
 
 
@@ -912,9 +911,8 @@ export class Listings extends Component<Props, State>{
         const values = queryString.parse(location.search);
         const listingid = Number(values.listingid) ? Number(values.listingid) : undefined;
         const userid = Number(values.userid) ? Number(values.userid) : undefined;
-        //console.log("userid: ", userid);
         // Compare userid for authentication and listingid for existence
-        if(listingid !== undefined && userID)
+        if(listingid !== undefined && userID === userid)
         {
             this.handleEdit(listingid);
         }
