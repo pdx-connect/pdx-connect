@@ -13,7 +13,7 @@ import {Listings} from "./listings/Listings";
 import {Inbox} from "./inbox/Inbox";
 import {SearchResults} from "./search-results/SearchResults";
 import {Oobe} from "./oobe/Oobe";
-import {getJSON} from "../util/json";
+import {getJSON, postJSON} from "../util/json";
 import {Socket} from "./Socket";
 
 import "./Home.css";
@@ -54,6 +54,7 @@ interface State {
     windowWidth: number;
     windowHeight: number;
     conversations: ConversationEntry[];
+    portraitURL: string;
 }
 
 /**
@@ -62,7 +63,7 @@ interface State {
 export class Home extends Page<Props, State> {
     
     constructor(props: Props) {
-        super(props);   
+        super(props);
         this.state = {
             alerts: {},
             searchField: "",
@@ -72,7 +73,8 @@ export class Home extends Page<Props, State> {
             finalSearchField: "",
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
-            conversations: []
+            conversations: [],
+            portraitURL: ""
         };
         this.socket = null;
     }
@@ -81,17 +83,12 @@ export class Home extends Page<Props, State> {
     
     private readonly getUserProfileData = async () => {
         const data = await getJSON("/api/user/name");
-        this.setState({
-            displayName: data.name,
-            userID: data.userID
-        });
+        return data;
     };
 
     private readonly getUserOOBE = async () => {
         const data = await getJSON("/api/user/oobe");
-        this.setState({
-            showOobe: !data.oobe
-        });
+        return !data.oobe;
     };
 
     private readonly logUserOut = async() => {
@@ -140,12 +137,12 @@ export class Home extends Page<Props, State> {
         this.logUserOut().then();
     };
 
-    private readonly updateDimensions = () =>{
+    private readonly updateDimensions = () => {
         this.setState({ 
             windowWidth: window.innerWidth, 
             windowHeight: window.innerHeight
         });
-    }
+    };
 
     private readonly getSendMessages = () => {
         if (this.socket) {
@@ -180,14 +177,32 @@ export class Home extends Page<Props, State> {
                     resolve(new Map<number,string>());
                 });
                 return promise;
-//                return new Map<number,string>();
             };
         }
     };
 
     private readonly updateMessages = (messages: ConversationEntry[]) => {
         this.setState({conversations: messages});
-    }
+    };
+
+    private readonly updatePortraitURL = async () => {
+        this.setState({
+            portraitURL: await this.getUserProfilePicture()
+        });
+    };
+
+    private readonly getUserProfileDefault = () => {
+        return "../resources/matilda.png";
+    };
+
+    private readonly getUserProfilePicture = async () => {
+        const data = await getJSON("/api/user-profile/picture");
+        if ('error' in data) {
+            return this.getUserProfileDefault();
+        }
+
+        return data.picture;
+    };
     
     /**
      * @override
@@ -195,12 +210,22 @@ export class Home extends Page<Props, State> {
     public async componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
         window.addEventListener('resize', this.updateDimensions);
-        this.getUserOOBE().then();
-        this.getUserProfileData().then();
+
+        const [ showOobe, data, picture ] = await Promise.all([
+            this.getUserOOBE(),
+            this.getUserProfileData(),
+            this.getUserProfilePicture()
+        ]);
+
+        this.setState({
+            showOobe: showOobe,
+            displayName: data.name,
+            userID: data.userID,
+            portraitURL: picture
+        });
+        
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
-        console.log("In home component did mount");
-        console.log(this.state.conversations);
     }
     
     /**
@@ -219,10 +244,11 @@ export class Home extends Page<Props, State> {
         const notifications = Object.keys(this.state.alerts);
 
         let minHeight = {minHeight: (this.state.windowHeight * .80).toString() + "px"};
+
         return (
         <Container fluid className="home">
             <Row className="home-top-row">
-                <Sidebar displayName={this.state.displayName} updateHistory={this.updateHistory}/>
+                <Sidebar displayName={this.state.displayName} updateHistory={this.updateHistory} portraitURL={this.state.portraitURL}/>
                 <Col sm={1} md={1} className="home-top-left-col"></Col>
                 <Col sm={4} md={4} className="home-top-center-col">
                     <Form>
@@ -264,12 +290,15 @@ export class Home extends Page<Props, State> {
                                 <Route exact path="/" component={HomeContent} />
                                 <Route
                                     path="/profile"
-                                    render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} />}
+                                    render={props => <Profile {...props} updateDisplayName={this.updateDisplayName} userID={this.state.userID} updatePortraitURL={this.updatePortraitURL} getUserProfileDefault={this.getUserProfileDefault}/>}
                                 />
                                 <Route
                                     path="/calendar" component={Calendar}
                                 />
-                                <Route path="/listings" component={Listings} />
+                                <Route
+                                    path="/listings"
+                                    render={props => <Listings {...props} />}
+                                />
                                 <Route path="/inbox"
                                        render={(props) => <Inbox {...props} conversations={this.state.conversations}
                                                                  sendMessage={this.getSendMessages()}
