@@ -286,6 +286,7 @@ export class Home extends Page<Props, State> {
     public async findNewest() {
         const events : CalendarEvent[] = await getJSON("/api/events");
         const listings : Listing[] = await getJSON("/api/listings/allListings")
+        console.log("Listings:", listings)
         let newEvents: CalendarEvent[] = []
         let newListings: Listing[] = []
         let times: any[] = []
@@ -299,7 +300,7 @@ export class Home extends Page<Props, State> {
                     newEvents[0].description == ""
                 }
             }
-            else if(event.start < times[1] || times[1] == null) {
+            else if((event.start < times[1] || times[1] == null) && event != newEvents[0]) {
                 console.log("Notification 2 got")
                 times[1] = event.start
                 newEvents[1] = event
@@ -312,7 +313,7 @@ export class Home extends Page<Props, State> {
                 times[2] = listing.timePosted
                 newListings[0] = listing
             }
-            else if(listing.timePosted < times[3] || times[3] == null) {
+            else if((listing.timePosted < times[3] || times[3] == null) && listing != newListings[0]) {
                 console.log("Notification 4 got")
                 times[3] = listing.timePosted
                 newListings[1] = listing
@@ -321,13 +322,17 @@ export class Home extends Page<Props, State> {
         let notifications: {title: string, description: string|undefined}[] = []
         console.log("New listings", newListings)
         console.log("New Events", newEvents)
+        notifications[0] = newListings[0]
         notifications[0].title = newListings[0].title
-        console.log("Test")
+        console.log("Test", notifications)
         notifications[0].description = newListings[0].description
+        notifications[1] = newListings[1]
         notifications[1].title = newListings[1].title
         notifications[1].description = newListings[1].description
+        notifications[2] = newListings[0]
         notifications[2].title = newEvents[0].title
         notifications[2].description = newEvents[0].description
+        notifications[3] = newListings[1]
         notifications[3].title = newEvents[1].title
         notifications[3].description = newEvents[1].description
         console.log("Notifications:", notifications)
@@ -337,7 +342,7 @@ export class Home extends Page<Props, State> {
     public showNotification(notification: {title: string, description: string|undefined}) {
         return (
             <div className="home-new-notification">
-            {notification.title} 
+            {notification.title}  &nbsp;
             {notification.description}
             </div>
         )
@@ -391,7 +396,7 @@ export class Home extends Page<Props, State> {
                             <Modal.Header closeButton>
                             <Modal.Title>Notifications</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>TODO: Put notifications here {this.state.notifications.map(notification => this.showNotification(notification))}</Modal.Body>
+                            <Modal.Body>Notifications: {this.state.notifications.map(notification => this.showNotification(notification))}</Modal.Body>
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
