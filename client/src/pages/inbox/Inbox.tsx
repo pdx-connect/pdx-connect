@@ -168,7 +168,7 @@ export class Inbox extends Component<Props, State> {
                     defaultValue={defaultVal}
                     onChange={(e: any) => this.setParticipents(e)}
                     options={users}
-                    className="basic-multi-select"
+                    className="basic-multi-select inbox-participants-select"
                     classNamePrefix="select"
                 />
             );

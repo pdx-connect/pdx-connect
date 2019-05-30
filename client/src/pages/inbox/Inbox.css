@@ -59,7 +59,11 @@
     height: 50px;
     border-radius: 10px;
     text-align: center;
-    /* overflow: scroll; */
+}
+
+.inbox-participants-select
+{
+    padding: 6px;
 }
 
 .inbox-participants-scrollable
@@ -87,7 +91,7 @@
     width: 25%;
     height: 680px;
     border-radius: 10px;
-    overflow-y:scroll
+    overflow-y: scroll
 }
 
 .inbox-chat-box
@@ -100,7 +104,7 @@
     border-radius: 10px;
     height: 600px;
     overflow-y: scroll;
-    scroll-behavior: smooth;
+    /* scroll-behavior: smooth; */
 }
 
 .inbox-message-row
