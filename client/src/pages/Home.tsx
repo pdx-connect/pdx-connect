@@ -288,8 +288,6 @@ export class Home extends Page<Props, State> {
         let listings : Listing[] = await getJSON("/api/listings/allListings").then();
         //First two listings are being overwritten
         console.log("Listings:", listings)
-        listings = listings.slice(2, listings.length)
-        console.log("Listings test:", listings)
         console.log("Events:", events)
         let newEvents: CalendarEvent[] = []
         let newListings: Listing[] = []
@@ -379,8 +377,8 @@ export class Home extends Page<Props, State> {
      * @override
      */
     public render(): ReactNode {
-        const messages = [];
-        const notifications = Object.keys(this.state.alerts);
+        const messages = this.state.messages;
+        const notifications = this.state.notifications;
 
         let minHeight = {minHeight: (this.state.windowHeight * .80).toString() + "px"};
 
