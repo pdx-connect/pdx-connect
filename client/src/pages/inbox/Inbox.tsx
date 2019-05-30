@@ -299,8 +299,8 @@ export class Inbox extends Component<Props, State> {
     // }
 
     public componentDidMount() {
-        this.getUsers().then(() => console.log("All users: ", this.state.users));
-        //console.log("All users: ", this.state.users.length);
+        this.getUsers().then();
+        //this.getUsers().then(() => console.log("All users: ", this.state.users));
     }
 
     /**
