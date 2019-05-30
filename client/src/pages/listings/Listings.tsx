@@ -13,6 +13,7 @@ import {CommentBox} from "../comments/CommentBox";
 import queryString from "query-string";
 
 import "./Listings.css";
+import { element } from 'prop-types';
 
 
 
@@ -70,7 +71,6 @@ interface State {
     currentViewListing: number;
     myListings: boolean;
     myBookmarkedListings: boolean;
-    myUserID: number;
     edit: boolean;
     completed: boolean;
     filterTags: string[];
@@ -105,7 +105,6 @@ export class Listings extends Component<Props, State>{
             currentViewListing: 0,
             myListings: false,
             myBookmarkedListings: false,
-            myUserID: 0,
             edit: false,
             completed: false,
             filterTags: [],
@@ -224,6 +223,7 @@ export class Listings extends Component<Props, State>{
     private readonly handleEdit = (listingID: number) => {
         this.handleCloseView();
 
+        // Find the corresponding listing
         var listing: any = [];
         for(let i = 0; i < this.state.listings.length; i++)
         {
@@ -231,32 +231,37 @@ export class Listings extends Component<Props, State>{
                 listing = this.state.listings[i];
         }
 
-        // Load in the default selectedTagType and optionTagTypes before loading in the modal for Type field
-        this.setDefaultTypeAndTagFields();
-
-        // Load back in the selectedTags and optionTags before loading in the modal for Tags field
-        const selectedTags: OptionType[] = [];
-        for (const tag of listing.tags)
+        // Make sure if user owns this listing
+        const userid: number = listing.userID;
+        if(userid === this.props.userID)
         {
-            selectedTags.push({
-                value: tag.id,
-                label: tag.name
+            // Load in the default selectedTagType and optionTagTypes before loading in the modal for Type field
+            this.setDefaultTypeAndTagFields();
+
+            // Load back in the selectedTags and optionTags before loading in the modal for Tags field
+            const selectedTags: OptionType[] = [];
+            for (const tag of listing.tags)
+            {
+                selectedTags.push({
+                    value: tag.id,
+                    label: tag.name
+                })
+            }
+            let temp: OptionType[] = this.state.optionTags;
+            for(const selected of selectedTags)
+            {
+                temp = temp.filter(x => { return x.label != selected.label; })
+            }
+
+            this.setState({
+                optionTags: temp,
+                selectedTags: selectedTags,
+                title: listing.title,
+                description: listing.description,
+                anonymous: listing.anonymous,
+                edit: true
             })
         }
-        let temp: OptionType[] = this.state.optionTags;
-        for(const selected of selectedTags)
-        {
-            temp = temp.filter(x => { return x.label != selected.label; })
-        }
-
-        this.setState({
-            optionTags: temp,
-            selectedTags: selectedTags,
-            title: listing.title,
-            description: listing.description,
-            anonymous: listing.anonymous,
-            edit: true
-        })
     };
 
     private readonly handleCloseEdit = () => {
@@ -663,7 +668,6 @@ export class Listings extends Component<Props, State>{
 
     // When user click on a tag
     private readonly onLeafMouseClick = (event:any, leaf:any) => {
-        console.log("hi");
         // Get the new listings view by setting state of filterTag
         if(this.state.filterTags.length === 1 && this.state.filterTags[0] === leaf.name)
         {
@@ -698,12 +702,6 @@ export class Listings extends Component<Props, State>{
         return categorieView;
     };
 
-    private readonly getCurrentUserId = async () => {
-        const data = await getJSON("/api/user/name");
-        this.setState({
-            myUserID: data.userID
-        });
-    }
 
     // Create the info in the right column -> listings
     private readonly createListingsView = () => {
@@ -713,7 +711,7 @@ export class Listings extends Component<Props, State>{
         {
             for(let i=this.state.listings.length-1; i >= 0; i--)
             {
-                if(this.state.listings[i].userID == this.state.myUserID)
+                if(this.state.listings[i].userID == this.props.userID)
                     views = this.createListings(i, views);
             }
         }
@@ -802,7 +800,7 @@ export class Listings extends Component<Props, State>{
 
             // Condition to check if current user owns current view listing
             var editable = false;
-            if(listing.userID == this.state.myUserID)
+            if(listing.userID == this.props.userID)
                 editable = true;
 
             let listingModal = [];
@@ -906,15 +904,16 @@ export class Listings extends Component<Props, State>{
     public async componentDidMount() {
         await this.getTagTrees();
         await this.loadAllListings();
-        await this.getCurrentUserId();
         await this.updateBookmarkedListings();
 
         // When user try to edit his/her listing from profile, direct them to here
-        const { location } = this.props;
+        const { location, userID } = this.props;
         const values = queryString.parse(location.search);
         const listingid = Number(values.listingid) ? Number(values.listingid) : undefined;
+        // const userid = Number(values.userid) ? Number(values.userid) : undefined;
+        // console.log("userid: ", userid);
         // Compare userid for authentication and listingid for existence
-        if(listingid !== undefined && this.props.userID === this.state.myUserID)
+        if(listingid !== undefined && userID)
         {
             this.handleEdit(listingid);
         }
