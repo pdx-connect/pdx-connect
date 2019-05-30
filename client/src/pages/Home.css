@@ -152,6 +152,9 @@
     margin-bottom: 2%;
     font-family: var(--soft-font);
     color: var(--white-contrast);
+    text-align: justify;
+    text-justify: inter-word;
+    text-transform: capitalize;
 }
 
 .home-content-listing-header {
