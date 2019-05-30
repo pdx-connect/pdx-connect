@@ -156,7 +156,7 @@ export class Inbox extends Component<Props, State> {
 
         // Formats commas, spacing and header
         if (this.props.conversations != null && this.state.currentParticipates != null) {
-            rows.push("Participents: ")
+            rows.push(<div className="inbox-participants-label">Participents:</div>);
             for (let i=0; i<this.state.currentParticipates.length; i++) {
                 rows.push(<li key={i} className="inbox-participant-name">{this.state.currentParticipates[i]}</li>);
             }

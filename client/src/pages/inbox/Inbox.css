@@ -57,6 +57,13 @@
     height: 50px;
     border-radius: 10px;
     text-align: center;
+    overflow: scroll;
+}
+
+.inbox-participants-label
+{
+    font-size: 13px;
+    display: inline-block;
 }
 
 .inbox-participant-name
@@ -67,7 +74,7 @@
     background-color: lightblue;
     border-radius: 4px;
     padding: 1px 5px;
-    margin: 3px;
+    margin: 0px 3px;
 }
 
 .inbox-conversations
