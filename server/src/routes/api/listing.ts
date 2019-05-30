@@ -5,12 +5,8 @@ import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {User} from "../../entity/User";
 import {Tag} from "../../entity/Tag";
 import {Listing} from "../../entity/Listing";
-<<<<<<< HEAD
 import {ListingComment} from "../../entity/ListingComment";
-=======
-import { ListingComment } from "../../entity/ListingComment";
 import {UserProfile} from "../../entity/UserProfile";
->>>>>>> master
 
 
 interface ListingData {
