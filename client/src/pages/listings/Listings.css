@@ -1,7 +1,7 @@
 @import "../root.css";
 
 .listings-listings {
-
+    font-family: var(--hard-font);
 }
 
 .listings-categoryCol {
@@ -18,6 +18,12 @@
 .listings-createButton {
     padding-bottom: 5%;
     cursor: pointer;
+}
+
+.listings-createButton:hover {
+    padding-bottom: 5%;
+    cursor: pointer;
+    color: var(--rainbow-orange);
 }
 
 .listings-bookmarkButton {
@@ -43,16 +49,22 @@
     font-family: 'Varela Round', sans-serif;
 }
 
+/*
 .listings-myListingCheckbox {
     
 }
+*/
 
+.listings-theListing {
+    color: var(--white-contrast);
+    cursor: pointer;
+}
 
 .listings-theListing:hover {
     text-decoration: underline;
-    color: var(--rainbow-blue);
+    color: var(--suggestion);
+    font-weight: bold;
 }
-
 
 .listings-ID {
     width: 7%;
@@ -100,12 +112,34 @@
     padding-top: 20px;
 }
 
-/* .listings-infinity-menu-node-container label {
-    display: inline-block;
-} */
+/*
+ul {
+    list-style: none;
+}
+*/
 
-.listings-infinity-menu-node-container:hover {
-	/* background-color: rgb(73, 73, 73); */
+label {
+    color: var(--thing-2);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+label:hover {
+    color: var(--suggestion);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+ul li {
+    cursor: pointer !important;
+    color: var(--thing-2);
+} 
+
+ul li:hover {
+    /*background-color: rgb(73, 73, 73);*/
+    color: var(--rainbow-orange);
+    font-weight: bold;
+    cursor: pointer !important;
 }
 
 .listings-viewModalContent-description {

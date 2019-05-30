@@ -767,13 +767,13 @@ export class Listings extends Component<Props, State>{
         }
         
         views.push(
-            <tr className="listings-theListing" onClick={this.handleShowView.bind(this, this.state.listings[i].id)}>
-                <th>{this.state.listings[i].id}</th>
-                <th>{this.state.listings[i].title}</th>
-                <th>{tags}</th>
-                <th>{username}</th>
-                <th>{moment(this.state.listings[i].timePosted).format("YYYY/MM/DD")}</th>
-                <th>{this.state.listings[i].reply}</th>
+            <tr key={i} className="listings-theListing" onClick={this.handleShowView.bind(this, this.state.listings[i].id)}>
+                <td>{this.state.listings[i].id}</td>
+                <td>{this.state.listings[i].title}</td>
+                <td>{tags}</td>
+                <td>{username}</td>
+                <td>{moment(this.state.listings[i].timePosted).format("YYYY/MM/DD")}</td>
+                <td>{this.state.listings[i].reply}</td>
             </tr>
         );
         return views;
@@ -949,7 +949,7 @@ export class Listings extends Component<Props, State>{
                                 <Form.Check 
                                     type="checkbox" 
                                     label="Bookmarked Posts" 
-                                    onClick={this.showOnlyMyBookmarkedListings}
+                                    onChange={this.showOnlyMyBookmarkedListings}
                                     checked={this.state.myBookmarkedListings}
                                 />
                             </Form.Group>
@@ -962,7 +962,7 @@ export class Listings extends Component<Props, State>{
                                     type="checkbox" 
                                     label="My Posts" 
                                     className="listings-myListingCheckbox" 
-                                    onClick={this.showOnlyMyListings}
+                                    onChange={this.showOnlyMyListings}
                                     checked={this.state.myListings}
                                 />
                             </Form.Group>
