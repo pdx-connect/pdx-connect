@@ -284,9 +284,12 @@ export class Home extends Page<Props, State> {
     }
 
     public async findNewest() {
-        const events : CalendarEvent[] = await getJSON("/api/events");
-        const listings : Listing[] = await getJSON("/api/listings/allListings")
+        const events : CalendarEvent[] = await getJSON("/api/events").then();
+        let listings : Listing[] = await getJSON("/api/listings/allListings").then();
+        //First two listings are being overwritten
         console.log("Listings:", listings)
+        listings = listings.slice(2, listings.length)
+        console.log("Listings test:", listings)
         console.log("Events:", events)
         let newEvents: CalendarEvent[] = []
         let newListings: Listing[] = []
@@ -297,6 +300,10 @@ export class Home extends Page<Props, State> {
         events.map(event =>
         {
             if ((event.start < times[0] || times[0] == null) && event.start.toString() > timeString) {
+                if(times[0] != null) {
+                    times[1] = times[0]
+                    newEvents[1] = newEvents[0]
+                }
                 console.log("Notification 1 got")
                 times[0] = event.start
                 console.log("Events test:", event)
@@ -315,13 +322,17 @@ export class Home extends Page<Props, State> {
             }
         })
         listings.map(listing => {
-            if(listing.timePosted < times[2] || times[2] == null) {
+            if((listing.timePosted < times[2] || times[2] == null) && listing.title != newEvents[0].title && listing.title != newEvents[1].title) {
+                if (times[2] != null) {
+                    times[3] = times[2]
+                    newListings[1] = newListings[0]
+                }
                 console.log("Notification 3 got")
                 times[2] = listing.timePosted
                 console.log("Listing test:", listing)
                 newListings[0] = listing
             }
-            else if((listing.timePosted < times[3] || times[3] == null) && listing != newListings[0]) {
+            else if((listing.timePosted < times[3] || times[3] == null) && listing != newListings[0] && listing.title != newEvents[0].title && listing.title != newEvents[1].title) {
                 console.log("Notification 4 got")
                 times[3] = listing.timePosted
                 newListings[1] = listing
@@ -330,17 +341,17 @@ export class Home extends Page<Props, State> {
         let notifications: {title: string, description: string|undefined}[] = []
         console.log("New listings", newListings)
         console.log("New Events", newEvents)
-        notifications[0] = newListings[0]
+        notifications[0] = {title: "", description: ""}
         notifications[0].title = newListings[0].title
         console.log("Test", notifications)
         notifications[0].description = newListings[0].description
-        notifications[1] = newListings[1]
+        notifications[1] = {title: "", description: ""}
         notifications[1].title = newListings[1].title
         notifications[1].description = newListings[1].description
-        notifications[2] = newListings[0]
+        notifications[2] = {title: "", description: ""}
         notifications[2].title = newEvents[0].title
         notifications[2].description = newEvents[0].description
-        notifications[3] = newListings[1]
+        notifications[3] = {title: "", description: ""}
         notifications[3].title = newEvents[1].title
         notifications[3].description = newEvents[1].description
         console.log("Notifications:", notifications)
