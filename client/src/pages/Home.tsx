@@ -250,8 +250,6 @@ export class Home extends Page<Props, State> {
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
         this.setState({lastMessage : await this.socket.gotLastMessage})
-        console.log("In home component did mount");
-        console.log(this.state.conversations);
         this.findNewest().then()
     }
 
@@ -276,25 +274,37 @@ export class Home extends Page<Props, State> {
 
     public showMessage(message: Message) {
         return (
-            <div className="home-new-messages">
+            <div className="home-new-messages" onClick={() => this.openConversation(message)}>
             {message.text}&nbsp;
             {message.timeSent}
             </div>
         )
     }
 
+    public openConversation(message: Message) {
+        let convID
+        this.state.conversations.map(conversation => {
+            conversation.entries.map(entry => {
+                if(entry == message) {
+                    convID = conversation.conversationID
+                }
+            })
+        })
+        this.props.history.push({
+            pathname: '/inbox',
+            search: '?conversationid=' + convID
+        });
+    }
+
     public async findNewest() {
         const events : CalendarEvent[] = await getJSON("/api/events").then();
         let listings : Listing[] = await getJSON("/api/listings/allListings").then();
         //First two listings are being overwritten
-        console.log("Listings:", listings)
-        console.log("Events:", events)
         let newEvents: CalendarEvent[] = []
         let newListings: Listing[] = []
         let times: any[] = []
         let currentTime = new Date()
         let timeString = currentTime.toISOString()
-        console.log("Current time", timeString)
         events.map(event =>
         {
             if ((event.start < times[0] || times[0] == null) && event.start.toString() > timeString) {
@@ -302,16 +312,13 @@ export class Home extends Page<Props, State> {
                     times[1] = times[0]
                     newEvents[1] = newEvents[0]
                 }
-                console.log("Notification 1 got")
                 times[0] = event.start
-                console.log("Events test:", event)
                 newEvents[0] = event
                 if(newEvents[0].description == null) {
                     newEvents[0].description == ""
                 }
             }
             else if((event.start < times[1] || times[1] == null) && event != newEvents[0] && event.start.toString() > timeString) {
-                console.log("Notification 2 got")
                 times[1] = event.start
                 newEvents[1] = event
                 if(newEvents[1].description == null) {
@@ -325,23 +332,17 @@ export class Home extends Page<Props, State> {
                     times[3] = times[2]
                     newListings[1] = newListings[0]
                 }
-                console.log("Notification 3 got")
                 times[2] = listing.timePosted
-                console.log("Listing test:", listing)
                 newListings[0] = listing
             }
             else if((listing.timePosted < times[3] || times[3] == null) && listing != newListings[0] && listing.title != newEvents[0].title && listing.title != newEvents[1].title) {
-                console.log("Notification 4 got")
                 times[3] = listing.timePosted
                 newListings[1] = listing
             }
         })
         let notifications: {title: string, description: string|undefined}[] = []
-        console.log("New listings", newListings)
-        console.log("New Events", newEvents)
         notifications[0] = {title: "", description: ""}
         notifications[0].title = newListings[0].title
-        console.log("Test", notifications)
         notifications[0].description = newListings[0].description
         notifications[1] = {title: "", description: ""}
         notifications[1].title = newListings[1].title
@@ -352,7 +353,6 @@ export class Home extends Page<Props, State> {
         notifications[3] = {title: "", description: ""}
         notifications[3].title = newEvents[1].title
         notifications[3].description = newEvents[1].description
-        console.log("Notifications:", notifications)
         this.setState({notifications: notifications})
     }
 
