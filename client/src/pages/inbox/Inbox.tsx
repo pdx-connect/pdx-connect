@@ -79,18 +79,21 @@ export class Inbox extends Component<Props, State> {
     *   On send or ENTER key, sendMessage() broadcasts to socket
     *   message is sent
     */
-    private readonly onSend = (e: any) => {
+    private readonly onSend = async (e: any) => {
         e.preventDefault();
 
         // Composing new message
         if (this.state.composingNewConvo && this.state.textField != "" && this.state.composingNewConvoParticipants.length > 1 && this.state.composingNewConvoParticipants.some(x => x == Number(this.props.userID))) {
-            this.props.sendMessage(this.state.textField, null, this.state.composingNewConvoParticipants);
-            this.setState({
-                composingNewConvoParticipants: [], // Clear participants array
-                composingNewConvo: false,
-                currentConversationIndex: 0, // Set the conversations index to most recent
-                currentConversationID: this.props.conversations[0].conversationID // Set the respective ID
-            });
+            await this.props.sendMessage(this.state.textField, null, this.state.composingNewConvoParticipants);
+            setTimeout(() => {
+                const newestConversationsIndex: number = this.props.conversations.length - 1;
+                this.setState({
+                    composingNewConvoParticipants: [], // Clear participants array
+                    composingNewConvo: false,
+                    currentConversationIndex: newestConversationsIndex, // Set the conversations index to most recent
+                    currentConversationID: this.props.conversations[newestConversationsIndex].conversationID // Set the respective ID
+                });
+            }, 0.5);
         }
         else {
             console.log("Conversation not started!");
