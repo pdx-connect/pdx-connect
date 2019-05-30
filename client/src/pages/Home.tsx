@@ -288,7 +288,7 @@ export class Home extends Page<Props, State> {
                         <Col sm={10} md={11} className="home-component" style={minHeight}>
                             <Switch>
                                 <Route
-                                    exact path="/" component={HomeContent}
+                                    exact path="/"
                                     render={props => <HomeContent {...props} />}
                                 />
                                 <Route
