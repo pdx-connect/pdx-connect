@@ -59,6 +59,17 @@
     text-align: center;
 }
 
+.inbox-participant-name
+{
+    list-style-type: none;
+    display: inline-block;
+    font-size: 10px;
+    background-color: lightblue;
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin: 3px;
+}
+
 .inbox-conversations
 {
     clear: left;

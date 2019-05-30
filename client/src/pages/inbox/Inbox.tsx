@@ -23,7 +23,7 @@ interface State {
     composingNewConvo: boolean;
     composingNewConvoParticipants: number[];
     users?: any;
-    currentParticipates?: Map<number, string>; 
+    currentParticipates?: any; 
 }
 
 /**
@@ -61,8 +61,8 @@ export class Inbox extends Component<Props, State> {
     private readonly onSend = (e: any) => {
         e.preventDefault();
 
-        if (this.state.composingNewConvo && this.state.textField != "") {
-            //console.log("Sending message! with Participants: ", this.state.composingNewConvoParticipants);
+        // Composing new message
+        if (this.state.composingNewConvo && this.state.textField != "" && this.state.composingNewConvoParticipants.length > 1 && this.state.composingNewConvoParticipants.some(x => x == Number(this.props.userID))) {
             this.props.sendMessage(this.state.textField, null, this.state.composingNewConvoParticipants);
             this.setState({
                 composingNewConvoParticipants: [], // Clear participants array
@@ -71,7 +71,12 @@ export class Inbox extends Component<Props, State> {
                 currentConversationID: this.props.conversations[0].conversationID // Set the respective ID
             });
         }
-        else if (this.state.currentConversationID && this.state.textField != "") {
+        else {
+            console.log("Message not sent!");
+        }
+
+        // Replying to existing message
+        if (!this.state.composingNewConvo && this.state.currentConversationID && this.state.textField != "") {
             this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
         }
         this.setState({textField: ""});
@@ -112,7 +117,6 @@ export class Inbox extends Component<Props, State> {
             }
         }
         this.setState({composingNewConvoParticipants: value});
-        //console.log("Current participants: ", value); // Shows the list of the IDs only
     }
 
     /* 
@@ -123,8 +127,9 @@ export class Inbox extends Component<Props, State> {
     *                   (right-top window of inbox)
     */
     private readonly renderParticipents = () => {
-        let rows = [];
-        let users = [];
+
+        let users = []; // All PDX-connect users
+        let rows = []; // Formatted for rendering
 
         // If in composingNewConvo state, will return a selection window of all users
         if (this.state.composingNewConvo) {
@@ -149,12 +154,11 @@ export class Inbox extends Component<Props, State> {
         // ELSE - will render the participants of an open conversation
         //
 
+        // Formats commas, spacing and header
         if (this.props.conversations != null && this.state.currentParticipates != null) {
             rows.push("Participents: ")
-            for (let i=0; i<this.state.currentParticipates.size; i++) {
-                rows.push(this.state.currentParticipates.get(Array.from(this.state.currentParticipates.keys())[i]));
-                if (i != this.state.currentParticipates.size-1)
-                    rows.push(", ");
+            for (let i=0; i<this.state.currentParticipates.length; i++) {
+                rows.push(<li key={i} className="inbox-participant-name">{this.state.currentParticipates[i]}</li>);
             }
         }
         return rows;
@@ -178,18 +182,11 @@ export class Inbox extends Component<Props, State> {
             );
         }
 
-        if (this.props.conversations != null && this.state.users) {
+        if (this.props.conversations != null && this.state.users != null) {
             for (let i=0; i<this.props.conversations.length; i++) {
                 if (i == this.state.currentConversationIndex) {
                     rows.push(
-                        <Row className="inbox-open-conversation" key={i} 
-                            onClick={()=> 
-                                this.setState({
-                                    currentConversationIndex: i,
-                                    currentConversationID: this.props.conversations[i].conversationID,
-                                    composingNewConvo: false
-                                })
-                            }>
+                        <Row className="inbox-open-conversation" key={i}>
                             <Col key={i} sm={12}>
                                 {/* ConversationID: {this.props.conversations[i].conversationID} */}
                                 <br></br>{this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
@@ -286,9 +283,23 @@ export class Inbox extends Component<Props, State> {
      */
     public async componentDidUpdate(prevProps: Props, prevState: State) {
 
+        // Get Participants from the current open coversation
         if  (this.state.currentConversationID && prevState.currentConversationID != this.state.currentConversationID) {
+
+            let participants = []
+
             let participantsMap = await this.props.getParticipants(this.state.currentConversationID).then();
-            this.setState({currentParticipates: participantsMap});
+            //this.setState({currentParticipates: participantsMap});
+
+            if (this.props.conversations != null && participantsMap != null) {
+                //rows.push("Participents: ")
+                for (let i=0; i<participantsMap.size; i++) {
+                    participants.push(participantsMap.get(Array.from(participantsMap.keys())[i]));
+                }
+            }
+
+            participants.sort(); // Alphabetical sort for names
+            this.setState({currentParticipates: participants});
         }
     }
 
