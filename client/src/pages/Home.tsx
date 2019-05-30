@@ -203,6 +203,10 @@ export class Home extends Page<Props, State> {
 
         return data.picture;
     };
+
+    private readonly getListings = () => {
+        return getJSON("/api/listings/homeContent");
+    };
     
     /**
      * @override
@@ -210,6 +214,17 @@ export class Home extends Page<Props, State> {
     public async componentDidMount() {
         document.addEventListener('keydown', this.enterKeyPressed);
         window.addEventListener('resize', this.updateDimensions);
+
+        /*
+        const [ showOobe, data, picture, listingData ] = await Promise.all([
+            this.getUserOOBE(),
+            this.getUserProfileData(),
+            this.getUserProfilePicture(),
+            this.getListings()
+        ]);
+
+        console.log('listingData: ', listingData);
+        */
 
         const [ showOobe, data, picture ] = await Promise.all([
             this.getUserOOBE(),
