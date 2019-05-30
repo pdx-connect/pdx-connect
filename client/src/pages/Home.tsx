@@ -258,18 +258,11 @@ export class Home extends Page<Props, State> {
     public componentDidUpdate(prevProps:Props, prevState:State) {
         if (this.socket != null && this.state.lastMessage != null) {
             if (this.socket.gotLastMessage != this.state.lastMessage) {
-                console.log("Prev convo:", prevState.conversations)
-                console.log("Current convo:", this.state.conversations)
-                console.log("Last message time:", this.state.lastMessage.toISOString())
                 this.state.conversations.map((conversation) => 
                 prevState.conversations.map((prevConversation) => 
                 {if (prevConversation.conversationID == conversation.conversationID) {
-                    console.log("Prev Messages:", prevConversation.entries)
-                    console.log("Current messages:", conversation.entries)
-                    console.log("Message time:", conversation.entries[0].timeSent.toString())
                     if (this.state.lastMessage != null) {
                         if (conversation.entries[0].timeSent.toString() > this.state.lastMessage.toISOString()) {
-                            console.log("New message:", conversation.entries[0])
                             let newMessages = this.state.messages
                             newMessages.push(conversation.entries[0])
                             this.setState({messages: newMessages})
@@ -284,7 +277,7 @@ export class Home extends Page<Props, State> {
     public showMessage(message: Message) {
         return (
             <div className="home-new-messages">
-            {message.text}
+            {message.text} 
             {message.timeSent}
             </div>
         )
@@ -298,49 +291,53 @@ export class Home extends Page<Props, State> {
         let times: any[] = []
         events.map(event => listings.map(listing =>
         {
-                if (event.start < times[0] || times[0] == null) {
-                    console.log("Notification 1 got")
-                    times[0] = event.start
-                    newEvents[0] = event
-                    if(newEvents[0].description == null) {
-                        newEvents[0].description == ""
-                    }
+            if (event.start < times[0] || times[0] == null) {
+                console.log("Notification 1 got")
+                times[0] = event.start
+                newEvents[0] = event
+                if(newEvents[0].description == null) {
+                    newEvents[0].description == ""
                 }
-                else if(event.start < times[1] || times[1] == null) {
-                    console.log("Notification 2 got")
-                    times[1] = event.start
-                    newEvents[1] = event
-                    if(newEvents[1].description == null) {
-                        newEvents[1].description == ""
-                    }
+            }
+            else if(event.start < times[1] || times[1] == null) {
+                console.log("Notification 2 got")
+                times[1] = event.start
+                newEvents[1] = event
+                if(newEvents[1].description == null) {
+                    newEvents[1].description == ""
                 }
-                if(listing.timePosted < times[2] || times[2] == null) {
-                    console.log("Notification 3 got")
-                    times[2] = listing.timePosted
-                    newListings[0] = listing
-                }
-                else if(listing.timePosted < times[3] || times[3] == null) {
-                    console.log("Notification 4 got")
-                    times[3] = listing.timePosted
-                    newListings[1] = listing
-                }
+            }
+            if(listing.timePosted < times[2] || times[2] == null) {
+                console.log("Notification 3 got")
+                times[2] = listing.timePosted
+                newListings[0] = listing
+            }
+            else if(listing.timePosted < times[3] || times[3] == null) {
+                console.log("Notification 4 got")
+                times[3] = listing.timePosted
+                newListings[1] = listing
+            }
         }))
-            let notifications: {title: string, description: string|undefined}[] = []
-            notifications[0].title = newListings[0].title
-            notifications[0].description = newListings[0].description
-            notifications[1].title = newListings[1].title
-            notifications[1].description = newListings[1].description
-            notifications[2].title = newEvents[0].title
-            notifications[2].description = newEvents[0].description
-            notifications[3].title = newEvents[1].title
-            notifications[3].description = newEvents[1].description
-            this.setState({notifications: notifications})
+        let notifications: {title: string, description: string|undefined}[] = []
+        console.log("New listings", newListings)
+        console.log("New Events", newEvents)
+        notifications[0].title = newListings[0].title
+        console.log("Test")
+        notifications[0].description = newListings[0].description
+        notifications[1].title = newListings[1].title
+        notifications[1].description = newListings[1].description
+        notifications[2].title = newEvents[0].title
+        notifications[2].description = newEvents[0].description
+        notifications[3].title = newEvents[1].title
+        notifications[3].description = newEvents[1].description
+        console.log("Notifications:", notifications)
+        this.setState({notifications: notifications})
     }
 
     public showNotification(notification: {title: string, description: string|undefined}) {
         return (
             <div className="home-new-notification">
-            {notification.title}
+            {notification.title} 
             {notification.description}
             </div>
         )
