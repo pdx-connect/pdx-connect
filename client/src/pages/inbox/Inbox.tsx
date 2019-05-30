@@ -4,9 +4,7 @@ import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
 import {getJSON, postJSON} from '../../util/json';
-
 import "./Inbox.css";
-
 
 interface Props {
     sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => void;
@@ -27,11 +25,14 @@ interface State {
     currentParticipates?: any;
 }
 
-/**
- *  CONSTRUCTOR
- */
+/*
+*   INBOX CLASS
+*/
 export class Inbox extends Component<Props, State> {
     
+    /*
+    *  CONSTRUCTOR
+    */
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -41,12 +42,16 @@ export class Inbox extends Component<Props, State> {
         }
     }
 
+    /*
+    *   Gets all the users 
+    */
     private readonly getUsers = async () => {
         let data: any;
         data = await getJSON("/api/user/findnames");
         this.setState({users: data.results});
     };
 
+    // Ref object for auto-scroll, used in render at chat-box
     private chatRef = React.createRef<HTMLDivElement>()
 
     /*
@@ -98,7 +103,6 @@ export class Inbox extends Component<Props, State> {
     /*
     *   onCompose:  On enter of compose button, a new
     *               conversation window is rendered
-    *   
     */
     private readonly onCompose = (e: any) => {
         e.preventDefault();
@@ -118,7 +122,6 @@ export class Inbox extends Component<Props, State> {
     *    setParticipants:    callback for once a user updates the partcipants field
     *                        once state is in newConversation mode. The whole 
     *                        composingNewConvoParticipants is updated on every change.
-    *
     */
     private readonly setParticipents = (e: any) => {
 
@@ -175,7 +178,6 @@ export class Inbox extends Component<Props, State> {
                     {rows}
                 </div>
             );
-
             return renderRows; // We must return, othewise unknown behaviour because of -1 convo index and ID
         }
 
@@ -310,28 +312,31 @@ export class Inbox extends Component<Props, State> {
         return rows;
     }
 
+     /*
+     *  ComponentDidMount
+     */
     public componentDidMount() {
-        // Pull all users
-        this.getUsers().then();
+        this.getUsers().then(); // Pull all users for starting new conversations
     }
 
     /**
+     * ComponentDidUpdate
      * @override
      */
     public async componentDidUpdate(prevProps: Props, prevState: State) {
 
+        // Auto scroll to bottom of chatbox is not composing
         if (!this.state.composingNewConvo) {
-            this.scrollToBottom(); // Auto scroll to bottom of chatbox
+            this.scrollToBottom();
         }
 
-        // Get Participants from the current open coversation
+        // Pull participants from the current open coversation and set state
         if  (this.state.currentConversationID && prevState.currentConversationID != this.state.currentConversationID) {
+            
             let participants = []
-
             let participantsMap = await this.props.getParticipants(this.state.currentConversationID).then();
 
             if (this.props.conversations != null && participantsMap != null) {
-                //rows.push("Participents: ")
                 for (let i=0; i<participantsMap.size; i++) {
                     participants.push(participantsMap.get(Array.from(participantsMap.keys())[i]));
                 }
@@ -352,7 +357,6 @@ export class Inbox extends Component<Props, State> {
         let messages = this.renderMessages();
 
         return (
-
             <Container fluid className="inbox">
 
                 <div className="inbox-compose-message">
