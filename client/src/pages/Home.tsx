@@ -272,7 +272,7 @@ export class Home extends Page<Props, State> {
                                 />
                                 <Route
                                     path="/listings"
-                                    render={props => <Listings {...props} />}
+                                    render={props => <Listings {...props} userID={this.state.userID} />}
                                 />
                                 <Route path="/inbox"
                                        render={(props) => <Inbox {...props} conversations={this.state.conversations}
