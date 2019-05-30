@@ -5,7 +5,12 @@ import {ArrayUtils} from "shared/dist/ArrayUtils";
 import {User} from "../../entity/User";
 import {Tag} from "../../entity/Tag";
 import {Listing} from "../../entity/Listing";
+<<<<<<< HEAD
 import {ListingComment} from "../../entity/ListingComment";
+=======
+import { ListingComment } from "../../entity/ListingComment";
+import {UserProfile} from "../../entity/UserProfile";
+>>>>>>> master
 
 
 interface ListingData {
@@ -292,6 +297,63 @@ export function route(app: Express, db: Connection) {
                 response.send(JSON.stringify({
                     success: true
                 }));
+            }
+        }
+    });
+    app.get("/api/listings/homeContent", async (request: Request, response: Response) => {
+        // Get user
+        const user: User|undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in"));
+            return;
+        }
+        // Find user account
+        const profile: UserProfile|undefined = await user.profile;
+        if (profile == null) {
+            response.send(JSON.stringify("No profile for this account"));
+            return;
+        }
+        // Get tags, make array for find queries
+        const tags: Tag[] = await profile.interests;
+        const listingEntries: {
+            id: number,
+            title: string,
+            description: string,
+            type: string,
+            tags: string[],
+            datePosted: Date
+        }[] = [];
+        // Get all the listings, ordered by post date
+        const listings: Listing[] = await Listing.find({
+            order: {
+                timePosted: "DESC"
+            }
+        });
+        // Check whether the tags match the user's tags and add them to listingEntries
+        for (let i = 0; i < listings.length; ++i) {
+            let listingTags: Tag[] = await listings[i].tags;
+            for (let j = 0; j < tags.length; ++j) {
+                // Manually search the arrays :(
+                let found = false;
+                let tagNames: string[] = [];
+                for (let k = 0; k < listingTags.length; ++k) {
+                    if (listingTags[k].id == tags[j].id) {
+                        found = true;
+                    }
+                    tagNames.push(listingTags[k].name);
+                }
+                if (found) {
+                    // Get the tag names
+                    listingEntries.push({
+                        id: listings[i].id,
+                        title: listings[i].title,
+                        description: listings[i].description,
+                        type: "Type Not Implemented Yet",
+                        tags: tagNames,
+                        datePosted: listings[i].timePosted
+                    });
+                    break;
+                }
             }
         }
     });

@@ -1,35 +1,38 @@
+@import "../root.css";
+
 .space {
   min-height: 48px;
 }
 
 .sidebarProfileImg {
-  background-color: #d6d6d6;
   text-align: center;
 }
 
 .userImage {
   margin-bottom: 10%;
-  width: 100%;
+  max-width: 200px;
   height: auto;
 }
 
 .greeting {
   text-align: center;
-  color: white;
+  color: var(--black);
   text-transform: uppercase;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--hard-font);
   letter-spacing: .5vw;
-  font-size: 3vw
+  font-size: 3vw;
+  background-color: var(--suggestion);
 }
 
 .hi {
   text-transform: lowercase;
   font-weight: bold;
+  color: var(--white);
 }
 
 .icon {
-  color: #ffffff;
-  background-color: #9fc1c0;
+  color: var(--white);
+  background-color: var(--suggestion);
   border-radius: 15%;
   margin-top: 5%;
   margin-bottom: 5%;
@@ -41,18 +44,18 @@
 }
 
 .sidebarMenuItem {
-  color: white;
+  color: var(--white);
   text-transform: uppercase;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--hard-font);
   letter-spacing: .1vw;
   cursor: pointer;
 }
 
 .sidebarMenuItem:hover
 {
-  color: #f15a24;
+  color: var(--insist);
   font-weight: bold;
-  background-color: #d6d6d6;
+  background-color: var(--far-white-contrast);
   width: 100%;
 }
 
@@ -98,12 +101,12 @@
 
 /* Color/shape of burger icon bars */
 .bm-burger-bars {
-  background: #565656;
+  background: var(--white-contrast);
 }
 
 /* Color/shape of burger icon bars on hover*/
 .bm-burger-bars-hover {
-  background: #297d7d;
+  background: var(--thing-2);
 }
 
 /* Position and sizing of clickable cross button */
@@ -114,7 +117,7 @@
 
 /* Color/shape of close button cross */
 .bm-cross {
-  background: #bdc3c7;
+  background: var(--white);
 }
 
 /*
@@ -128,19 +131,19 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
 /* General sidebar styles */
 .bm-menu {
-  background: #373a47;
+  background: var(--black);
   /*padding: 2.5em 1.5em 0;*/
   font-size: 1.15em;
 }
 
 /* Morph shape necessary with bubble or elastic */
 .bm-morph-shape {
-  fill: #373a47;
+  fill: var(--white-contrast);
 }
 
 /* Wrapper for item list */
 .bm-item-list {
-  color: #b8b7ad;
+  color: var(--near-white-contrast);
   /*padding: 0.8em;*/
 }
 

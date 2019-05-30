@@ -2,6 +2,7 @@ import * as React from "react";
 import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
+import {getJSON, postJSON} from '../../util/json';
 
 import "./Inbox.css";
 
@@ -21,6 +22,7 @@ interface State {
     textField: string;
     composingNewConvo: boolean;
     composingNewConvoParticipants: number[];
+    users?: any;
 }
 
 /**
@@ -36,6 +38,12 @@ export class Inbox extends Component<Props, State> {
             composingNewConvoParticipants: [],
         }
     }
+
+    private readonly getUsers = async () => {
+        let data: any;
+        data = await getJSON("/api/user/findnames");
+        this.setState({users: data.results});
+    };
 
     /*
     *   Message textfield state is updated on each keystroke
@@ -53,7 +61,7 @@ export class Inbox extends Component<Props, State> {
         e.preventDefault();
 
         if (this.state.composingNewConvo && this.state.textField != "") {
-            console.log("Sending message! with Participants: ", this.state.composingNewConvoParticipants);
+            //console.log("Sending message! with Participants: ", this.state.composingNewConvoParticipants);
             this.props.sendMessage(this.state.textField, null, this.state.composingNewConvoParticipants);
             this.setState({
                 composingNewConvoParticipants: [], // Clear participants array
@@ -94,8 +102,6 @@ export class Inbox extends Component<Props, State> {
     *
     */
     private readonly setParticipents = (e: any) => {
-        //this.setState({composingNewConvoParticipants: []}); // Clear participants array
-
         var options = e.target.options;
         var value = [];
 
@@ -104,9 +110,8 @@ export class Inbox extends Component<Props, State> {
                 value.push(options[i].value);
             }
         }
-        //console.log("Value array: ", value);
         this.setState({composingNewConvoParticipants: value});
-        //console.log("State array: ", this.state.composingNewConvoParticipants);
+        //console.log("Current participants: ", value); // Shows the list of the IDs only
     }
 
     /* 
@@ -118,38 +123,43 @@ export class Inbox extends Component<Props, State> {
     */
     private readonly renderParticipents = () => {
         let rows = [];
+        let users = [];
 
         // If in composingNewConvo state, will return a selection window of all users
         if (this.state.composingNewConvo) {
 
-            // DOTO: Add stuff here to pull all users
+            if (this.state.users) {
+                for(let i=0; i<this.state.users.length; i++) {
+                    users.push(<option key={i} value={this.state.users[i].userID}> {this.state.users[i].displayName}</option>);
+                }
+            }
+
             rows.push(
-                <Form className="user-select-form">
+                <Form className="inbox-user-select-form">
                     <Form.Control as="select" multiple className="user-select" onChange={(e: any) => this.setParticipents(e)}> 
-                        <option value="1">Bradley - 1</option>
-                        <option value="2">Brooke - 2</option>
-                        <option value="3">Lee - 3</option>
-                        <option value="4">Daniel - 4</option>
-                        <option value="6">David - 6</option>
-                        <option value="9">Ivan - 9</option>
-                        <option value="10">Doanh - 10</option>
-                        <option value="26">Hannah - 26</option>
-                        <option value="38">Terry - 38</option>
+                        {users}
                     </Form.Control>
                 </Form>
             );
             return rows; // We must return, othewise unknown behaviour because of -1 convo index and ID
         }
 
-        var participents: number[] = [];
+        var participents:any = [];
 
-        if (this.props.conversations != null && this.state.currentConversationIndex != null) {
+        // Array of strings of the participants taken from the 30 recent messages, 
+        // TODO (IMPORTANT): This will only will participants from the latest 30 messages, if you're included in the conversation but you never sent out
+        //                   a message, your name will not be included!
+        if (this.props.conversations != null && this.state.currentConversationIndex != null && this.state.users != undefined) {
             for (let i=0; i<this.props.conversations[this.state.currentConversationIndex].entries.length; i++) {
                 if (participents.indexOf(this.props.conversations[this.state.currentConversationIndex].entries[i].userID) == -1) {
-                    participents.push(this.props.conversations[this.state.currentConversationIndex].entries[i].userID);
-                }         
+                    if (!participents.includes(this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[this.state.currentConversationIndex!].entries[i].userID)].displayName)) {
+                        participents.push(this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[this.state.currentConversationIndex!].entries[i].userID)].displayName);
+                    }      
+                }
             }
         }
+
+        // Same array as above but formated with commas for rendering
         if (this.props.conversations != null) {
             rows.push("Participent IDs: ")
             for (let i=0; i<participents.length; i++) {
@@ -171,7 +181,7 @@ export class Inbox extends Component<Props, State> {
 
         if (this.state.composingNewConvo) {
             rows.push(
-                <Row className="open-conversation" key={-1}>
+                <Row className="inbox-open-conversation" key={-1}>
                     <Col key={-1} sm={12}>
                         Starting new conversation...
                     </Col>
@@ -179,11 +189,11 @@ export class Inbox extends Component<Props, State> {
             );
         }
 
-        if (this.props.conversations != null) {
+        if (this.props.conversations != null && this.state.users) {
             for (let i=0; i<this.props.conversations.length; i++) {
                 if (i == this.state.currentConversationIndex) {
                     rows.push(
-                        <Row className="open-conversation" key={i} 
+                        <Row className="inbox-open-conversation" key={i} 
                             onClick={()=> 
                                 this.setState({
                                     currentConversationIndex: i,
@@ -193,15 +203,15 @@ export class Inbox extends Component<Props, State> {
                             }>
                             <Col key={i} sm={12}>
                                 ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                <br></br>Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
-                                <br></br>Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}    
+                                <br></br>Message from {this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
+                                : <i>"{this.props.conversations[i].entries[0].text}"</i> {/* Gets the latest message as preview */}    
                             </Col>
                         </Row>
                     );
                 }
                 else {
                     rows.push(
-                        <Row className="conversation" key={i}
+                        <Row className="inbox-conversation" key={i}
                             onClick={()=> 
                                 this.setState({
                                     currentConversationIndex: i,
@@ -211,8 +221,8 @@ export class Inbox extends Component<Props, State> {
                             }>
                             <Col key={i} sm={12}>
                                 ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                <br></br>Message from: User {this.props.conversations[i].entries[0].userID} {/* Gets the latest message sender */}
-                                <br></br>Preview: {this.props.conversations[i].entries[0].text} {/* Gets the latest message as preview */}
+                                <br></br>Message from: {this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
+                                : <i>"{this.props.conversations[i].entries[0].text}"</i> {/* Gets the latest message as preview */}   
                             </Col>
                         </Row>
                     );
@@ -220,7 +230,7 @@ export class Inbox extends Component<Props, State> {
             }
         } else {
             rows.push(
-            <Row key={0} className="no-message">
+            <Row key={0} className="inbox-no-message">
                 <Col key={0} sm={12}>No conversations</Col>
             </Row>);
         }
@@ -248,8 +258,8 @@ export class Inbox extends Component<Props, State> {
             for (let i=this.props.conversations[this.state.currentConversationIndex].entries.length-1; i >= 0; i--) { 
                 if (this.props.conversations[this.state.currentConversationIndex].entries[i].userID == this.props.userID) {
                     rows.push(
-                        <Row key={i} className="message-row">
-                            <Col className="my-message-bubble" sm="auto">
+                        <Row key={i} className="inbox-message-row">
+                            <Col className="inbox-my-message-bubble" sm="auto">
                                 {this.props.conversations[this.state.currentConversationIndex].entries[i].text}
                             </Col>
                         </Row>
@@ -257,12 +267,12 @@ export class Inbox extends Component<Props, State> {
                 }
                 else {
                     rows.push(
-                        <Row key={i} className="message-row">
-                            <Col className="other-message-bubble" sm="auto">
+                        <Row key={i} className="inbox-message-row">
+                            <Col className="inbox-other-message-bubble" sm="auto">
                                 {this.props.conversations[this.state.currentConversationIndex].entries[i].text}
                             </Col>
-                            <Col className="message-bubble-name-tag" sm={12}>
-                                UserID: {this.props.conversations[this.state.currentConversationIndex].entries[i].userID}
+                            <Col className="inbox-message-bubble-name-tag" sm={12}>
+                                {this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[this.state.currentConversationIndex!].entries[i].userID)].displayName}
                             </Col>
                         </Row>
                     );
@@ -270,7 +280,7 @@ export class Inbox extends Component<Props, State> {
             }
         } else {
             rows.push(
-            <Row key={0} className="no-message">
+            <Row key={0} className="inbox-no-message">
                 <Col key={0} sm={12}>No messages</Col>
             </Row>);
         }
@@ -287,6 +297,21 @@ export class Inbox extends Component<Props, State> {
     //         return false;
     //     }
     // }
+
+    public componentDidMount() {
+        this.getUsers().then(() => console.log("All users: ", this.state.users));
+        //console.log("All users: ", this.state.users.length);
+    }
+
+    /**
+     * @override
+     */
+    public async componentDidUpdate() {
+        if  (this.state.currentConversationID) {
+            const participantsMap = await this.props.getParticipants(this.state.currentConversationID);
+            console.log("Participants Maps: ", participantsMap);
+        }
+    }
 
     /**
      * @override
@@ -314,32 +339,32 @@ export class Inbox extends Component<Props, State> {
 
             <Container fluid className="inbox">
 
-                <div className="compose-message">
+                <div className="inbox-compose-message">
                     <Form onSubmit={(e: any) => this.onCompose(e)}>
                         <Row>
-                            <Col sm={12} ><Button className="compose-button" variant="primary" type="submit">Compose Message</Button></Col>
+                            <Col sm={12} ><Button className="inbox-compose-button" variant="primary" type="submit">Compose Message</Button></Col>
                         </Row>
                     </Form>
                 </div>
 
-                <div className="participents">
+                <div className="inbox-participents">
                     {participents}
                 </div>
 
-                <div className="conversations">
+                <div className="inbox-conversations">
                     {conversations}
                 </div>
 
-                <div className="chat-box">
+                <div className="inbox-chat-box">
                     {messages}
                 </div>
 
-                <div className="text-box">
+                <div className="inbox-text-box">
                     <Form onSubmit={(e: any) => this.onSend(e)}>
                         <Row>
                             <Col>
                                 <Form.Control
-                                    className="textField"
+                                    className="inbox-textField"
                                     onChange={(e: any) => this.onTextFieldChange(e)}
                                     type="text"
                                     value={this.state.textField}
