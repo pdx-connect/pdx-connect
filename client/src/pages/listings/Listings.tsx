@@ -10,6 +10,7 @@ import {getJSON, postJSON} from "../../util/json";
 import moment = require('moment');
 import InfinityMenu from "react-infinity-menu";
 import {CommentBox} from "../comments/CommentBox";
+import queryString from "query-string";
 
 import "./react-infinity-menu.d.ts";
 import "./Listings.css";
@@ -27,6 +28,7 @@ interface TagData {
 }
 
 interface Props extends RouteChildrenProps{
+    userID: number | undefined;
 }
 
 interface State {
@@ -222,13 +224,13 @@ export class Listings extends Component<Props, State>{
         });
     };
 
-    private readonly handleEdit = () => {
+    private readonly handleEdit = (listingID: number) => {
         this.handleCloseView();
 
         var listing: any = [];
         for(let i = 0; i < this.state.listings.length; i++)
         {
-            if(this.state.listings[i].id == this.state.currentViewListing)
+            if(this.state.listings[i].id == listingID)
                 listing = this.state.listings[i];
         }
 
@@ -849,7 +851,7 @@ export class Listings extends Component<Props, State>{
                                 <Row>
                                     <Col md={10}></Col>
                                     <Col md={1}>
-                                        <FaPencilAlt size="2vw" className="listings-editButton" onClick={this.handleEdit}/>
+                                        <FaPencilAlt size="2vw" className="listings-editButton" onClick={this.handleEdit.bind(this, this.state.currentViewListing)}/>
                                     </Col>
                                     <Col md={1}>
                                         <FaTrash size="2vw" className="listings-deleteButton" onClick={this.handleDelete}/>
@@ -883,6 +885,16 @@ export class Listings extends Component<Props, State>{
         this.getCurrentUserId();
         this.getTagTrees();
         this.updateBookmarkedListings();
+
+        // const { location } = this.props;
+        // const values = queryString.parse(location.search);
+        // const userid = Number(values.userid) ? Number(values.userid) : undefined;
+        // const listingid = Number(values.listingid) ? Number(values.listingid) : undefined;
+        // if(listingid !== undefined)
+        // {
+        //     this.handleEdit(listingid);
+        //     console.log("hi");
+        // }
     }
     
     /**
