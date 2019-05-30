@@ -17,10 +17,6 @@ import "./Listings.css";
 
 
 
-interface Node {
-    name: string;
-    children: Node[];
-};
 
 interface TagData {
     id: number;
@@ -35,14 +31,10 @@ interface State {
     create?: boolean;
     view?: boolean;
     open: boolean;
-    TagLists: {
-        parent: TagData;
-        children: TagData[];
-    }[];
     tagTree: {
         id: number;
         name: string;
-        children: Node[];
+        children: TagData[];
     }[];
     optionTagTypes: OptionType[];
     selectedTagType: OptionType;
@@ -75,7 +67,7 @@ interface State {
     myUserID: number;
     edit: boolean;
     completed: boolean;
-    filterTag: string;
+    filterTags: string[];
     bookmarked: boolean;
     bookmarkedListings: number[];
 }
@@ -91,7 +83,6 @@ export class Listings extends Component<Props, State>{
             create: false,
             view: false,
             open: false,
-            TagLists: [],
             tagTree: [],
             optionTagTypes: [],
             selectedTagType: {
@@ -111,7 +102,7 @@ export class Listings extends Component<Props, State>{
             myUserID: 0,
             edit: false,
             completed: false,
-            filterTag: "",
+            filterTags: [],
             bookmarked: false,
             bookmarkedListings: []
         };
@@ -339,15 +330,15 @@ export class Listings extends Component<Props, State>{
     private readonly setDefaultTypeAndTagFields = () => {
         var types: OptionType[] = [];
         types.push({
-            value: this.state.TagLists[0].parent.id.toString(),
-            label: this.state.TagLists[0].parent.name
+            value: this.state.tagTree[0].id.toString(),
+            label: this.state.tagTree[0].name
         })
 
         var options: OptionType[] = [];
         var temp: {
             id: number;
             name: string;
-        }[] = this.state.TagLists[0].children;
+        }[] = this.state.tagTree[0].children;
         for(let i = 0; i < temp.length; i++)
         {
             options.push({
@@ -365,10 +356,10 @@ export class Listings extends Component<Props, State>{
     private readonly handleTagTypeChange = (value: ValueType<OptionType>) => {
         let type: any[] = OptionType.resolve(value);
         var temp: TagData[] = [];
-        for(const tagList of this.state.TagLists)
+        for(const node of this.state.tagTree)
         {
-            if(tagList.parent.id == type[0].value)
-                temp = tagList.children;
+            if(node.id == type[0].value)
+                temp = node.children;
         }
 
         var options: OptionType[] = [];
@@ -412,12 +403,12 @@ export class Listings extends Component<Props, State>{
                 // Get the type this tag belongs to
                 let tag: any[] = OptionType.resolve(difference);
                 let typeID : number = 0;
-                for(const tagList of this.state.TagLists)
+                for(const node of this.state.tagTree)
                 {
-                    for(const tags of tagList.children)
+                    for(const tags of node.children)
                     {
                         if(tags.id == tag[0].value)
-                            typeID = tagList.parent.id;
+                            typeID = node.id;
                     }
                 }
                 // If the diff. tag belongs to current selected type
@@ -552,7 +543,7 @@ export class Listings extends Component<Props, State>{
     private readonly showOnlyMyListings = () => {
         this.setState({
             myListings: !this.state.myListings,
-            filterTag: "",
+            filterTags: [],
             myBookmarkedListings: false
         });
     }
@@ -561,7 +552,7 @@ export class Listings extends Component<Props, State>{
     private readonly showOnlyMyBookmarkedListings = async () => {
         this.setState({
             myBookmarkedListings: !this.state.myBookmarkedListings,
-            filterTag: "",
+            filterTags: [],
             myListings: false
         });
     }
@@ -574,13 +565,26 @@ export class Listings extends Component<Props, State>{
         });
     };
 
+  
+    // Gets all the tags & tag types
+    private readonly getTagTrees = async () => {
+        var data = await getJSON("/api/tags/tree");
 
-    // Load in tags
-    private readonly getTags = async () => {
-        const data = await getJSON("/api/tags/topParentAndChildTags");
-        if (!Array.isArray(data)) {
-            // Not logged in, throw exception
-            throw data;
+        // For category col
+        var i: number = 1;
+        for(const head of data)
+        {
+            // Give each tag types an ID for the display in category column,
+            // and use in selecting type in create & edit modal,
+            // would not be influence if leaf tags have the same id,
+            // since its use functions will only search this id in the type level
+            head.id = i;
+            head.isOpen = false;
+            for(const child of head.children)
+            {
+                child.isOpen = false;
+            }
+            i += 1;
         }
 
         // Add all the tag types for user to select in type field
@@ -588,8 +592,8 @@ export class Listings extends Component<Props, State>{
         for(const type of data)
         {
             types.push({
-                value: type.parent.id.toString(),
-                label: type.parent.name
+                value: type.id.toString(),
+                label: type.name
             })
         }
         // Add to a optiontype[] in order for user to select in tag field
@@ -605,71 +609,72 @@ export class Listings extends Component<Props, State>{
                 label:  temp[i].name
             });
         }
+
         this.setState({
             selectedTagType: types[0],
             optionTagTypes: types,
             optionTags: options,
-            TagLists: data  // All the most top level parent tag and all of its most leaf tags
-        })
-    };
-  
-    private readonly getTagTrees = async () => {
-        var data = await getJSON("/api/tags/tagTree");
-
-        let final: any[] = [];
-        for(const head of data)
-        {
-            let temp:any[] = [];
-            temp = this.traverse(head, temp);
-            final.push(temp);
-        }
-
-        this.setState({
-            tagTree: final,
+            tagTree: data,
             completed: true
-        });
+        })
     };    
 
-    // Traverse the tree and add the property "isOpen"
-    private readonly traverse = (parent: any, TagTree: any[]):any[] => {
-        for(const child of parent.children)
-        {
-            child.isOpen = false;
-            let temp:any[] = this.traverse(child, TagTree);
-            TagTree.push(temp);
-        }
-        return parent;
-    }
 
-
+    // When user click on a category
     private readonly onNodeMouseClick = (event:any, tree:any, node:any, level:any, keyPath:any) => {
-        // For filter behaviors
-        if(node.children.length == 0)
+        // Get all the tags under current selected category
+        let tags: string[] = [];
+        for(const tagtype of this.state.tagTree)
         {
-            // Get the new listings view by setting state of filterTag
-            if(this.state.filterTag === node.name)
+            if(tagtype.name === node.name)
             {
-                this.setState({
-                    filterTag: ""
-                });
-            }
-            else
-            {
-                this.setState({
-                    tagTree: tree,
-                    filterTag: node.name,
-                    myListings: false,
-                    myBookmarkedListings: false
-                });
+                for(const child of tagtype.children)
+                    tags.push(child.name);
             }
         }
-        else    // For normal collapse behaviors
+
+        // If isOpen is false, it means it was open but this click just
+        // made it collapse(false), then we can clear out the filter
+        if(node.isOpen === false)
         {
             this.setState({
-                tagTree: tree
+                filterTags: []
+            });
+        }
+        else
+        {
+            // Filter the entire category
+            this.setState({
+                tagTree: tree,  // For normal collapse behaviors
+                filterTags: tags,
+                myListings: false,
+                myBookmarkedListings: false
             });
         }
 	}
+
+    // When user click on a tag
+    private readonly onLeafMouseClick = (event:any, leaf:any) => {
+        console.log("hi");
+        // Get the new listings view by setting state of filterTag
+        if(this.state.filterTags.length === 1 && this.state.filterTags[0] === leaf.name)
+        {
+            this.setState({
+                filterTags: []
+            });
+        }
+        else
+        {
+            let temp: string[] = [];
+            temp.push(leaf.name);
+
+            this.setState({
+                filterTags: temp,
+                myListings: false,
+                myBookmarkedListings: false
+            });
+        }
+    }
 
     // Create the info in left column -> categories
     private readonly createCategories = () => {
@@ -679,6 +684,7 @@ export class Listings extends Component<Props, State>{
             <InfinityMenu
                 tree={this.state.tagTree}
                 onNodeMouseClick={this.onNodeMouseClick}
+                onLeafMouseClick={this.onLeafMouseClick}
             />
         );
         return categorieView;
@@ -714,14 +720,17 @@ export class Listings extends Component<Props, State>{
                 }
             }
         }
-        else if(this.state.filterTag)   // Show filtered listings
+        else if(this.state.filterTags.length > 0)   // Show filtered listings
         {
             for(let i=this.state.listings.length-1; i >= 0; i--)
             {
                 for(const tag of this.state.listings[i].tags)
                 {
-                    if(tag.name === this.state.filterTag)
-                        views = this.createListings(i, views);
+                    for(const filTag of this.state.filterTags)
+                    {
+                        if(tag.name === filTag)
+                            views = this.createListings(i, views);
+                    }
                 }
             }
         }
@@ -837,11 +846,7 @@ export class Listings extends Component<Props, State>{
                     <Modal.Footer>
                         <Container>
                             <Row>
-                                {/* <Col md={3}></Col>
-                                <Col md={6}> */}
-                                    {tags}
-                                {/* </Col>
-                                <Col md={3}></Col> */}
+                                {tags}
                             </Row>
                         </Container>
                     </Modal.Footer>
@@ -874,13 +879,23 @@ export class Listings extends Component<Props, State>{
         return null;
     }
 
-
+    // For displaying tags filtering now
+    private readonly spaceOutTags = () => {
+        let views: any = [];
+        for(const tag of this.state.filterTags)
+        {
+            views.push(tag);
+            views.push(", ")
+        }
+        if(views.length > 1)
+            views.pop();
+        return views;
+    }
 
     /**
      * @override
      */
     public componentDidMount() {
-        this.getTags().then();
         this.loadAllListings();
         this.getCurrentUserId();
         this.getTagTrees();
@@ -893,7 +908,6 @@ export class Listings extends Component<Props, State>{
         // if(listingid !== undefined)
         // {
         //     this.handleEdit(listingid);
-        //     console.log("hi");
         // }
     }
     
@@ -911,6 +925,7 @@ export class Listings extends Component<Props, State>{
     public render(): ReactNode {
 
         let listingViews = this.createListingsView();
+        let filterTags = this.spaceOutTags();
 
         return (
             <Container fluid className="listings-listings">
@@ -918,7 +933,7 @@ export class Listings extends Component<Props, State>{
                     <Col md={2}>
                         <FaPlus size="3vw" className="listings-createButton" onClick={this.handleShowCreate}/>
                     </Col>
-                    <Col md={5}>Filter By ->  {this.state.filterTag}</Col>
+                    <Col md={5}>Filter By ->  {filterTags}</Col>
                     <Col md={3}>
                         <Form>
                             <Form.Group>
@@ -969,6 +984,7 @@ export class Listings extends Component<Props, State>{
                     </Col>
                 </Row>
 
+
                 {/* Popup for creating a listing */}
                 <Modal show={this.state.create} onHide={this.handleCloseCreate}>
                     <Modal.Header closeButton>
@@ -987,16 +1003,16 @@ export class Listings extends Component<Props, State>{
                                 <Form.Control type="text" onChange={this.setTitle} />
                             </Form.Group>
                             <Form.Group>
+                                <Form.Label>Description</Form.Label>
+                                <Form.Control as="textarea" rows="3" onChange={this.setDescription} />
+                            </Form.Group>
+                            <Form.Group>
                                 <Form.Label>Type</Form.Label>
                                 <Select
                                     options={this.state.optionTagTypes}
                                     value={this.state.selectedTagType}
                                     onChange={this.handleTagTypeChange}
                                 />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Description</Form.Label>
-                                <Form.Control as="textarea" rows="3" onChange={this.setDescription} />
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Tags</Form.Label>
