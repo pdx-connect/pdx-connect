@@ -4,9 +4,9 @@ import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
 import {getJSON, postJSON} from '../../util/json';
 import * as queryString from "query-string";
+import { RouteChildrenProps } from 'react-router';
 
 import "./Inbox.css";
-import { RouteChildrenProps } from 'react-router';
 
 
 interface Props extends RouteChildrenProps {
@@ -266,8 +266,7 @@ export class Inbox extends Component<Props, State> {
                             </Col>
                         </Row>
                     );
-                }
-                else if (this.state.users != null) {
+                } else if (this.state.users != null) {
                     rows.push(
                         <Row key={i} className="inbox-message-row">
                             <Col className="inbox-other-message-bubble" sm="auto">
@@ -301,7 +300,7 @@ export class Inbox extends Component<Props, State> {
     // }
 
     public componentDidMount() {
-        this.getUsers().then(() => console.log("All users: ", this.state.users));
+        this.getUsers().then();
         // Check for a query string and set the state appropriately
         const location = this.props.location;
         const values = queryString.parse(location.search);
