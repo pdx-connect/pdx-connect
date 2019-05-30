@@ -32,6 +32,7 @@ interface node {
 
 interface Props extends RouteChildrenProps{
     userID: number | undefined;
+
 }
 
 interface State {
@@ -910,8 +911,8 @@ export class Listings extends Component<Props, State>{
         const { location, userID } = this.props;
         const values = queryString.parse(location.search);
         const listingid = Number(values.listingid) ? Number(values.listingid) : undefined;
-        // const userid = Number(values.userid) ? Number(values.userid) : undefined;
-        // console.log("userid: ", userid);
+        const userid = Number(values.userid) ? Number(values.userid) : undefined;
+        //console.log("userid: ", userid);
         // Compare userid for authentication and listingid for existence
         if(listingid !== undefined && userID)
         {

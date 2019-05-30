@@ -220,7 +220,7 @@ export class Profile extends Component<Props, State> {
                         />
                         <Route
                             path="/profile/listings"
-                            render={props => <Listings {...props} listings={this.state.userProfile.listings} updateUserProfile={this.updateUserProfile} displayName={this.state.userProfile.displayName}/>}
+                            render={props => <Listings {...props} listings={this.state.userProfile.listings} updateUserProfile={this.updateUserProfile} displayName={this.state.userProfile.displayName} userID={this.props.userID}/>}
                         />
                         <Route
                             path="/profile/settings"

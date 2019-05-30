@@ -15,6 +15,7 @@ interface Props {
     listings: Listing[];
     updateUserProfile: () => void;
     displayName: string;
+    userID?: number;
 }
 
 interface State {
@@ -55,7 +56,7 @@ export class Listings extends Component<Props, State> {
         if(listing!= undefined) {
             this.props.history.push({
                 pathname: '/listings',
-                search: '?listingid=' + listing.id
+                search: '?listingid=' + listing.id + '&' + 'userid=' + this.props.userID
             });
          } else {
              this.setState({
