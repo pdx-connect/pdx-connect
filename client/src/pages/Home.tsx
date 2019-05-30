@@ -277,7 +277,7 @@ export class Home extends Page<Props, State> {
     public showMessage(message: Message) {
         return (
             <div className="home-new-messages">
-            {message.text} 
+            {message.text}&nbsp;
             {message.timeSent}
             </div>
         )
@@ -287,20 +287,25 @@ export class Home extends Page<Props, State> {
         const events : CalendarEvent[] = await getJSON("/api/events");
         const listings : Listing[] = await getJSON("/api/listings/allListings")
         console.log("Listings:", listings)
+        console.log("Events:", events)
         let newEvents: CalendarEvent[] = []
         let newListings: Listing[] = []
         let times: any[] = []
-        events.map(event => listings.map(listing =>
+        let currentTime = new Date()
+        let timeString = currentTime.toISOString()
+        console.log("Current time", timeString)
+        events.map(event =>
         {
-            if (event.start < times[0] || times[0] == null) {
+            if ((event.start < times[0] || times[0] == null) && event.start.toString() > timeString) {
                 console.log("Notification 1 got")
                 times[0] = event.start
+                console.log("Events test:", event)
                 newEvents[0] = event
                 if(newEvents[0].description == null) {
                     newEvents[0].description == ""
                 }
             }
-            else if((event.start < times[1] || times[1] == null) && event != newEvents[0]) {
+            else if((event.start < times[1] || times[1] == null) && event != newEvents[0] && event.start.toString() > timeString) {
                 console.log("Notification 2 got")
                 times[1] = event.start
                 newEvents[1] = event
@@ -308,9 +313,12 @@ export class Home extends Page<Props, State> {
                     newEvents[1].description == ""
                 }
             }
+        })
+        listings.map(listing => {
             if(listing.timePosted < times[2] || times[2] == null) {
                 console.log("Notification 3 got")
                 times[2] = listing.timePosted
+                console.log("Listing test:", listing)
                 newListings[0] = listing
             }
             else if((listing.timePosted < times[3] || times[3] == null) && listing != newListings[0]) {
@@ -318,7 +326,7 @@ export class Home extends Page<Props, State> {
                 times[3] = listing.timePosted
                 newListings[1] = listing
             }
-        }))
+        })
         let notifications: {title: string, description: string|undefined}[] = []
         console.log("New listings", newListings)
         console.log("New Events", newEvents)
@@ -342,7 +350,7 @@ export class Home extends Page<Props, State> {
     public showNotification(notification: {title: string, description: string|undefined}) {
         return (
             <div className="home-new-notification">
-            {notification.title}  &nbsp;
+            {notification.title}&nbsp;
             {notification.description}
             </div>
         )
