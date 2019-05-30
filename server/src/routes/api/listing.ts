@@ -345,5 +345,6 @@ export function route(app: Express, db: Connection) {
                 }
             }
         }
+        response.send(JSON.stringify(listingEntries));
     });
 }

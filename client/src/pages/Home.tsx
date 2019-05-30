@@ -215,7 +215,6 @@ export class Home extends Page<Props, State> {
         document.addEventListener('keydown', this.enterKeyPressed);
         window.addEventListener('resize', this.updateDimensions);
 
-        /*
         const [ showOobe, data, picture, listingData ] = await Promise.all([
             this.getUserOOBE(),
             this.getUserProfileData(),
@@ -224,13 +223,14 @@ export class Home extends Page<Props, State> {
         ]);
 
         console.log('listingData: ', listingData);
-        */
 
+        /*
         const [ showOobe, data, picture ] = await Promise.all([
             this.getUserOOBE(),
             this.getUserProfileData(),
             this.getUserProfilePicture()
         ]);
+        */
 
         this.setState({
             showOobe: showOobe,
