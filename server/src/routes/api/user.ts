@@ -424,49 +424,6 @@ export function route(app: Express, db: Connection) {
         }
     });
 
-    app.post("/api/user/isBookmark", async (request: Request, response: Response) => {
-        const id: number = request.body.id;
-        if(id <= 0)
-        {
-            response.send(JSON.stringify({
-                error: "Listing ID cannot be less than 1."
-            }));
-            return;
-        }
-
-        const user: User|undefined = request.user;
-        if (user != null) {
-            const profile: UserProfile|undefined = await user.profile;
-            if (profile != null) {
-                let found: boolean = false;
-                for(const current of await profile.bookmarkedListings)
-                {
-                    if(current.id === request.body.id)
-                        found = true;
-                }
-                if(found)
-                {
-                    response.send(JSON.stringify({
-                        bookmarked: true
-                    }));
-                } else {
-                    response.send(JSON.stringify({
-                        bookmarked: false
-                    }));    
-                }
-            } else {
-                // Send error response
-                response.send(JSON.stringify({
-                    error: "Profile has not been set up."
-                }));
-            }
-        } else {
-            response.send(JSON.stringify({
-                error: "Not logged in."
-            }));
-        }
-    });
-
     app.get("/api/user/bookmarkedListings", async (request: Request, response: Response) => {
         const user: User|undefined = request.user;
         if(user)

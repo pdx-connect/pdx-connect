@@ -38,6 +38,8 @@ async function parseListingByID(request: Request): Promise<Listing|null|undefine
     return listing;
 }
 
+
+
 export function route(app: Express, db: Connection) {
     app.get("/api/listings/allListings", async (request: Request, response: Response) => {
         let json: ListingData[];
@@ -242,6 +244,50 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+
+    app.post("/api/listing/isBookmark", async (request: Request, response: Response) => {
+        const id: number = request.body.id;
+        if(id <= 0)
+        {
+            response.send(JSON.stringify({
+                error: "Listing ID cannot be less than 1."
+            }));
+            return;
+        }
+
+        const user: User|undefined = request.user;
+        if (user != null) {
+            const profile: UserProfile|undefined = await user.profile;
+            if (profile != null) {
+                let found: boolean = false;
+                for(const current of await profile.bookmarkedListings)
+                {
+                    if(current.id === request.body.id)
+                        found = true;
+                }
+                if(found)
+                {
+                    response.send(JSON.stringify({
+                        bookmarked: true
+                    }));
+                } else {
+                    response.send(JSON.stringify({
+                        bookmarked: false
+                    }));    
+                }
+            } else {
+                // Send error response
+                response.send(JSON.stringify({
+                    error: "Profile has not been set up."
+                }));
+            }
+        } else {
+            response.send(JSON.stringify({
+                error: "Not logged in."
+            }));
+        }
+    });
+
     // Route for retrieving comments for a listing
     app.get("/api/listing/:id/comments", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {

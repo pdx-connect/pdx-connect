@@ -12,7 +12,6 @@ import InfinityMenu from "react-infinity-menu";
 import {CommentBox} from "../comments/CommentBox";
 import queryString from "query-string";
 
-import "./react-infinity-menu.d.ts";
 import "./Listings.css";
 
 
@@ -21,6 +20,13 @@ import "./Listings.css";
 interface TagData {
     id: number;
     name: string;
+}
+
+interface node {
+    id: number;
+    name: string;
+    isOpen: boolean;
+    children: TagData[];
 }
 
 interface Props extends RouteChildrenProps{
@@ -111,7 +117,7 @@ export class Listings extends Component<Props, State>{
     private readonly directUserProfile = (userID: number) => {
         if(userID >= 0)
         {
-            let profilePath = "/profile/" + userID;
+            let profilePath = "/profile?userid=" + userID;
             this.props.history.push(profilePath);
         }
         return;
@@ -191,7 +197,7 @@ export class Listings extends Component<Props, State>{
     private readonly handleShowView = async (id: number) => {
         // check if selected listing is bookmarked by the user,
         // change the state of bookmark
-        const data = await postJSON("/api/user/isBookmark", {
+        const data = await postJSON("/api/listing/isBookmark", {
             id: id
         });
         if (data.bookmarked) {
@@ -570,26 +576,28 @@ export class Listings extends Component<Props, State>{
     private readonly getTagTrees = async () => {
         var data = await getJSON("/api/tags/tree");
 
-        // For category col
+        let tagTree: node[] = [];
+        // Convert to another data structure for react-infinity-menu for category col.
         var i: number = 1;
-        for(const head of data)
-        {
-            // Give each tag types an ID for the display in category column,
-            // and use in selecting type in create & edit modal,
-            // would not be influence if leaf tags have the same id,
-            // since its use functions will only search this id in the type level
-            head.id = i;
-            head.isOpen = false;
-            for(const child of head.children)
-            {
-                child.isOpen = false;
+        const keys = Object.keys(data);
+        for(const key of keys) {
+            let temp: node = {
+                id: i,
+                name: key,
+                isOpen: false,
+                children: []
             }
+            for(const tag of data[key])
+            {
+                temp.children.push(tag);
+            }
+            tagTree.push(temp);
             i += 1;
         }
 
         // Add all the tag types for user to select in type field
         var types: OptionType[] = [];
-        for(const type of data)
+        for(const type of tagTree)
         {
             types.push({
                 value: type.id.toString(),
@@ -601,7 +609,7 @@ export class Listings extends Component<Props, State>{
         var temp: {
             id: number;
             name: string;
-        }[] = data[0].children;
+        }[] = tagTree[0].children;
         for(let i = 0; i < temp.length; i++)
         {
             options.push({
@@ -614,7 +622,7 @@ export class Listings extends Component<Props, State>{
             selectedTagType: types[0],
             optionTagTypes: types,
             optionTags: options,
-            tagTree: data,
+            tagTree: tagTree,
             completed: true
         })
     };    
@@ -895,20 +903,21 @@ export class Listings extends Component<Props, State>{
     /**
      * @override
      */
-    public componentDidMount() {
-        this.loadAllListings();
-        this.getCurrentUserId();
-        this.getTagTrees();
-        this.updateBookmarkedListings();
+    public async componentDidMount() {
+        await this.getTagTrees();
+        await this.loadAllListings();
+        await this.getCurrentUserId();
+        await this.updateBookmarkedListings();
 
-        // const { location } = this.props;
-        // const values = queryString.parse(location.search);
-        // const userid = Number(values.userid) ? Number(values.userid) : undefined;
-        // const listingid = Number(values.listingid) ? Number(values.listingid) : undefined;
-        // if(listingid !== undefined)
-        // {
-        //     this.handleEdit(listingid);
-        // }
+        // When user try to edit his/her listing from profile, direct them to here
+        const { location } = this.props;
+        const values = queryString.parse(location.search);
+        const listingid = Number(values.listingid) ? Number(values.listingid) : undefined;
+        // Compare userid for authentication and listingid for existence
+        if(listingid !== undefined && this.props.userID === this.state.myUserID)
+        {
+            this.handleEdit(listingid);
+        }
     }
     
     /**

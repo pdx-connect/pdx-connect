@@ -7,11 +7,6 @@ interface TagData {
     name: string;
 }
 
-// 2 levels tree
-interface node {
-    name: string;
-    children: TagData[];
-}
 
 export function route(app: Express, db: Connection) {
     // Returns all the tags
@@ -53,7 +48,6 @@ export function route(app: Express, db: Connection) {
     });
 
     app.get("/api/tags/tree", async (request: Request, response: Response) => {
-        let tagTree: node[] = [];
         let tree: { [type: string]: TagData[] } = Object.create(null);
         if (request.isAuthenticated()) {
             const tags: Tag[] = await Tag.find();
@@ -68,23 +62,9 @@ export function route(app: Express, db: Connection) {
                     id: tag.id,
                     name: tag.name
                 });
-
-                // Convert to another data model for react-infinity-menu
-                const keys = Object.keys(tree);
-                for(const key of keys) {
-                    let temp: node = {
-                        name: key,
-                        children: []
-                    }
-                    for(const tag of tree[key])
-                    {
-                        temp.children.push(tag);
-                    }
-                    tagTree.push(temp);
-                }
             }
         }
-        response.send(JSON.stringify(tagTree));
+        response.send(JSON.stringify(tree));
     });
 
 }
