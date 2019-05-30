@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Container, Row, Col, Table, Modal, Button, Form} from "react-bootstrap";
+import {Container, Row, Col, Table, Modal } from "react-bootstrap";
 import {FaPencilAlt, FaTrash} from "react-icons/fa";
 import Select from 'react-select';
 import {OptionType} from "../../components/types";
@@ -15,12 +15,12 @@ interface Props {
     listings: Listing[];
     updateUserProfile: () => void;
     displayName: string;
+    userID?: number;
 }
 
 interface State {
     showListingView: boolean;
     listing: Listing | undefined;
-    updatedListingTitle: string;
 }
 
 interface Listing {
@@ -48,8 +48,7 @@ export class Listings extends Component<Props, State> {
         super(props);
         this.state = {
             showListingView: false,
-            listing: undefined,
-            updatedListingTitle: ""
+            listing: undefined
         };
     }
 
@@ -57,7 +56,7 @@ export class Listings extends Component<Props, State> {
         if(listing!= undefined) {
             this.props.history.push({
                 pathname: '/listings',
-                search: '?listingid=' + listing.id
+                search: '?listingid=' + listing.id + '&' + 'userid=' + this.props.userID
             });
          } else {
              this.setState({
@@ -95,18 +94,6 @@ export class Listings extends Component<Props, State> {
 
     }
 
-    private readonly updateListing = () => {
-        
-        if(this.state.listing != undefined) {
-            console.log('Save users changes');
-        } else {
-            this.setState({
-                showListingView: false
-            });
-        }
-
-    }
-
     private readonly createListings = (listings: Listing[]) => {
         let listingGrid = [];
 
@@ -125,14 +112,6 @@ export class Listings extends Component<Props, State> {
 
         return listingGrid;
     }
-
-    private readonly handleChange = (e: any) => {
-        this.setState({
-            [e.target.id]: e.target.value
-        } as any);
-    };
-
-
 
     public render(): ReactNode {
 
@@ -216,6 +195,7 @@ export class Listings extends Component<Props, State> {
                                             isDisabled={true}
                                             isMulti={true}
                                             value={tags}
+                                            placeholder={"None"}
                                         />
                                     </Col>
                                 </Row>
@@ -228,10 +208,8 @@ export class Listings extends Component<Props, State> {
                             <div className="profile-modal-footer text-center"><span className="profile-modal-footer-content-center">this listing was deleted and cannot be edited</span></div>
                             :
                             <div className="profile-modal-footer">
-                                <span className="profile-modal-footer-content-left">
                                     <FaPencilAlt className="profile-fa-icon" size="2vw" onClick={() => this.editListing(listing)}/>
                                     <FaTrash className="profile-fa-icon" size="2vw" onClick={() => this.removeListing(listing)} />
-                                </span>
                             </div>
                         }
                 </Modal>

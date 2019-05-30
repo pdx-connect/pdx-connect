@@ -5,8 +5,11 @@ import {Component, ReactNode} from "react";
 import {Message, ConversationEntry} from "../Home";
 import {getJSON, postJSON} from '../../util/json';
 import "./Inbox.css";
+import * as queryString from "query-string";
+import { RouteChildrenProps } from 'react-router';
 
-interface Props {
+
+interface Props extends RouteChildrenProps {
     sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => void;
     getMoreMessages: (conversationID: number) => void;
     seenRecent: (conversationID: number, time: Date) => void;
@@ -124,7 +127,6 @@ export class Inbox extends Component<Props, State> {
     *                        composingNewConvoParticipants is updated on every change.
     */
     private readonly setParticipents = (e: any) => {
-
         var value = [];
 
         for (var i = 0; i < e.length; i++) {
@@ -289,8 +291,7 @@ export class Inbox extends Component<Props, State> {
                             </Col>
                         </Row>
                     );
-                }
-                else {
+                } else if (this.state.users != null) {
                     rows.push(
                         <Row key={i} className="inbox-message-row">
                             <Col className="inbox-other-message-bubble" sm="auto">
@@ -312,11 +313,29 @@ export class Inbox extends Component<Props, State> {
         return rows;
     }
 
-     /*
+    /*
      *  ComponentDidMount
      */
     public componentDidMount() {
-        this.getUsers().then(); // Pull all users for starting new conversations
+        this.getUsers().then();
+        // Check for a query string and set the state appropriately
+        const location = this.props.location;
+        const values = queryString.parse(location.search);
+        const conversationID = Number(values.conversationid) != null ? Number(values.conversationid) : undefined;
+        // If a valid conversationID is found, search for the matching
+        if (conversationID != null) {
+            for (let i = 0; i < this.props.conversations.length; ++i) {
+                // If we've found the conversation that matches this conversations, set state
+                if (this.props.conversations[i].conversationID == conversationID) {
+                    console.log("Index: ", i);
+                    console.log("ID: ", this.props.conversations[i].conversationID);
+                    this.setState({
+                        currentConversationID: conversationID,
+                        currentConversationIndex: i
+                    });
+                }
+            }
+        }
     }
 
     /**

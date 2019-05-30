@@ -48,57 +48,71 @@ export class Settings extends Component<Props, State> {
                 //--white: #ffffff;
                 document.documentElement.style.setProperty('--white', '#ffffff');
                 //--near-white: #f6f9fb;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--near-white', 'red');
                 //--faint-contrast: #f2f2f2;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--faint-contrast', 'blue');
                 //--near-white-contrast: #b3b3b3;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--near-white-contrast', 'green');
+                //--horizontal-rule: #dee2e5;
+                document.documentElement.style.setProperty('--horizontal-rule', '#dee2e5');
                 //--far-white-contrast: #e0e0e0;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--far-white-contrast', 'pink');
                 //--white-contrast: #565656;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--white-contrast', 'purple');
                 //--black: #373a47;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--black', 'black');
                 //--main-bg-color: #f6f9fb;
-                document.documentElement.style.setProperty('--main-bg-color', 'black');
+                document.documentElement.style.setProperty('--main-bg-color', 'yellow');
                 //--main-bg-color-contrast: #eeeeee;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--main-bg-color-contrast', 'aqua');
                 //--light-visibility: #cccccc;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--light-visibility', 'blue');
                 //--medium-visibility: #999999;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--medium-visibility', 'yellow');
                 //--suggestion: #9fc1c0;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--suggestion', 'orange');
                 //--insist: #f15a24;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--insist', 'green');
                 //--thing-1: #c5e06f;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--thing-1', 'blue');
                 //--thing-2: #297d7d;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--thing-1', 'yellow');
                 //--gray: gray;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--gray', 'gray');
                 //--warning: red;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--warning', 'green');
                 //--caution: #f7931e;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--caution', 'yellow');
                 //--rainbow-red: #e02e4a;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--rainbow-red', 'red');
                 //--rainbow-orange: #dd642d;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--rainbow-orange', 'orange');
                 //--rainbow-yellow: #e8e628;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--rainbow-yellow', 'yellow');
                 //--rainbow-green: #61bf80;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--rainbow-green', 'green');
                 //--rainbow-blue: #60bbbd;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--rainbow-blue', 'blue');
                 //--rainbow-indigo: #6362ac;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--rainbow-indigo', 'blue');
                 //--rainbow-violet: #9563aa;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--rainbow-violet', 'purple');
                 //--hard-font: 'Montserrat', sans-serif;
                 document.documentElement.style.setProperty('--hard-font', '"Economica", sans-serif');
                 //--soft-font: 'Varela Round', sans-serif;
-                document.documentElement.style.setProperty('--your-variable', '#YOURCOLOR');
+                document.documentElement.style.setProperty('--your-variable', '"Economica", sans-serif');
+                
+                //---INBOX---
+                //--my-message-bubble: lightgrey;
+                document.documentElement.style.setProperty('--my-message-bubble', 'pink');
+                //--others-message-bubble: lightblue;
+                document.documentElement.style.setProperty('--others-message-bubble', 'purple');
+                //--open-conversation-selector: bisque;
+                document.documentElement.style.setProperty('--open-conversation-selector', 'orange');
+                //--closed-conversation-selector: lightgrey;
+                document.documentElement.style.setProperty('--closed-conversation-selector', 'yellow');
+                //--inbox-windows-bg: white;
+                document.documentElement.style.setProperty('--inbox-windows-bg', 'red');
 
                 this.setState({
                     selectedSkin: selectedSkin,
@@ -115,6 +129,8 @@ export class Settings extends Component<Props, State> {
                 document.documentElement.style.setProperty('--faint-contrast', '#f2f2f2');
                 //--near-white-contrast: #b3b3b3;
                 document.documentElement.style.setProperty('--near-white-contrast', '#b3b3b3');
+                //--horizontal-rule: #dee2e5;
+                document.documentElement.style.setProperty('--horizontal-rule', '#dee2e5');
                 //--far-white-contrast: #e0e0e0;
                 document.documentElement.style.setProperty('--far-white-contrast', '#e0e0e0');
                 //--white-contrast: #565656;
@@ -161,6 +177,18 @@ export class Settings extends Component<Props, State> {
                 document.documentElement.style.setProperty('--hard-font', '"Montserrat", sans-serif');
                 //--soft-font: "Varela Round", sans-serif;
                 document.documentElement.style.setProperty('--soft-font', '"Varela Round", sans-serif');
+
+                //---INBOX---
+                //--my-message-bubble: lightgrey;
+                document.documentElement.style.setProperty('--my-message-bubble', 'lightgrey');
+                //--others-message-bubble: lightblue;
+                document.documentElement.style.setProperty('--others-message-bubble', 'lightblue');
+                //--open-conversation-selector: bisque;
+                document.documentElement.style.setProperty('--open-conversation-selector', 'bisque');
+                //--closed-conversation-selector: lightgrey;
+                document.documentElement.style.setProperty('--closed-conversation-selector', 'lightgrey');
+                //--inbox-windows-bg: white;
+                document.documentElement.style.setProperty('--inbox-windows-bg', 'white');
 
                 this.setState({
                     selectedSkin: selectedSkin,
