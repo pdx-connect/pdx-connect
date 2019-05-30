@@ -156,11 +156,21 @@ export class HomeContent extends Component<Props, State> {
      * @override
      */
     public async componentDidMount() {
-
+        /*
         const [eventData, listingData] = await Promise.all([
             this.getEvents(),
             this.getListings()
         ]);
+        console.log("First the old ones");
+        console.log("old events: ", eventData);
+        console.log("old listings: ", listingData);
+        */
+       const listingData = await this.getListings();
+       const eventData = await this.getEvents();
+        //TEST
+        console.log("Data read from server");
+        console.log("events: ", eventData);
+        console.log("listings: ", listingData);
 
         this.setState({
             listings: listingData,
