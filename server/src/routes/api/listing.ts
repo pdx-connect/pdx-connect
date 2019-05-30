@@ -10,7 +10,6 @@ import {ListingComment} from "../../entity/ListingComment";
 =======
 import { ListingComment } from "../../entity/ListingComment";
 import {UserProfile} from "../../entity/UserProfile";
->>>>>>> master
 
 
 interface ListingData {
