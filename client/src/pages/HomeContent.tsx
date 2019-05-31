@@ -78,33 +78,10 @@ export class HomeContent extends Component<Props, State> {
 
         for (let i = 0; i < events.length; i++) {
 
-            let id: number | undefined = undefined;
-            let title = "";
-            let description = "";
-            let start = "";
-            //let end = "";
-
-            if(events[i].id) {
-                id = events[i].id;
-            }
-
-            if(events[i].title){
-                title = events[i].title;
-            }
-
-            if(events[i].description){
-                description = events[i].description;
-            }
-
-            if(events[i].start){
-                start = new Date(events[i].start).toString();
-            }
-
-            /*
-            if(events[i].end != undefined){
-                end = new Date(events[i].end).toString();
-            }
-            */
+            let id: number | undefined = events[i].id ? events[i].id : undefined;
+            let title  = events[i].title ? events[i].title : "";
+            let description = events[i].description ? events[i].description : "";
+            let start = events[i].start ? new Date(events[i].start).toString() : "";
 
             currentEvents.push(
                 <Card key={i} className="home-content-event-card">
@@ -128,18 +105,12 @@ export class HomeContent extends Component<Props, State> {
         let currentListings = [];
 
         for (let i = 0; i < listings.length; i++) {
-            let id: number | undefined = undefined;
-            id = listings[i].id ? listings[i].id : undefined;
-            let tags = "";
-            tags = listings[i].tags.length != 0 ? listings[i].tags.toString() : "";
-            let title = "";
-            title = listings[i].title ? listings[i].title : "";
-            let description = "";
-            description = listings[i].description ? listings[i].description : "";
-            let type = "";
-            type = listings[i].type ? listings[i].type : "";
-            let date = "";
-            date = listings[i].datePosted ? new Date(listings[i].datePosted).toString() : "";
+            let id: number | undefined = listings[i].id ? listings[i].id : undefined;
+            let tags = listings[i].tags.length != 0 ? listings[i].tags.toString() : "";
+            let title = listings[i].title ? listings[i].title : "";
+            let description = listings[i].description ? listings[i].description : "";
+            let type = listings[i].type ? listings[i].type : "";
+            let date = listings[i].datePosted ? new Date(listings[i].datePosted).toString() : "";
 
             currentListings.push(
                 <Card key={i} className="home-content-listing-card">
