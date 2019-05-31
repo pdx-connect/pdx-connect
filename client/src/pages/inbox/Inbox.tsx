@@ -26,6 +26,7 @@ interface State {
     composingNewConvoParticipants: number[];
     users?: any;
     currentParticipates?: any;
+    numOfConversations?: number;
 }
 
 /*
@@ -42,6 +43,7 @@ export class Inbox extends Component<Props, State> {
             textField: "",
             composingNewConvo: false,
             composingNewConvoParticipants: [],
+            numOfConversations: this.props.conversations.length,
         }
     }
 
@@ -55,14 +57,21 @@ export class Inbox extends Component<Props, State> {
     };
 
     // Ref object for auto-scroll, used in render at chat-box
-    private chatRef = React.createRef<HTMLDivElement>()
+    private chatRef = React.createRef<HTMLDivElement>();
+    private convosRef = React.createRef<HTMLDivElement>();
 
     /*
     *   Auto-scroll to bottom of chat using ref 
     */
-    private readonly scrollToBottom = () => {
+    private readonly scrollChatToBottom = () => {
         if (this.chatRef.current) {
             this.chatRef.current.scrollTop = this.chatRef.current.scrollHeight;
+        }
+    };
+    
+    private readonly scrollConvosToBottom = () => {
+        if (this.convosRef.current) {
+            this.convosRef.current.scrollTop = this.convosRef.current.scrollHeight;
         }
 	};
 
@@ -72,28 +81,25 @@ export class Inbox extends Component<Props, State> {
     private readonly onTextFieldChange = (e: any) => {
         e.preventDefault();
         this.setState({textField: e.target.value});
-        this.scrollToBottom(); // Auto scroll to bottom of chatbox
+        this.scrollChatToBottom(); // Auto scroll to bottom of chatbox
     };
 
     /*
     *   On send or ENTER key, sendMessage() broadcasts to socket
     *   message is sent
     */
-    private readonly onSend = async (e: any) => {
+    private readonly onSend = (e: any) => {
         e.preventDefault();
 
         // Composing new message
         if (this.state.composingNewConvo && this.state.textField != "" && this.state.composingNewConvoParticipants.length > 1 && this.state.composingNewConvoParticipants.some(x => x == Number(this.props.userID))) {
-            await this.props.sendMessage(this.state.textField, null, this.state.composingNewConvoParticipants);
-            setTimeout(() => {
-                const newestConversationsIndex: number = this.props.conversations.length - 1;
-                this.setState({
-                    composingNewConvoParticipants: [], // Clear participants array
-                    composingNewConvo: false,
-                    currentConversationIndex: newestConversationsIndex, // Set the conversations index to most recent
-                    currentConversationID: this.props.conversations[newestConversationsIndex].conversationID // Set the respective ID
-                });
-            }, 0.5);
+            this.props.sendMessage(this.state.textField, null, this.state.composingNewConvoParticipants);
+            this.setState({
+                composingNewConvoParticipants: [], // Clear participants array
+                composingNewConvo: false,
+                currentConversationIndex: 0, // Set the conversations index to most recent
+                currentConversationID: this.props.conversations[0].conversationID // Set the respective ID
+            });
         }
         else {
             console.log("Conversation not started!");
@@ -349,7 +355,7 @@ export class Inbox extends Component<Props, State> {
 
         // Auto scroll to bottom of chatbox is not composing
         if (!this.state.composingNewConvo) {
-            this.scrollToBottom();
+            this.scrollChatToBottom();
         }
 
         // Pull participants from the current open coversation and set state
@@ -366,6 +372,17 @@ export class Inbox extends Component<Props, State> {
 
             participants.sort(); // Alphabetical sort for names
             this.setState({currentParticipates: participants});
+        }
+
+        // Sets the last composed conversation as active
+        if (this.state.numOfConversations != this.props.conversations.length) {
+            console.log("# of convos: ",this.state.numOfConversations, " new # of convos: ",this.props.conversations.length);
+            this.setState({
+                currentConversationIndex: this.props.conversations.length-1,
+                currentConversationID: this.props.conversations[this.props.conversations.length-1].conversationID,
+                numOfConversations: this.props.conversations.length
+            });
+            this.scrollConvosToBottom();
         }
     }
 
@@ -391,7 +408,7 @@ export class Inbox extends Component<Props, State> {
 
                     {participents}
 
-                <div className="inbox-conversations">
+                <div className="inbox-conversations" ref={this.convosRef}>
                     {conversations}
                 </div>
 
