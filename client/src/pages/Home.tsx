@@ -203,10 +203,6 @@ export class Home extends Page<Props, State> {
 
         return data.picture;
     };
-
-    private readonly getListings = () => {
-        return getJSON("/api/listings/homeContent");
-    };
     
     /**
      * @override

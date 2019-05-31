@@ -68,7 +68,7 @@ export class HomeContent extends Component<Props, State> {
         if(listingid != undefined) {
             this.props.history.push({
                 pathname: '/listings',
-                search: '?listingid=' + listingid + '&' + 'userid=' + this.props.userID
+                search: '?listingid=' + listingid
             });
         }
     };
@@ -129,35 +129,17 @@ export class HomeContent extends Component<Props, State> {
 
         for (let i = 0; i < listings.length; i++) {
             let id: number | undefined = undefined;
+            id = listings[i].id ? listings[i].id : undefined;
             let tags = "";
+            tags = listings[i].tags.length != 0 ? listings[i].tags.toString() : "";
             let title = "";
+            title = listings[i].title ? listings[i].title : "";
             let description = "";
+            description = listings[i].description ? listings[i].description : "";
             let type = "";
+            type = listings[i].type ? listings[i].type : "";
             let date = "";
-
-            if(listings[i].id) {
-                id = listings[i].id;
-            }
-
-            if(listings[i].tags.length != 0) {
-                tags = listings[i].tags.toString();
-            }
-
-            if(listings[i].title){
-                title = listings[i].title;
-            }
-
-            if(listings[i].description){
-                description = listings[i].description;
-            }
-
-            if(listings[i].type){
-                type = listings[i].type;
-            }
-
-            if(listings[i].datePosted){
-                date = new Date(listings[i].datePosted).toString();
-            }
+            date = listings[i].datePosted ? new Date(listings[i].datePosted).toString() : "";
 
             currentListings.push(
                 <Card key={i} className="home-content-listing-card">
