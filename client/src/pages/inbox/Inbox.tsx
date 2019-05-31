@@ -349,7 +349,7 @@ export class Inbox extends Component<Props, State> {
             }
         }
     }
-
+    
     /**
      * ComponentDidUpdate
      * @override

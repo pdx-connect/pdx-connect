@@ -91,7 +91,8 @@
     width: 25%;
     height: 680px;
     border-radius: 10px;
-    overflow-y: scroll
+    overflow-y: scroll;
+    scroll-behavior: smooth;
 }
 
 .inbox-chat-box

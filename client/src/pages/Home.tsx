@@ -289,7 +289,7 @@ export class Home extends Page<Props, State> {
                             <Switch>
                                 <Route
                                     exact path="/"
-                                    render={props => <HomeContent {...props} />}
+                                    render={props => <HomeContent {...props} userID={this.state.userID}/>}
                                 />
                                 <Route
                                     path="/profile"
