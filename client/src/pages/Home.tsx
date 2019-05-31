@@ -148,7 +148,7 @@ export class Home extends Page<Props, State> {
         if (this.socket) {
             return this.socket.sendMessage;
         } else { 
-            return () => {};
+            return () => Promise.resolve();
         }
     };
 

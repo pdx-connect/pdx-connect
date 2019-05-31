@@ -7,10 +7,12 @@ import {getJSON, postJSON} from '../../util/json';
 import "./Inbox.css";
 import * as queryString from "query-string";
 import { RouteChildrenProps } from 'react-router';
+import {ValueType} from "react-select/lib/types";
+import {OptionType} from "../../components/types";
 
 
 interface Props extends RouteChildrenProps {
-    sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => void;
+    sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => Promise<void>;
     getMoreMessages: (conversationID: number) => void;
     seenRecent: (conversationID: number, time: Date) => void;
     conversations: ConversationEntry[];
@@ -83,7 +85,7 @@ export class Inbox extends Component<Props, State> {
         e.preventDefault();
 
         // Composing new message
-        if (this.state.composingNewConvo && this.state.textField != "" && this.state.composingNewConvoParticipants.length > 1 && this.state.composingNewConvoParticipants.some(x => x == Number(this.props.userID))) {
+        if (this.state.composingNewConvo && this.state.textField != "" && this.state.composingNewConvoParticipants.length > 1 && this.state.composingNewConvoParticipants.includes(this.props.userID)) {
             await this.props.sendMessage(this.state.textField, null, this.state.composingNewConvoParticipants);
             setTimeout(() => {
                 const newestConversationsIndex: number = this.props.conversations.length - 1;
@@ -101,7 +103,7 @@ export class Inbox extends Component<Props, State> {
 
         // Replying to existing message
         if (!this.state.composingNewConvo && this.state.currentConversationID && this.state.textField != "") {
-            this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
+            this.props.sendMessage(this.state.textField, this.state.currentConversationID, null).then();
         }
         this.setState({textField: ""});
     }
@@ -129,11 +131,12 @@ export class Inbox extends Component<Props, State> {
     *                        once state is in newConversation mode. The whole 
     *                        composingNewConvoParticipants is updated on every change.
     */
-    private readonly setParticipents = (e: any) => {
-        var value = [];
+    private readonly setParticipents = (e: ValueType<OptionType>) => {
+        const selectedOptions: OptionType[] = OptionType.resolve(e);
+        const value = [];
 
-        for (var i = 0; i < e.length; i++) {
-            value.push(e[i].value);
+        for (let i = 0; i < selectedOptions.length; i++) {
+            value.push(Number.parseInt(selectedOptions[i].value));
         }
 
         this.setState({composingNewConvoParticipants: value});
@@ -160,8 +163,8 @@ export class Inbox extends Component<Props, State> {
                 }
             }
 
-            let defaultVal = {
-                value: this.props.userID, 
+            let defaultVal: OptionType = {
+                value: this.props.userID.toString(),
                 label: this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.userID)].displayName
             };
 
@@ -169,7 +172,7 @@ export class Inbox extends Component<Props, State> {
                 <Select 
                     isMulti
                     defaultValue={defaultVal}
-                    onChange={(e: any) => this.setParticipents(e)}
+                    onChange={this.setParticipents}
                     options={users}
                     className="basic-multi-select"
                     classNamePrefix="select"
