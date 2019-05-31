@@ -15,8 +15,6 @@ import queryString from "query-string";
 import "./Listings.css";
 
 
-
-
 interface TagData {
     id: number;
     name: string;
@@ -902,19 +900,20 @@ export class Listings extends Component<Props, State>{
      * @override
      */
     public async componentDidMount() {
-        await this.getTagTrees();
-        await this.loadAllListings();
-        await this.updateBookmarkedListings();
+        await Promise.all([
+            this.getTagTrees(),
+            this.loadAllListings(),
+            this.updateBookmarkedListings()
+        ]);
 
         // When user try to edit his/her listing from profile, direct them to here
-        const { location, userID } = this.props;
+        const { location } = this.props;
         const values = queryString.parse(location.search);
-        const listingid = Number(values.listingid) ? Number(values.listingid) : undefined;
-        const userid = Number(values.userid) ? Number(values.userid) : undefined;
-        // Compare userid for authentication and listingid for existence
-        if(listingid !== undefined && userID === userid)
-        {
-            this.handleEdit(listingid);
+        if (values.listingid != null) {
+            const listingID: number = Number.parseInt(values.listingid.toString());
+            if (!Number.isNaN(listingID)) {
+                this.handleEdit(listingID);
+            }
         }
     }
     
@@ -923,8 +922,6 @@ export class Listings extends Component<Props, State>{
      */
     public componentWillUnmount() {
     }
-
-
 
     /**
      * @override
