@@ -7,7 +7,9 @@ interface TagData {
     name: string;
 }
 
+
 export function route(app: Express, db: Connection) {
+    // Returns all the tags
     app.get("/api/tags", async (request: Request, response: Response) => {
         let json: TagData[] | string;
         if (request.isAuthenticated()) {
@@ -23,6 +25,8 @@ export function route(app: Express, db: Connection) {
         }
         response.send(JSON.stringify(json));
     });
+
+    // Returns all the major tags
     app.get("/api/tags/majors", async (request: Request, response: Response) => {
         let json: TagData[] | string;
         if (request.isAuthenticated()) {
@@ -42,6 +46,7 @@ export function route(app: Express, db: Connection) {
         }
         response.send(JSON.stringify(json));
     });
+
     app.get("/api/tags/tree", async (request: Request, response: Response) => {
         let tree: { [type: string]: TagData[] } = Object.create(null);
         if (request.isAuthenticated()) {
@@ -61,4 +66,5 @@ export function route(app: Express, db: Connection) {
         }
         response.send(JSON.stringify(tree));
     });
+
 }
