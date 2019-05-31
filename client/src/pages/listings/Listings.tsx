@@ -902,9 +902,14 @@ export class Listings extends Component<Props, State>{
      * @override
      */
     public async componentDidMount() {
-        await this.getTagTrees();
-        await this.loadAllListings();
-        await this.updateBookmarkedListings();
+        /* Above method will execute 3 functions one by one,
+        by using promise.all, those 3 functions will run 
+        in parallel -> more efficient */
+        const promises:any[] = [];
+        promises.push(this.getTagTrees());
+        promises.push(this.loadAllListings());
+        promises.push(this.updateBookmarkedListings());
+        await Promise.all(promises);
 
         // When user try to edit his/her listing from profile, direct them to here
         const { location, userID } = this.props;
