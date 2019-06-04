@@ -1,262 +1,38 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Container, Row, Col, Card, Button} from "react-bootstrap"
+import {getJSON} from "../util/json";
+import { RouteChildrenProps } from 'react-router';
 
+
+interface Props extends RouteChildrenProps {
+}
 
 interface Props {
+    userID?: number;
 }
 
 interface State {
+    listings: ListingEntry[],
+    events: EventEntry[],
 }
 
-const now = new Date();
+interface ListingEntry {
+    id: number,
+    title: string,
+    description: string,
+    type: string,
+    tags: string[],
+    datePosted: string
+}
 
-const events = [
-  {
-    id: 0,
-    title: 'All Day Event very long title',
-    start: new Date(2015, 3, 0),
-  },
-  {
-    id: 1,
-    title: 'Long Event',
-    start: new Date(2015, 3, 7),
-    end: new Date(2015, 3, 10),
-  },
-  {
-    id: 2,
-    title: 'DTS STARTS',
-    start: new Date(2016, 2, 13, 0, 0, 0),
-    end: new Date(2016, 2, 20, 0, 0, 0),
-  },
-  {
-    id: 3,
-    title: 'DTS ENDS',
-    start: new Date(2016, 10, 6, 0, 0, 0),
-    end: new Date(2016, 10, 13, 0, 0, 0),
-  },
-  {
-    id: 4,
-    title: 'Some Event',
-    start: new Date(2015, 3, 9, 0, 0, 0),
-    end: new Date(2015, 3, 10, 0, 0, 0),
-  },
-  {
-    id: 5,
-    title: 'Conference',
-    description: 'Big conference for important people',
-    start: new Date(2015, 3, 11),
-    end: new Date(2015, 3, 13),
-  },
-  {
-    id: 6,
-    title: 'Meeting',
-    description: 'Pre-meeting meeting, to prepare for the meeting',
-    start: new Date(2015, 3, 12, 10, 30, 0, 0),
-    end: new Date(2015, 3, 12, 12, 30, 0, 0),
-  },
-  {
-    id: 7,
-    title: 'Lunch',
-    description: 'Power lunch',
-    start: new Date(2015, 3, 12, 12, 0, 0, 0),
-    end: new Date(2015, 3, 12, 13, 0, 0, 0),
-  },
-  {
-    id: 8,
-    title: 'Meeting',
-    start: new Date(2015, 3, 12, 14, 0, 0, 0),
-    end: new Date(2015, 3, 12, 15, 0, 0, 0),
-  },
-  {
-    id: 9,
-    title: 'Happy Hour',
-    description: 'Most important meal of the day',
-    start: new Date(2015, 3, 12, 17, 0, 0, 0),
-    end: new Date(2015, 3, 12, 17, 30, 0, 0),
-  },
-  {
-    id: 10,
-    title: 'Dinner',
-    start: new Date(2015, 3, 12, 20, 0, 0, 0),
-    end: new Date(2015, 3, 12, 21, 0, 0, 0),
-  },
-  {
-    id: 11,
-    title: 'Birthday Party',
-    start: new Date(2015, 3, 13, 7, 0, 0),
-    end: new Date(2015, 3, 13, 10, 30, 0),
-  },
-  {
-    id: 12,
-    title: 'Late Night Event',
-    start: new Date(2015, 3, 17, 19, 30, 0),
-    end: new Date(2015, 3, 18, 2, 0, 0),
-  },
-  {
-    id: 13,
-    title: 'Late Same Night Event',
-    start: new Date(2015, 3, 17, 19, 30, 0),
-    end: new Date(2015, 3, 17, 23, 30, 0),
-  },
-  {
-    id: 14,
-    title: 'Multi-day Event',
-    start: new Date(2015, 3, 20, 19, 30, 0),
-    end: new Date(2015, 3, 22, 2, 0, 0),
-  },
-  {
-    id: 15,
-    title: 'Today',
-    start: new Date(new Date().setHours(new Date().getHours() - 3)),
-    end: new Date(new Date().setHours(new Date().getHours() + 3)),
-  },
-  {
-    id: 16,
-    title: 'Point in Time Event',
-    start: now,
-    end: now,
-  },
-];
-
-const listings = [
-    {
-        id: 1,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 2,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 3,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 4,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 5,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 6,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 7,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 8,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 9,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 10,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 11,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 12,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 13,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 14,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 15,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 16,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-    {
-        id: 16,
-        title: 'Listing Title',
-        description: 'Lorem ipsum dolor sit amet, consectetuer',
-        type: 'ipsum',
-        tags: ['Lorem', 'ipsum', 'dolor'],
-        postingDate: new Date(2015, 3, 0),
-    },
-  ];
+interface EventEntry {
+    id: number,
+    title: string,
+    description: string,
+    start: string,
+    end?: string
+}
 
 /**
  * 
@@ -266,23 +42,57 @@ export class HomeContent extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
+            events: [],
+            listings: []
         };
     }
 
-    private readonly createEvents = () => {
+    private readonly getEvents = () => {
+        return getJSON("/api/events/homeContent");
+    };
+
+    private readonly getListings = () => {
+        return getJSON("/api/listings/homeContent");
+    };
+
+    private goToEvent = (eventid: number | undefined) => {
+        if(eventid != undefined) {
+            this.props.history.push({
+                pathname: '/calendar',
+                search: '?eventid=' + eventid
+            });
+        }
+    };
+
+    private goToListing = (listingid: number | undefined) => {
+        if(listingid != undefined) {
+            this.props.history.push({
+                pathname: '/listings',
+                search: '?listingid=' + listingid
+            });
+        }
+    };
+
+    private readonly createEvents = (events: EventEntry[]) => {
         let currentEvents = [];
 
-        for(let i=0; i < events.length; i++)
-        {
+        for (let i = 0; i < events.length; i++) {
+
+            let id: number | undefined = events[i].id ? events[i].id : undefined;
+            let title  = events[i].title ? events[i].title : "";
+            let description = events[i].description ? events[i].description : "";
+            let start = events[i].start ? new Date(events[i].start).toString() : "";
+
             currentEvents.push(
                 <Card key={i} className="home-content-event-card">
-                    <Card.Header className="home-content-event-header">Title: {events[i].id}</Card.Header>
+                    <Card.Header className="home-content-event-header">{title}</Card.Header>
                     <Card.Body>
-                        <Card.Title>{events[i].title}</Card.Title>
+                        <Card.Title>{start}</Card.Title>
                         <Card.Text className="home-content-description">
-                        <span className="home-content-description">{events[i].start != null? events[i].start.toLocaleDateString(): ""}</span>
+                            {description}
                         </Card.Text>
-                        <Button variant="light" className="home-content-button">Go to event</Button>
+                        <Button variant="light" className="home-content-button"
+                                onClick={() => this.goToEvent(id)}>Go to event</Button>
                     </Card.Body>
                 </Card>
             );
@@ -290,22 +100,29 @@ export class HomeContent extends Component<Props, State> {
 
         return currentEvents;
     };
-
-
-    private readonly createListings = () => {
+    
+    private readonly createListings = (listings: ListingEntry[]) => {
         let currentListings = [];
 
-        for(let i=0; i < listings.length; i++)
-        {
+        for (let i = 0; i < listings.length; i++) {
+            let id: number | undefined = listings[i].id ? listings[i].id : undefined;
+            let tags = listings[i].tags.length != 0 ? listings[i].tags.toString() : "";
+            let title = listings[i].title ? listings[i].title : "";
+            let description = listings[i].description ? listings[i].description : "";
+            let type = listings[i].type ? listings[i].type : "";
+            let date = listings[i].datePosted ? new Date(listings[i].datePosted).toString() : "";
+
             currentListings.push(
                 <Card key={i} className="home-content-listing-card">
-                    <Card.Header className="home-content-listing-header">{listings[i].id}: {listings[i].title}</Card.Header>
+                    <Card.Header className="home-content-listing-header">{title}</Card.Header>
                     <Card.Body>
-                        <Card.Title>{listings[i].type}</Card.Title>
+                        <Card.Title>{date}</Card.Title>
+                        <Card.Title>{tags}</Card.Title>
                         <Card.Text className="home-content-description">
-                            DESCRIPTION: {listings[i].description}
+                            {description}
                         </Card.Text>
-                        <Button variant="light" className="home-content-button">Go to listing</Button>
+                        <Button variant="light" className="home-content-button"
+                                onClick={() => this.goToListing(id)}>Go to listing</Button>
                     </Card.Body>
                 </Card>
             );
@@ -313,14 +130,37 @@ export class HomeContent extends Component<Props, State> {
 
         return currentListings;
     };
-  
+
+    /**
+     * @override
+     */
+    public async componentDidMount() {
+        
+        const [eventData, listingData] = await Promise.all([
+            this.getEvents(),
+            this.getListings()
+        ]);
+
+        //TEST
+        /*
+        console.log("Data read from server");
+        console.log("events: ", eventData);
+        console.log("listings: ", listingData);
+        */
+
+        this.setState({
+            listings: listingData,
+            events: eventData
+        });
+    }
+    
     /**
      * @override
      */
     public render(): ReactNode {
 
-        let events = this.createEvents();
-        let listings = this.createListings();
+        let events = this.createEvents(this.state.events);
+        let listings = this.createListings(this.state.listings);
 
         return (
             <Container fluid className="home-content">
@@ -331,11 +171,34 @@ export class HomeContent extends Component<Props, State> {
 
                 <Row>
                     <Col sm={6} className="home-content-cards">
-                        {events}
+                        {events.length === 0?
+                                <Card className="home-content-event-card">
+                                    <Card.Header className="home-content-event-header">No Events</Card.Header>
+                                    <Card.Body>
+                                        <Card.Title></Card.Title>
+                                        <Card.Text className="home-content-description">
+                                        </Card.Text>
+                                        <Button variant="light" className="home-content-button"></Button>
+                                    </Card.Body>
+                                </Card>
+                             :
+                             events}
                     </Col>
 
                     <Col sm={6} className="home-content-cards">
-                        {listings}
+                        {listings.length === 0?
+                            <Card className="home-content-listing-card">
+                                <Card.Header className="home-content-listing-header">No Listings</Card.Header>
+                                <Card.Body>
+                                    <Card.Title></Card.Title>
+                                    <Card.Title></Card.Title>
+                                    <Card.Text className="home-content-description">
+                                    </Card.Text>
+                                    <Button variant="light" className="home-content-button"></Button>
+                                </Card.Body>
+                            </Card>
+                            :
+                            listings }
                     </Col>
                 </Row>
             </Container>

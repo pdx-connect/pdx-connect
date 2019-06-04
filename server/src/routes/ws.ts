@@ -20,7 +20,7 @@ class connectionsWrapper {
     }
 
     public readonly push = (conn: {socket: ws, user: number}) => {
-        // console.log("Connection added to cw: ", conn);
+        //console.log("Connection added to cw: ", conn);
         connectionsWrapper.connections.push(conn);
     }
 
@@ -192,7 +192,7 @@ export function route(app: Express, db: Connection) {
                 // If the conversation is between two people, try to find a duplicate conversation
                 if (userIDs.length == 2) {
                     // Find the other user's ID
-                    let targetUser = userIDs[0] ? userIDs[0] != user.id : userIDs[1];
+                    let targetUser = userIDs[0] != user.id ? userIDs[0] : userIDs[1];
                     // Get this users conversations participant entities
                     const myConversationParticipation: ConversationParticipant[] = await ConversationParticipant.find({
                         where: {
