@@ -150,6 +150,10 @@ ul li:hover {
     text-decoration: underline;
 }
 
+.listings-tagView {
+    margin-top:5px;
+}
+
 .listings-span {
     width: 10px
 }
