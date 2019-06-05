@@ -1,4 +1,3 @@
-import * as React from "react";
 import {getJSON, postJSON} from "../util/json";
 
 
@@ -26,11 +25,11 @@ export interface ConversationEntry {
  */
 export class Socket {
 
-    public gotLastMessage: Date|null = null
-    private socket: WebSocket|null = null;
+    private readonly socket: WebSocket;
+    private readonly updateMessages: (messages: ConversationEntry[]) => void;
+    
     private messages: ConversationEntry[];
-    private updateMessages: (messages: ConversationEntry[]) => void;
-
+    public gotLastMessage: Date|null = null;
     
     constructor(updateMessages: (messages: ConversationEntry[]) => void) {
         this.messages = [];
@@ -38,7 +37,7 @@ export class Socket {
         this.gotLastMessage = new Date();
         
         // Detect the protocol for ws
-        let protocol: string = "";
+        let protocol: string;
         if (window.location.protocol == "http:") {
             protocol = "ws://";
         } else if (window.location.protocol == "https:") {
@@ -48,62 +47,55 @@ export class Socket {
         }
 
         this.socket = new WebSocket(protocol + window.location.host);
-        // Get unread messages from before we were connected
-        //this.getUnreadMessages();
-        //Put in Home
         
-        // Establish behavior of connection 
+        // Establish behavior of connection
         this.socket.onopen = () => {
             // When a message is received, do...
-            if( this.socket != null ) { // TODO: this check is a hacky work around
-                this.socket.onmessage = (msg: MessageEvent) => {
-                    this.gotLastMessage = new Date();
-                    console.log("On message triggered")
-                    let conversation: ConversationEntry;
-                    let message: Message;
-                    let data = msg.data;
-                    console.log(data);
-                    if (typeof data !== "string") {
-                        // TODO throw an error
-                        console.log("error in socket.onmessage - data not object");
-                        return;
-                    }
-                    data = JSON.parse(data);
-                    console.log("Data:", data);
-                    let lastSeen: Date|undefined = new Date();
-                    let conversationID: number = data.conversationID;
-                    let msgFromServer: ServerMessage = data.message;
-                    if (conversationID == null || msgFromServer == null) {
-                        // TODO throw an error
-                        console.log("error in socket.onmessage - message fields bads")
-                        return;
-                    }
-                    message = {
-                        userID: msgFromServer.from,
-                        timeSent: msgFromServer.timeSent,
-                        text: msgFromServer.content,
-                        seen: false,
-                    };
-                    for (let i = 0; i < this.messages.length; ++i) {
-                        if (this.messages[i].conversationID == conversationID ){
-                            lastSeen = this.messages[i].lastSeen;
-                            break;
-                        }
-                    }
-                    conversation = {
-                        conversationID: conversationID,
-                        lastSeen: lastSeen,
-                        entries: [message]
-                    };
-                    this.addToConversation(conversation);
+            this.socket.onmessage = (msg: MessageEvent) => {
+                //console.log("On message triggered");
+                if (typeof msg.data !== "string") {
+                    // TODO throw an error
+                    console.error("error in socket.onmessage - data not object");
+                    return;
+                }
+                const data: any = JSON.parse(msg.data);
+                //console.log("Data:", data);
+                const currentDate = new Date();
+                let lastSeen: Date|undefined = currentDate;
+                let conversationID: number = data.conversationID;
+                let msgFromServer: ServerMessage = data.message;
+                if (conversationID == null || msgFromServer == null) {
+                    // TODO throw an error
+                    console.error("error in socket.onmessage - message fields bads:\n", data);
+                    console.error("Trying to print conversationID: ", data.conversationID);
+                    return;
+                }
+                const message: Message = {
+                    userID: msgFromServer.from,
+                    timeSent: msgFromServer.timeSent,
+                    text: msgFromServer.content,
+                    seen: false,
                 };
-                this.socket.onerror = (error) => {
-                    console.log("Error: ", error);
+                for (let i = 0; i < this.messages.length; ++i) {
+                    if (this.messages[i].conversationID == conversationID ){
+                        lastSeen = this.messages[i].lastSeen;
+                        break;
+                    }
+                }
+                const conversation: ConversationEntry = {
+                    conversationID: conversationID,
+                    lastSeen: lastSeen,
+                    entries: [message]
                 };
-                this.socket.onclose = (closed) => {
-                    console.log("Connection Closed");
-                };
-            }
+                this.gotLastMessage = currentDate;
+                this.addToConversation(conversation);
+            };
+            this.socket.onerror = (error) => {
+                console.error("Error: ", error);
+            };
+            this.socket.onclose = (closed) => {
+                //console.log("Connection Closed");
+            };
         };
     }
 
@@ -113,7 +105,7 @@ export class Socket {
         const data = await getJSON("/api/messages/backlog");
         if (!Array.isArray(data)) {
             // TODO throw an error
-            console.log("error in getUnreadMessages");
+            console.error("error in getUnreadMessages");
             return;
         }
         // For each conversation returned, put it in the messages element
@@ -121,7 +113,7 @@ export class Socket {
             // Enforce types before moving on
             if(typeof data[i] !== "object") {
                 // TODO throw an error
-                console.log("error in getUnreadMessages");
+                console.error("error in getUnreadMessages");
                 return;
             }
             const conversationID: number = data[i].conversationID;
@@ -129,7 +121,7 @@ export class Socket {
             const messages: ServerMessage[] = data[i].messages;
             if (conversationID == null || messages == null) {
                 // TODO throw error
-                console.log("error in getUnreadMesasages");
+                console.error("error in getUnreadMesasages");
                 return;
             }
             // Add the conversaion
@@ -166,7 +158,7 @@ export class Socket {
         });
         if (!Array.isArray(data)) {
             // TODO throw an error
-            console.log("error in getMoreMessages");
+            console.error("error in getMoreMessages");
             return;
         }
         const messages: ServerMessage[] = data;
@@ -214,7 +206,7 @@ export class Socket {
                 break;
             }
         }
-        console.log("Found at index: ", foundAt);
+        //console.log("Found at index: ", foundAt);
         // If the user entry exists, add the messages
         if (foundAt >= 0) {
             for(let i = newMessages.entries.length-1; i >= 0; --i) {
@@ -223,16 +215,16 @@ export class Socket {
                 // console.log("Temp messages length: ", tempMessages[foundAt].entries.length);
                 // console.log("Indexing new messaged with: ", i);
                 if (tempMessages[foundAt].entries.length == 0) {
-                    console.log("No messages found");
+                    //console.log("No messages found");
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i]);
-                } else if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
-                    console.log("Message timestamp overlap");
+                /*} else if ( newMessages.entries[i].timeSent < tempMessages[foundAt].entries[0].timeSent ) {
+                    console.log("Message timestamp overlap");*/
                 } else if ( newMessages.entries[i].timeSent == tempMessages[foundAt].entries[0].timeSent 
                             &&  newMessages.entries[i].userID == tempMessages[foundAt].entries[0].userID 
                             &&  newMessages.entries[i].text == tempMessages[foundAt].entries[0].text ) {
-                    console.log("Message the same");
+                    //console.log("Message the same");
                 } else { 
-                    console.log("Message added to conversation");
+                    //console.log("Message added to conversation");
                     tempMessages[foundAt].entries.unshift(newMessages.entries[i])
                 }
             }
@@ -247,12 +239,12 @@ export class Socket {
     };
 
         // Send a message to the server, insert it into our message log
-    public readonly sendMessage = (msg: string, conversationID: number|null, userID:number[]|null) => {
+    public readonly sendMessage = async (msg: string, conversationID: number|null, userID:number[]|null) => {
         let tempMessages: ConversationEntry[] = this.messages;
         let found = false;
         if (this.socket == null) {
             // TODO send error
-            console.log("error in sendMessage");
+            console.error("error in sendMessage");
             return;
         }
         // If the conversation does not exist, request a new conversation
@@ -269,12 +261,12 @@ export class Socket {
             }));
             // If the conversation does exist..
         } else {
-            console.log("Right before message send");
-            console.log(msg);    
+            //console.log("Right before message send");
+            //console.log(msg);    
             this.socket.send(JSON.stringify({
-            type: "message",
-            conversationID: conversationID,
-            content: msg
+                type: "message",
+                conversationID: conversationID,
+                content: msg
             }));
         }
     };
@@ -288,8 +280,7 @@ export class Socket {
         });
         if(data.length == null) {
             // TODO throw an error 
-
-            console.log("error in getUnreadMessages");
+            console.error("error in getUnreadMessages");
             return;
         }
         let participants: Map<number,string> = new Map<number,string>();
@@ -300,12 +291,6 @@ export class Socket {
     };
 
     public readonly seenRecent = (conversationID: number, time: Date) => {
-        // Verify socket
-        if (this.socket == null) {
-            // TODO throw an error?
-            console.log("Failed in seenRecent - socket is null")
-            return;
-        }
         // Update the local log of messages
         let tempMessages: ConversationEntry[] = this.messages;
         let found = false;
@@ -323,7 +308,7 @@ export class Socket {
         
         if (!found) {
             // TODO throw an error?
-            console.log("Tried to indicate conversation is seen when conversation is not loaded");
+            console.error("Tried to indicate conversation is seen when conversation is not loaded");
             return;
         }
         // Send the message to the server

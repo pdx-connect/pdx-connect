@@ -96,7 +96,7 @@ export function route(app: Express, db: Connection) {
                 }
                 let timeSeen: Date = new Date(Date.parse(message.content));
                 conversationIn.lastSeen = timeSeen;
-                conversationIn.save();
+                await conversationIn.save();
                 return;
             } else if (type == "message") {
                 // Ensure conversationID exists
@@ -133,7 +133,7 @@ export function route(app: Express, db: Connection) {
                 }
                 // Make the message and save it to the database
                 let newMessage = new Message(conversation, user, message.content);
-                newMessage.save();
+                await newMessage.save();
                 // Find all participants in conversation
                 let participants: ConversationParticipant[] = await ConversationParticipant.find({
                     where: {
@@ -149,7 +149,7 @@ export function route(app: Express, db: Connection) {
                             console.log("Found a socket for this conversation");
                             try{
                                 cw.index(j).socket.send(JSON.stringify({
-                                    conversationID: conversationID,
+                                    conversationID: conversation.id,
                                     message: {
                                         from: newMessage.userID,
                                         timeSent: newMessage.timeSent,
@@ -242,7 +242,7 @@ export function route(app: Express, db: Connection) {
                 // Create/save the message
                 if (conversation != null) {
                     let newMessage = new Message(conversation, user, message.content);
-                    newMessage.save();
+                    await newMessage.save();
                     // Send the message to every participant
                     console.log("Trying to send the message...");
                     for (let i = 0; i < participants.length; ++i) {
@@ -251,10 +251,10 @@ export function route(app: Express, db: Connection) {
                                 console.log("Found a socket for this conversation");
                                 try {
                                     cw.index(j).socket.send(JSON.stringify({
-                                        conversationID: conversationID,
+                                        conversationID: conversation.id,
                                         message: {
                                             from: newMessage.userID,
-                                            timeSend: newMessage.timeSent,
+                                            timeSent: newMessage.timeSent,
                                             content: newMessage.content,
                                         }
                                     }));

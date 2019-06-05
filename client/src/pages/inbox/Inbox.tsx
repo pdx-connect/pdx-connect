@@ -1,16 +1,18 @@
 import * as React from "react";
-import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
+import Select from 'react-select';
+import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
-import {Message, ConversationEntry} from "../Home";
-import {getJSON, postJSON} from '../../util/json';
+import {RouteChildrenProps} from 'react-router';
 import * as queryString from "query-string";
-import { RouteChildrenProps } from 'react-router';
+import {ConversationEntry} from "../Home";
+import {getJSON} from '../../util/json';
+import {ValueType} from "react-select/lib/types";
+import {OptionType} from "../../components/types";
 
 import "./Inbox.css";
 
-
 interface Props extends RouteChildrenProps {
-    sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => void;
+    sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => Promise<void>;
     getMoreMessages: (conversationID: number) => void;
     seenRecent: (conversationID: number, time: Date) => void;
     conversations: ConversationEntry[];
@@ -25,26 +27,47 @@ interface State {
     composingNewConvo: boolean;
     composingNewConvoParticipants: number[];
     users?: any;
+    currentParticipates?: string[];
+    numOfConversations?: number;
 }
 
-/**
- *  CONSTRUCTOR
- */
+/*
+*   INBOX CLASS
+*/
 export class Inbox extends Component<Props, State> {
     
+    /*
+    *  CONSTRUCTOR
+    */
     constructor(props: Props) {
         super(props);
         this.state = {
             textField: "",
             composingNewConvo: false,
             composingNewConvoParticipants: [],
+            numOfConversations: this.props.conversations.length,
         }
     }
 
+    /*
+    *   Gets all the users 
+    */
     private readonly getUsers = async () => {
         let data: any;
         data = await getJSON("/api/user/findnames");
         this.setState({users: data.results});
+    };
+
+    // Ref object for auto-scroll, used in render at chat-box
+    private chatRef = React.createRef<HTMLDivElement>();
+
+    /*
+    *   Auto-scroll to bottom of chat using ref 
+    */
+    private readonly scrollChatToBottom = () => {
+        if (this.chatRef.current) {
+            this.chatRef.current.scrollTop = this.chatRef.current.scrollHeight;
+        }
     };
 
     /*
@@ -53,6 +76,7 @@ export class Inbox extends Component<Props, State> {
     private readonly onTextFieldChange = (e: any) => {
         e.preventDefault();
         this.setState({textField: e.target.value});
+        this.scrollChatToBottom(); // Auto scroll to bottom of chatbox
     };
 
     /*
@@ -62,8 +86,8 @@ export class Inbox extends Component<Props, State> {
     private readonly onSend = (e: any) => {
         e.preventDefault();
 
-        if (this.state.composingNewConvo && this.state.textField != "") {
-            //console.log("Sending message! with Participants: ", this.state.composingNewConvoParticipants);
+        // Composing new message
+        if (this.state.composingNewConvo && this.state.textField != "" && this.state.composingNewConvoParticipants.length > 1 && this.state.composingNewConvoParticipants.includes(this.props.userID)) {
             this.props.sendMessage(this.state.textField, null, this.state.composingNewConvoParticipants);
             this.setState({
                 composingNewConvoParticipants: [], // Clear participants array
@@ -72,8 +96,13 @@ export class Inbox extends Component<Props, State> {
                 currentConversationID: this.props.conversations[0].conversationID // Set the respective ID
             });
         }
-        else if (this.state.currentConversationID && this.state.textField != "") {
-            this.props.sendMessage(this.state.textField, this.state.currentConversationID, null);
+        else {
+            console.log("Conversation not started!");
+        }
+
+        // Replying to existing message
+        if (!this.state.composingNewConvo && this.state.currentConversationID && this.state.textField != "") {
+            this.props.sendMessage(this.state.textField, this.state.currentConversationID, null).then();
         }
         this.setState({textField: ""});
     }
@@ -81,7 +110,6 @@ export class Inbox extends Component<Props, State> {
     /*
     *   onCompose:  On enter of compose button, a new
     *               conversation window is rendered
-    *   
     */
     private readonly onCompose = (e: any) => {
         e.preventDefault();
@@ -101,19 +129,16 @@ export class Inbox extends Component<Props, State> {
     *    setParticipants:    callback for once a user updates the partcipants field
     *                        once state is in newConversation mode. The whole 
     *                        composingNewConvoParticipants is updated on every change.
-    *
     */
-    private readonly setParticipents = (e: any) => {
-        var options = e.target.options;
-        var value = [];
+    private readonly setParticipents = (e: ValueType<OptionType>) => {
+        const selectedOptions: OptionType[] = OptionType.resolve(e);
+        const value = [];
 
-        for (var i = 0, len = options.length; i < len; i++) {
-            if (options[i].selected) {
-                value.push(options[i].value);
-            }
+        for (let i = 0; i < selectedOptions.length; i++) {
+            value.push(Number.parseInt(selectedOptions[i].value));
         }
+
         this.setState({composingNewConvoParticipants: value});
-        //console.log("Current participants: ", value); // Shows the list of the IDs only
     }
 
     /* 
@@ -124,53 +149,65 @@ export class Inbox extends Component<Props, State> {
     *                   (right-top window of inbox)
     */
     private readonly renderParticipents = () => {
-        let rows = [];
-        let users = [];
+
+        let users = []; // All PDX-connect users
+        let rows = []; // Formatted for rendering
 
         // If in composingNewConvo state, will return a selection window of all users
         if (this.state.composingNewConvo) {
 
             if (this.state.users) {
                 for(let i=0; i<this.state.users.length; i++) {
-                    users.push(<option key={i} value={this.state.users[i].userID}> {this.state.users[i].displayName}</option>);
+                    users.push({value: this.state.users[i].userID, label: this.state.users[i].displayName});
                 }
             }
+
+            let defaultVal: OptionType = {
+                value: this.props.userID.toString(),
+                label: this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.userID)].displayName
+            };
 
             rows.push(
-                <Form className="inbox-user-select-form">
-                    <Form.Control as="select" multiple className="user-select" onChange={(e: any) => this.setParticipents(e)}> 
-                        {users}
-                    </Form.Control>
-                </Form>
+                <Select 
+                    isMulti
+                    defaultValue={defaultVal}
+                    onChange={this.setParticipents}
+                    options={users}
+                    className="basic-multi-select inbox-participants-select"
+                    classNamePrefix="select"
+                />
             );
-            return rows; // We must return, othewise unknown behaviour because of -1 convo index and ID
+
+            let renderRows = []
+
+            renderRows.push(
+                <div className="inbox-participents">
+                    {rows}
+                </div>
+            );
+            return renderRows; // We must return, othewise unknown behaviour because of -1 convo index and ID
         }
 
-        var participents:any = [];
+        //
+        // ELSE - will render the participants of an open conversation
+        //
 
-        // Array of strings of the participants taken from the 30 recent messages, 
-        // TODO (IMPORTANT): This will only will participants from the latest 30 messages, if you're included in the conversation but you never sent out
-        //                   a message, your name will not be included!
-        if (this.props.conversations != null && this.state.currentConversationIndex != null && this.state.users != undefined) {
-            for (let i=0; i<this.props.conversations[this.state.currentConversationIndex].entries.length; i++) {
-                if (participents.indexOf(this.props.conversations[this.state.currentConversationIndex].entries[i].userID) == -1) {
-                    if (!participents.includes(this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[this.state.currentConversationIndex!].entries[i].userID)].displayName)) {
-                        participents.push(this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[this.state.currentConversationIndex!].entries[i].userID)].displayName);
-                    }      
-                }
+        // Formats commas, spacing and header
+        if (this.props.conversations != null && this.state.currentParticipates != null) {
+            for (let i=0; i<this.state.currentParticipates.length; i++) {
+                rows.push(<li key={i} className="inbox-participant-name">{this.state.currentParticipates[i]}</li>);
             }
         }
 
-        // Same array as above but formated with commas for rendering
-        if (this.props.conversations != null) {
-            rows.push("Participent IDs: ")
-            for (let i=0; i<participents.length; i++) {
-                rows.push(participents[i]);
-                if (i != participents.length-1)
-                    rows.push(", ");
-            }
-        }
-        return rows;
+        let renderRows = []
+
+        renderRows.push(
+            <div className="inbox-participents inbox-participants-scrollable">
+                {rows}
+            </div>
+        );
+
+        return renderRows;
     }
 
     /* 
@@ -191,21 +228,14 @@ export class Inbox extends Component<Props, State> {
             );
         }
 
-        if (this.props.conversations != null && this.state.users) {
-            for (let i=0; i<this.props.conversations.length; i++) {
+        if (this.props.conversations != null && this.state.users != null) {
+            for (let i=this.props.conversations.length-1; i>=0; i--) {
                 if (i == this.state.currentConversationIndex) {
                     rows.push(
-                        <Row className="inbox-open-conversation" key={i} 
-                            onClick={()=> 
-                                this.setState({
-                                    currentConversationIndex: i,
-                                    currentConversationID: this.props.conversations[i].conversationID,
-                                    composingNewConvo: false
-                                })
-                            }>
+                        <Row className="inbox-open-conversation" key={i}>
                             <Col key={i} sm={12}>
-                                ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                <br></br>Message from {this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
+                                ConversationID: {this.props.conversations[i].conversationID}
+                                <br></br>{this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
                                 : <i>"{this.props.conversations[i].entries[0].text}"</i> {/* Gets the latest message as preview */}    
                             </Col>
                         </Row>
@@ -222,8 +252,8 @@ export class Inbox extends Component<Props, State> {
                                 })
                             }>
                             <Col key={i} sm={12}>
-                                ConversationID: {this.props.conversations[i].conversationID} {/* Gets the conversation ID */}
-                                <br></br>Message from: {this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
+                                ConversationID: {this.props.conversations[i].conversationID}
+                                <br></br>{this.state.users[this.state.users.findIndex((x:any) => x.userID == this.props.conversations[i].entries[0].userID)].displayName}
                                 : <i>"{this.props.conversations[i].entries[0].text}"</i> {/* Gets the latest message as preview */}   
                             </Col>
                         </Row>
@@ -288,17 +318,9 @@ export class Inbox extends Component<Props, State> {
         return rows;
     }
 
-    // /**
-    //  * @override
-    //  */
-    // public shouldComponentUpdate(nextProps: Props, nextState: State) {
-    //     if (nextProps != this.props) {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }
-
+    /*
+     *  ComponentDidMount
+     */
     public componentDidMount() {
         this.getUsers().then();
         // Check for a query string and set the state appropriately
@@ -320,14 +342,41 @@ export class Inbox extends Component<Props, State> {
             }
         }
     }
-
+    
     /**
+     * ComponentDidUpdate
      * @override
      */
-    public async componentDidUpdate() {
-        if  (this.state.currentConversationID) {
-            const participantsMap = await this.props.getParticipants(this.state.currentConversationID);
-            console.log("Participants Maps: ", participantsMap);
+    public async componentDidUpdate(prevProps: Props, prevState: State) {
+
+        // Auto scroll to bottom of chatbox is not composing
+        if (!this.state.composingNewConvo) {
+            this.scrollChatToBottom();
+        }
+
+        // Pull participants from the current open coversation and set state
+        if (this.state.currentConversationID && prevState.currentConversationID != this.state.currentConversationID) {
+            
+            const participantsMap: Map<number, string>|undefined = await this.props.getParticipants(this.state.currentConversationID);
+            let participants: string[];
+            
+            if (this.props.conversations != null && participantsMap != null) {
+                participants = Array.from(participantsMap.values()).sort(); // Alphabetical sort for names
+            } else {
+                participants = [];
+            }
+            this.setState({
+                currentParticipates: participants
+            });
+        }
+
+        // Sets the last composed conversation as active
+        if (this.state.numOfConversations != this.props.conversations.length) {
+            this.setState({
+                currentConversationIndex: this.props.conversations.length-1,
+                currentConversationID: this.props.conversations[this.props.conversations.length-1].conversationID,
+                numOfConversations: this.props.conversations.length
+            });
         }
     }
 
@@ -335,26 +384,12 @@ export class Inbox extends Component<Props, State> {
      * @override
      */
     public render(): ReactNode {
-            /* 
-            
-            == Default view of inbox page ==
-            for each convo where user is a participant of
-                list last message and icon indication # of unseen messages
 
-            == On press of any listed conversation == 
-            for last 20 messages in convo
-                sort messages by time stamp
-                if user is me
-                    print message right side
-                else 
-                    print message left side
-            */
         let participents = this.renderParticipents();
         let conversations = this.renderInbox();
         let messages = this.renderMessages();
 
         return (
-
             <Container fluid className="inbox">
 
                 <div className="inbox-compose-message">
@@ -365,15 +400,13 @@ export class Inbox extends Component<Props, State> {
                     </Form>
                 </div>
 
-                <div className="inbox-participents">
                     {participents}
-                </div>
 
                 <div className="inbox-conversations">
                     {conversations}
                 </div>
 
-                <div className="inbox-chat-box">
+                <div className="inbox-chat-box" ref={this.chatRef}>
                     {messages}
                 </div>
 

@@ -14,6 +14,7 @@
     padding: 10px;
     margin: 15px;
     cursor: pointer;
+    font-size: 14px;
 }
 
 .inbox-conversation:hover, .inbox-open-conversation:hover
@@ -29,6 +30,7 @@
     padding: 10px;
     margin: 15px;
     cursor: pointer;
+    font-size: 14px;
 }
 
 .inbox-compose-message
@@ -59,6 +61,27 @@
     text-align: center;
 }
 
+.inbox-participants-select
+{
+    padding: 6px;
+}
+
+.inbox-participants-scrollable
+{
+    overflow: scroll; 
+}
+
+.inbox-participant-name
+{
+    list-style-type: none;
+    display: inline-block;
+    font-size: 10px;
+    background-color: lightblue;
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin: 0px 3px;
+}
+
 .inbox-conversations
 {
     clear: left;
@@ -68,7 +91,8 @@
     width: 25%;
     height: 680px;
     border-radius: 10px;
-    overflow: scroll;
+    overflow-y: scroll;
+    /* scroll-behavior: smooth; */
 }
 
 .inbox-chat-box
@@ -80,7 +104,8 @@
     width: 65%;
     border-radius: 10px;
     height: 600px;
-    overflow: scroll;
+    overflow-y: scroll;
+    /* scroll-behavior: smooth; */
 }
 
 .inbox-message-row
@@ -148,4 +173,9 @@
     width: 200px;
     overflow: hidden;
     z-index: 10;
+}
+.basic-multi-select
+{
+    z-index: 100;
+    margin-top: auto;
 }
