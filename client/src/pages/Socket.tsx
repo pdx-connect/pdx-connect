@@ -60,7 +60,8 @@ export class Socket {
                 }
                 const data: any = JSON.parse(msg.data);
                 //console.log("Data:", data);
-                let lastSeen: Date|undefined = new Date();
+                const currentDate = new Date();
+                let lastSeen: Date|undefined = currentDate;
                 let conversationID: number = data.conversationID;
                 let msgFromServer: ServerMessage = data.message;
                 if (conversationID == null || msgFromServer == null) {
@@ -86,7 +87,7 @@ export class Socket {
                     lastSeen: lastSeen,
                     entries: [message]
                 };
-                this.gotLastMessage = lastSeen;
+                this.gotLastMessage = currentDate;
                 this.addToConversation(conversation);
             };
             this.socket.onerror = (error) => {
