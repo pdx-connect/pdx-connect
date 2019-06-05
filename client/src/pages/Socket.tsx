@@ -26,6 +26,7 @@ export interface ConversationEntry {
  */
 export class Socket {
 
+    public gotLastMessage: Date|null = null
     private socket: WebSocket|null = null;
     private messages: ConversationEntry[];
     private updateMessages: (messages: ConversationEntry[]) => void;
@@ -34,6 +35,7 @@ export class Socket {
     constructor(updateMessages: (messages: ConversationEntry[]) => void) {
         this.messages = [];
         this.updateMessages = updateMessages;
+        this.gotLastMessage = new Date();
         
         // Detect the protocol for ws
         let protocol: string = "";
@@ -55,7 +57,8 @@ export class Socket {
             // When a message is received, do...
             if( this.socket != null ) { // TODO: this check is a hacky work around
                 this.socket.onmessage = (msg: MessageEvent) => {
-                    console.log("On message triggered");
+                    this.gotLastMessage = new Date();
+                    console.log("On message triggered")
                     let conversation: ConversationEntry;
                     let message: Message;
                     let data = msg.data;
