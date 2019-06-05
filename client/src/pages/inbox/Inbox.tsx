@@ -1,9 +1,9 @@
 import * as React from "react";
 import Select from 'react-select';
-import {Container, Row, Col, Form, FormControl, Button} from "react-bootstrap";
+import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
-import {Message, ConversationEntry} from "../Home";
-import {getJSON, postJSON} from '../../util/json';
+import {ConversationEntry} from "../Home";
+import {getJSON} from '../../util/json';
 import "./Inbox.css";
 import * as queryString from "query-string";
 import { RouteChildrenProps } from 'react-router';
@@ -60,7 +60,6 @@ export class Inbox extends Component<Props, State> {
 
     // Ref object for auto-scroll, used in render at chat-box
     private chatRef = React.createRef<HTMLDivElement>();
-    private convosRef = React.createRef<HTMLDivElement>();
 
     /*
     *   Auto-scroll to bottom of chat using ref 
@@ -70,12 +69,6 @@ export class Inbox extends Component<Props, State> {
             this.chatRef.current.scrollTop = this.chatRef.current.scrollHeight;
         }
     };
-    
-    private readonly scrollConvosToBottom = () => {
-        if (this.convosRef.current) {
-            this.convosRef.current.scrollTop = this.convosRef.current.scrollHeight;
-        }
-	};
 
     /*
     *   Message textfield state is updated on each keystroke
@@ -236,7 +229,7 @@ export class Inbox extends Component<Props, State> {
         }
 
         if (this.props.conversations != null && this.state.users != null) {
-            for (let i=0; i<this.props.conversations.length; i++) {
+            for (let i=this.props.conversations.length-1; i>=0; i--) {
                 if (i == this.state.currentConversationIndex) {
                     rows.push(
                         <Row className="inbox-open-conversation" key={i}>
@@ -379,13 +372,11 @@ export class Inbox extends Component<Props, State> {
 
         // Sets the last composed conversation as active
         if (this.state.numOfConversations != this.props.conversations.length) {
-            console.log("# of convos: ",this.state.numOfConversations, " new # of convos: ",this.props.conversations.length);
             this.setState({
                 currentConversationIndex: this.props.conversations.length-1,
                 currentConversationID: this.props.conversations[this.props.conversations.length-1].conversationID,
                 numOfConversations: this.props.conversations.length
             });
-            this.scrollConvosToBottom();
         }
     }
 
@@ -411,7 +402,7 @@ export class Inbox extends Component<Props, State> {
 
                     {participents}
 
-                <div className="inbox-conversations" ref={this.convosRef}>
+                <div className="inbox-conversations">
                     {conversations}
                 </div>
 
