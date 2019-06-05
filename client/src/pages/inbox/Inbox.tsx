@@ -2,14 +2,14 @@ import * as React from "react";
 import Select from 'react-select';
 import {Container, Row, Col, Form, Button} from "react-bootstrap";
 import {Component, ReactNode} from "react";
+import {RouteChildrenProps} from 'react-router';
+import * as queryString from "query-string";
 import {ConversationEntry} from "../Home";
 import {getJSON} from '../../util/json';
-import "./Inbox.css";
-import * as queryString from "query-string";
-import { RouteChildrenProps } from 'react-router';
 import {ValueType} from "react-select/lib/types";
 import {OptionType} from "../../components/types";
 
+import "./Inbox.css";
 
 interface Props extends RouteChildrenProps {
     sendMessage: (msg: string, conversationID: number|null, userID:number[]|null) => Promise<void>;
@@ -27,7 +27,7 @@ interface State {
     composingNewConvo: boolean;
     composingNewConvoParticipants: number[];
     users?: any;
-    currentParticipates?: any;
+    currentParticipates?: string[];
     numOfConversations?: number;
 }
 
@@ -355,19 +355,19 @@ export class Inbox extends Component<Props, State> {
         }
 
         // Pull participants from the current open coversation and set state
-        if  (this.state.currentConversationID && prevState.currentConversationID != this.state.currentConversationID) {
+        if (this.state.currentConversationID && prevState.currentConversationID != this.state.currentConversationID) {
             
-            let participants = []
-            let participantsMap = await this.props.getParticipants(this.state.currentConversationID).then();
-
+            const participantsMap: Map<number, string>|undefined = await this.props.getParticipants(this.state.currentConversationID);
+            let participants: string[];
+            
             if (this.props.conversations != null && participantsMap != null) {
-                for (let i=0; i<participantsMap.size; i++) {
-                    participants.push(participantsMap.get(Array.from(participantsMap.keys())[i]));
-                }
+                participants = Array.from(participantsMap.values()).sort(); // Alphabetical sort for names
+            } else {
+                participants = [];
             }
-
-            participants.sort(); // Alphabetical sort for names
-            this.setState({currentParticipates: participants});
+            this.setState({
+                currentParticipates: participants
+            });
         }
 
         // Sets the last composed conversation as active

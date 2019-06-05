@@ -162,9 +162,6 @@ export class HomeContent extends Component<Props, State> {
         let events = this.createEvents(this.state.events);
         let listings = this.createListings(this.state.listings);
 
-        console.log('event data: ', this.state.events);
-        console.log('listing data: ', this.state.listings);
-
         return (
             <Container fluid className="home-content">
                 <Row className="home-content-sub-title">

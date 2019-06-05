@@ -1,17 +1,14 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
-import {Container, Row, Col, Table, Modal } from "react-bootstrap";
+import {Container, Row, Col, Table, Modal} from "react-bootstrap";
 import {FaPencilAlt, FaTrash} from "react-icons/fa";
 import Select from 'react-select';
 import {OptionType} from "../../components/types";
 import {postJSON} from "../../util/json";
-import { RouteChildrenProps } from 'react-router';
-
-interface Props extends RouteChildrenProps{
-}
+import {RouteChildrenProps} from 'react-router';
 
 
-interface Props {
+interface Props extends RouteChildrenProps {
     listings: Listing[];
     updateUserProfile: () => void;
     displayName: string;
@@ -43,7 +40,7 @@ interface Tag {
  * 
  */
 export class Listings extends Component<Props, State> {
-    
+
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -53,46 +50,44 @@ export class Listings extends Component<Props, State> {
     }
 
     private editListing = (listing: Listing | undefined) => {
-        if(listing!= undefined) {
+        if (listing != null) {
             this.props.history.push({
                 pathname: '/listings',
-                search: '?listingid=' + listing.id + '&' + 'userid=' + this.props.userID
+                search: '?listingid=' + listing.id
             });
-         } else {
-             this.setState({
-                 showListingView: false
-             });
+        } else {
+            this.setState({
+                showListingView: false
+            });
         }
-    }
+    };
 
     private readonly viewListing = (listingID: number, index: number) => {
         this.setState({
             listing: this.props.listings[index],
             showListingView: true,
         })
-    }
+    };
 
     private readonly removeListing = (listing: Listing | undefined) => {
-       if(listing!= undefined) {
-           this.deleteListing(listing.id);
+        if (listing != null) {
+            this.deleteListing(listing.id).then();
         } else {
             this.setState({
                 showListingView: false
             });
         }
-    }
+    };
 
     private readonly deleteListing = async (listingID: number) => {
         const data = await postJSON("/api/listings/delete_listing", {id: listingID});
-        
-        if(data.success) {
+        if (data.success) {
             this.props.updateUserProfile();
             this.setState({
                 showListingView: false
             });
         }
-
-    }
+    };
 
     private readonly createListings = (listings: Listing[]) => {
         let listingGrid = [];
