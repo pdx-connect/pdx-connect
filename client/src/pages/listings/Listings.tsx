@@ -792,7 +792,7 @@ export class Listings extends Component<Props, State>{
             var tags: any[] = [];
             for (const tag of listing.tags)
             {
-                tags.push(<Button variant="info">{tag.name}</Button>);
+                tags.push(<Button variant="info" className="listings-tagView">{tag.name}</Button>);
                 tags.push(<span className="listings-span"></span>);
             }
 

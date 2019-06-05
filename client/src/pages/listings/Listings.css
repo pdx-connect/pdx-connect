@@ -153,3 +153,7 @@ ul li:hover {
 .listings-span {
     width: 10px
 }
+
+.listings-tagView {
+    margin-top:5px;
+}
