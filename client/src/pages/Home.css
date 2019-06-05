@@ -105,6 +105,20 @@
     background-color: none;
 }
 
+.home-new-messages:hover {
+    text-decoration: underline !important;
+    text-decoration-line: underline !important;
+    color: var(--thing-2);
+    cursor: pointer
+}
+
+.home-new-notification:hover {
+    text-decoration: underline !important;
+    text-decoration-line: underline !important;
+    color: var(--thing-2);
+    cursor: pointer
+}
+
 .oobe-modal .modal-content
 {
     min-height: 600px;

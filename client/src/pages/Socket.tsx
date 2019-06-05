@@ -29,10 +29,12 @@ export class Socket {
     private readonly updateMessages: (messages: ConversationEntry[]) => void;
     
     private messages: ConversationEntry[];
+    public gotLastMessage: Date|null = null;
     
     constructor(updateMessages: (messages: ConversationEntry[]) => void) {
         this.messages = [];
         this.updateMessages = updateMessages;
+        this.gotLastMessage = new Date();
         
         // Detect the protocol for ws
         let protocol: string;
@@ -84,6 +86,7 @@ export class Socket {
                     lastSeen: lastSeen,
                     entries: [message]
                 };
+                this.gotLastMessage = lastSeen;
                 this.addToConversation(conversation);
             };
             this.socket.onerror = (error) => {

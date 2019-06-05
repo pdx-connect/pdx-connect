@@ -15,8 +15,8 @@ import {SearchResults} from "./search-results/SearchResults";
 import {Oobe} from "./oobe/Oobe";
 import {getJSON} from "../util/json";
 import {Socket} from "./Socket";
-
 import "./Home.css";
+import { CalendarEvent } from './calendar/CalendarEvent';
 
 
 interface Props extends RouteComponentProps {
@@ -42,6 +42,20 @@ export interface ConversationEntry {
     entries: Message[];
 }
 
+interface Listing {
+    id: number,
+    userID: number,
+    username: string,
+    title: string,
+    description: string,
+    tags: {
+        id: number,
+        name: string
+    }[];
+    anonymous: boolean,
+    timePosted: Date,
+}
+
 interface State {
     showMessages: boolean;
     showNotifications: boolean;
@@ -54,7 +68,13 @@ interface State {
     windowWidth: number;
     windowHeight: number;
     conversations: ConversationEntry[];
+    lastMessage: Date|null;
     portraitURL: string;
+    messages: Message[];
+    notifications: {
+        title: string;
+        description: string|undefined;
+    }[]
 }
 
 /**
@@ -74,7 +94,10 @@ export class Home extends Page<Props, State> {
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
             conversations: [],
-            portraitURL: ""
+            lastMessage: null,
+            portraitURL: "",
+            messages: [],
+            notifications: []
         };
         this.socket = null;
     }
@@ -226,6 +249,122 @@ export class Home extends Page<Props, State> {
         
         this.socket = new Socket(this.updateMessages);
         await this.socket.getUnreadMessages();
+        this.setState({lastMessage : this.socket.gotLastMessage})
+        this.findNewest().then()
+    }
+
+    public componentDidUpdate(prevProps:Props, prevState:State) {
+        if (this.socket != null && this.state.lastMessage != null) {
+            if (this.socket.gotLastMessage != this.state.lastMessage) {
+                for(let i: number = 0; i < this.state.conversations.length; i = i + 1) {
+                    let conversation = this.state.conversations[i]
+                    for(let j: number = 0; j < prevState.conversations.length; j = j + 1) {
+                        let prevConversation = prevState.conversations[j]
+                        if (prevConversation.conversationID == conversation.conversationID) {
+                            if (conversation.entries[0].timeSent.toString() > this.state.lastMessage.toISOString()) {
+                                let newMessages = this.state.messages
+                                newMessages.push(conversation.entries[0])
+                                this.setState({messages: newMessages})
+                            }
+                        }
+                    }
+                }
+                this.setState({lastMessage: this.socket.gotLastMessage})
+            }
+        }
+    }
+
+    public showMessage(message: Message) {
+        return (
+            <div className="home-new-messages" onClick={() => this.openConversation(message)}>
+            {message.text}&nbsp;
+            {message.timeSent}
+            </div>
+        )
+    }
+
+    public openConversation(message: Message) {
+        let convID
+        this.state.conversations.map(conversation => {
+            conversation.entries.map(entry => {
+                if(entry == message) {
+                    convID = conversation.conversationID
+                }
+            })
+        })
+        this.props.history.push({
+            pathname: '/inbox',
+            search: '?conversationid=' + convID
+        });
+    }
+
+    public async findNewest() {
+        const events : CalendarEvent[] = await getJSON("/api/events");
+        let listings : Listing[] = await getJSON("/api/listings/allListings");
+        //First two listings are being overwritten
+        let newEvents: CalendarEvent[] = []
+        let newListings: Listing[] = []
+        let times: any[] = []
+        let currentTime = new Date()
+        let timeString = currentTime.toISOString()
+        events.map(event =>
+        {
+            if ((event.start < times[0] || times[0] == null) && event.start.toString() > timeString) {
+                if(times[0] != null) {
+                    times[1] = times[0]
+                    newEvents[1] = newEvents[0]
+                }
+                times[0] = event.start
+                newEvents[0] = event
+                if(newEvents[0].description == null) {
+                    newEvents[0].description == ""
+                }
+            }
+            else if((event.start < times[1] || times[1] == null) && event != newEvents[0] && event.start.toString() > timeString) {
+                times[1] = event.start
+                newEvents[1] = event
+                if(newEvents[1].description == null) {
+                    newEvents[1].description == ""
+                }
+            }
+        })
+        listings.map(listing => {
+            if((listing.timePosted < times[2] || times[2] == null) && listing.title != newEvents[0].title && listing.title != newEvents[1].title) {
+                if (times[2] != null) {
+                    times[3] = times[2]
+                    newListings[1] = newListings[0]
+                }
+                times[2] = listing.timePosted
+                newListings[0] = listing
+            }
+            else if((listing.timePosted < times[3] || times[3] == null) && listing != newListings[0] && listing.title != newEvents[0].title && listing.title != newEvents[1].title) {
+                times[3] = listing.timePosted
+                newListings[1] = listing
+            }
+        })
+        let notifications: {title: string, description: string|undefined}[] = []
+        notifications[0] = {title: "", description: ""}
+        notifications[0].title = newListings[0].title
+        notifications[0].description = newListings[0].description
+        notifications[1] = {title: "", description: ""}
+        notifications[1].title = newListings[1].title
+        notifications[1].description = newListings[1].description
+        notifications[2] = {title: "", description: ""}
+        notifications[2].title = newEvents[0].title
+        notifications[2].description = newEvents[0].description
+        notifications[3] = {title: "", description: ""}
+        notifications[3].title = newEvents[1].title
+        notifications[3].description = newEvents[1].description
+        this.setState({notifications: notifications})
+    }
+
+    public showNotification(notification: {title: string, description: string|undefined}) {
+        return (
+            <div className="home-new-notification">
+            {notification.title}&nbsp;
+            {notification.description}
+            </div>
+        )
     }
     
     /**
@@ -240,8 +379,8 @@ export class Home extends Page<Props, State> {
      * @override
      */
     public render(): ReactNode {
-        const messages = [];
-        const notifications = Object.keys(this.state.alerts);
+        const messages = this.state.messages;
+        const notifications = this.state.notifications;
 
         let minHeight = {minHeight: (this.state.windowHeight * .80).toString() + "px"};
 
@@ -265,7 +404,7 @@ export class Home extends Page<Props, State> {
                             <Modal.Header closeButton>
                             <Modal.Title>Messages</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>TODO: Put messages here</Modal.Body>
+                            <Modal.Body>New Messages: {this.state.messages.map(message => this.showMessage(message))}</Modal.Body>
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
@@ -276,7 +415,7 @@ export class Home extends Page<Props, State> {
                             <Modal.Header closeButton>
                             <Modal.Title>Notifications</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>TODO: Put notifications here</Modal.Body>
+                            <Modal.Body>Notifications: {this.state.notifications.map(notification => this.showNotification(notification))}</Modal.Body>
                             <Modal.Footer>
                             </Modal.Footer>
                         </Modal>
