@@ -4,6 +4,7 @@ import {CalendarEvent} from "../../entity/CalendarEvent";
 import {Tag} from "../../entity/Tag";
 import {CalendarEventComment} from "../../entity/CalendarEventComment";
 import {User} from "../../entity/User";
+import {EventAttending} from "../../entity/EventAttending";
 import {UserProfile} from "../../entity/UserProfile"
 
 async function parseEventByID(request: Request): Promise<CalendarEvent|null|undefined> {
@@ -34,16 +35,18 @@ export function route(app: Express, db: Connection) {
                 deleted: false
             }
         });
-        response.send(JSON.stringify(allEvents.map(e => {
+        const outputEvents = await Promise.all(allEvents.map(async (e: CalendarEvent) => {
             return {
                 id: e.id,
                 userID: e.userID,
                 title: e.title,
                 description: e.description,
                 start: e.start,
-                end: e.end
+                end: e.end,
+                attending: (await e.attendants).length
             };
-        })));
+        }));
+        response.send(JSON.stringify(outputEvents));
     });
     app.post("/api/event", async (request: Request, response: Response) => {
         const user: User | undefined = request.user;
@@ -58,26 +61,6 @@ export function route(app: Express, db: Connection) {
         const end = body.end;
         await new CalendarEvent(user, title, description, start, end).save();
         response.send(JSON.stringify("Success"));
-    });
-    app.get("/api/event/:id", async (request: Request, response: Response) => {
-        if (!request.isAuthenticated()) {
-            response.send(JSON.stringify("Not logged in."));
-            return;
-        }
-        const event: CalendarEvent|null|undefined = await parseEventByID(request);
-        if (event === void 0) {
-            response.sendStatus(400);
-        } else if (event === null) {
-            response.send(JSON.stringify("Event not found."));
-        } else {
-            response.send(JSON.stringify({
-                userID: event.userID,
-                title: event.title,
-                description: event.description,
-                start: event.start,
-                end: event.end
-            }));
-        }
     });
     app.put("/api/event/:id", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
@@ -100,20 +83,6 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
-    app.post("/api/event/:id", async (request: Request, response: Response) => {
-        if (!request.isAuthenticated()) {
-            response.send(JSON.stringify("Not logged in."));
-            return;
-        }
-        const event: CalendarEvent|null|undefined = await parseEventByID(request);
-        if (event === void 0) {
-            response.sendStatus(400);
-        } else if (event === null) {
-            response.send(JSON.stringify("Event not found."));
-        } else {
-            // TODO Edit an existing event
-        }
-    });
     app.delete("/api/event/:id", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
             response.send(JSON.stringify("Not logged in."));
@@ -132,12 +101,94 @@ export function route(app: Express, db: Connection) {
             }));
         }
     });
+    app.get("/api/event/attending", async (request: Request, response: Response) => {
+        if (!request.isAuthenticated()) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        const eventAttending: EventAttending[] = await EventAttending.find();
+        response.send(JSON.stringify(eventAttending.map(e => {
+            return {
+                event_id: e.eventID,
+                userID: e.userID
+            };
+        })));
+    });
+    app.post("/api/event/attend/:id", async (request: Request, response: Response) => {
+        const user: User | undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        const eventID = Number.parseInt(request.params.id);
+        if (Number.isNaN(eventID)) {
+            response.sendStatus(400);
+            return;
+        }
+        const event: CalendarEvent | undefined = await CalendarEvent.findOne({
+            where: {
+                id: eventID
+            }
+        });
+        if (event != null) {
+            const attending: EventAttending | undefined = await EventAttending.findOne({
+                where: {
+                    event: event,
+                    user: user
+                }
+            });
+            if (attending == null) {
+                await (new EventAttending(event, user).save());
+                response.send(JSON.stringify("Success"));
+            } else {
+                response.send(JSON.stringify("Already registered"));
+            }
+        } else {
+            response.send(JSON.stringify("No event"));
+        }
+    });
+    app.get("/api/event/:id", async (request: Request, response: Response) => {
+        if (!request.isAuthenticated()) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
+        if (event === void 0) {
+            response.sendStatus(400);
+        } else if (event === null) {
+            response.send(JSON.stringify("Event not found."));
+        } else {
+            response.send(
+                JSON.stringify({
+                    userID: event.userID,
+                    title: event.title,
+                    description: event.description,
+                    start: event.start,
+                    end: event.end
+                })
+            );
+        }
+    });
+    app.post("/api/event/:id", async (request: Request, response: Response) => {
+        if (!request.isAuthenticated()) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
+        if (event === void 0) {
+            response.sendStatus(400);
+        } else if (event === null) {
+            response.send(JSON.stringify("Event not found."));
+        } else {
+            // TODO Edit an existing event
+        }
+    });
     app.get("/api/event/:id/tags", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const event: CalendarEvent|null|undefined = await parseEventByID(request);
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
         if (event === void 0) {
             response.sendStatus(400);
         } else if (event === null) {
@@ -160,63 +211,32 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const event: CalendarEvent|null|undefined = await parseEventByID(request);
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
         if (event === void 0) {
             response.sendStatus(400);
         } else if (event === null) {
             response.send(JSON.stringify("Event not found."));
         } else {
             const comments: CalendarEventComment[] = await event.comments;
-            response.send(JSON.stringify(await Promise.all(comments.map(async (c) => {
-                const user: User = await c.user;
+            response.send(JSON.stringify(comments.map(c => {
                 return {
                     id: c.id,
                     userID: c.userID,
-                    displayName: user.displayName,
                     timePosted: c.timePosted,
                     content: c.content
                 };
-            }))));
-        }
-    });
-    app.post("/api/event/:id/comment", async (request: Request, response: Response) => {
-        // Get the body of the message, validate format
-        const body: any = request.body;
-        if (body == null || typeof body !== "object" || typeof body.content !== "string") {
-            response.sendStatus(400);
-            return;
-        }
-        // Retrieve the calendar event, verify that it was found
-        const event: CalendarEvent|null|undefined = await parseEventByID(request);
-        if (event === void 0) {
-            response.sendStatus(400);
-        } else {
-            // Verify that the user is logged in
-            const user: User|undefined = request.user;
-            if (user == null) {
-                response.send(JSON.stringify("Not logged in."));
-                return;
-            }
-            if (event === null) {
-                response.send(JSON.stringify("Event not found."));
-            } else {
-                // Create and save the new comment
-                await new CalendarEventComment(event, user, new Date(), body.content).save();
-                response.send(JSON.stringify({
-                    success: true
-                }));
-            }
+            })));
         }
     });
     app.get("/api/events/homeContent", async (request: Request, response: Response) => {
         // Get user
-        const user: User|undefined = request.user;
+        const user: User | undefined = request.user;
         if (user == null) {
             response.send(JSON.stringify("Not logged in"));
             return;
         }
         // Find user account
-        const profile: UserProfile|undefined = await user.profile;
+        const profile: UserProfile | undefined = await user.profile;
         if (profile == null) {
             response.send(JSON.stringify("No profile for this account"));
             return;
@@ -228,7 +248,7 @@ export function route(app: Express, db: Connection) {
             title: string,
             description: string,
             start: Date,
-            end: Date|null
+            end: Date | null
         }[] = [];
         // Get all events which haven't endeded, ordered by start time
         const events: CalendarEvent[] = await CalendarEvent.find({

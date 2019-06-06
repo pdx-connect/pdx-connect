@@ -6,6 +6,7 @@ import {UserProfile} from "./UserProfile";
 import {CalendarEvent} from "./CalendarEvent";
 import {Listing} from "./Listing";
 import {ConversationParticipant} from "./ConversationParticipant";
+import { EventAttending } from './EventAttending';
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -49,6 +50,9 @@ export class User extends BaseEntity {
     @OneToMany(type => CalendarEvent, event => event.user)
     readonly events!: Promise<CalendarEvent[]>;
 
+    @OneToMany(type => EventAttending, attending => attending.user)
+    readonly attending!: Promise<EventAttending[]>;
+
     @OneToMany(type => Listing, listing => listing.user)
     readonly listings!: Promise<Listing[]>;
     
@@ -85,6 +89,7 @@ export class User extends BaseEntity {
             this.creationDate = new Date();
             this.profile = Promise.resolve(void 0);
             this.events = Promise.resolve([]);
+            this.attending = Promise.resolve([]);
             this.deactivated = false;
         }
     }
