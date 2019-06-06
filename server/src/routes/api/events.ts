@@ -49,36 +49,25 @@ export function route(app: Express, db: Connection) {
         response.send(JSON.stringify(outputEvents));
     });
     app.post("/api/event", async (request: Request, response: Response) => {
-        if (!request.isAuthenticated()) {
+        const user: User | undefined = request.user;
+        if (user == null) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const user: User | undefined = request.user;
         const body = request.body;
         const title = body.title;
         const description = body.description;
         const start = body.start;
         const end = body.end;
-        if (user != null) {
-            await new CalendarEvent(
-                user,
-                title,
-                description,
-                start,
-                end
-            ).save();
-        }
+        await new CalendarEvent(user, title, description, start, end).save();
         response.send(JSON.stringify("Success"));
     });
-
     app.put("/api/event/:id", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const event: CalendarEvent | null | undefined = await parseEventByID(
-            request
-        );
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
         if (event === void 0) {
             response.sendStatus(400);
         } else if (event === null) {
@@ -89,22 +78,17 @@ export function route(app: Express, db: Connection) {
             event.start = request.body.start;
             event.end = request.body.end;
             await event.save();
-            response.send(
-                JSON.stringify({
-                    success: true
-                })
-            );
+            response.send(JSON.stringify({
+                success: true
+            }));
         }
     });
-
     app.delete("/api/event/:id", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const event: CalendarEvent | null | undefined = await parseEventByID(
-            request
-        );
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
         if (event === void 0) {
             response.sendStatus(400);
         } else if (event === null) {
@@ -112,20 +96,16 @@ export function route(app: Express, db: Connection) {
         } else {
             event.deleted = true;
             await event.save();
-            response.send(
-                JSON.stringify({
-                    success: true
-                })
-            );
+            response.send(JSON.stringify({
+                success: true
+            }));
         }
     });
-
     app.get("/api/event/attending", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-
         const eventAttending: EventAttending[] = await EventAttending.find();
         response.send(JSON.stringify(eventAttending.map(e => {
             return {
@@ -134,7 +114,6 @@ export function route(app: Express, db: Connection) {
             };
         })));
     });
-
     app.post("/api/event/attend/:id", async (request: Request, response: Response) => {
         const user: User | undefined = request.user;
         if (user == null) {
@@ -168,7 +147,6 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("No event"));
         }
     });
-
     app.get("/api/event/:id", async (request: Request, response: Response) => {
         if (!request.isAuthenticated()) {
             response.send(JSON.stringify("Not logged in."));
@@ -196,9 +174,7 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const event: CalendarEvent | null | undefined = await parseEventByID(
-            request
-        );
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
         if (event === void 0) {
             response.sendStatus(400);
         } else if (event === null) {
@@ -212,9 +188,7 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const event: CalendarEvent | null | undefined = await parseEventByID(
-            request
-        );
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
         if (event === void 0) {
             response.sendStatus(400);
         } else if (event === null) {
@@ -237,9 +211,7 @@ export function route(app: Express, db: Connection) {
             response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const event: CalendarEvent | null | undefined = await parseEventByID(
-            request
-        );
+        const event: CalendarEvent | null | undefined = await parseEventByID(request);
         if (event === void 0) {
             response.sendStatus(400);
         } else if (event === null) {
