@@ -11,6 +11,7 @@ import {
 import {User} from "./User";
 import {Tag} from "./Tag";
 import {CalendarEventComment} from "./CalendarEventComment";
+import {EventAttending} from "./EventAttending";
 
 @Entity("event")
 export class CalendarEvent extends BaseEntity {
@@ -83,6 +84,9 @@ export class CalendarEvent extends BaseEntity {
     @OneToMany(type => CalendarEventComment, comment => comment.event)
     readonly comments!: Promise<CalendarEventComment[]>;
     
+    @OneToMany(type => EventAttending, attending => attending.event)
+    readonly attendants!: Promise<EventAttending[]>;
+    
     @Column({
         name: "deleted",
         type: "tinyint",
@@ -109,6 +113,7 @@ export class CalendarEvent extends BaseEntity {
             this.end = end != null ? end : null;
             this.tags = Promise.resolve([]);
             this.comments = Promise.resolve([]);
+            this.attendants = Promise.resolve([]);
             this.deleted = false;
         }
     }
