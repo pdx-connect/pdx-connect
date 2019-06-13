@@ -2,7 +2,7 @@
   "name": "server",
   "version": "0.0.1",
   "description": "The server sub-project.",
-  "license": "UNLICENSED",
+  "license": "GNU AGPLv3",
   "private": true,
   "main": "dist/index",
   "dependencies": {

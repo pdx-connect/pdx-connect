@@ -23,13 +23,13 @@
     "Daniel Persson <dpersson@pdx.edu>",
     "David Georgiyev <dg8@pdx.edu>"
   ],
-  "homepage": "https://github.com/idavidgeo/pdx-connect",
-  "bugs": "https://github.com/idavidgeo/pdx-connect/issues",
+  "homepage": "https://github.com/pdx-connect/pdx-connect",
+  "bugs": "https://github.com/pdx-connect/pdx-connect/issues",
   "repository": {
     "type": "git",
-    "url": "github:idavidgeo/pdx-connect"
+    "url": "github:pdx-connect/pdx-connect"
   },
-  "license": "UNLICENSED",
+  "license": "GNU AGPLv3",
   "private": true,
   "workspaces": [
     "client",

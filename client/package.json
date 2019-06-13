@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.0.1",
   "description": "The client sub-project.",
-  "license": "UNLICENSED",
+  "license": "GNU AGPLv3",
   "private": true,
   "dependencies": {
     "@types/react": "^16.8.8",
