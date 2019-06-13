@@ -1,7 +1,7 @@
 pdx-connect
 ===========================================
 
-[![Build Status](https://travis-ci.com/idavidgeo/pdx-connect.svg?token=Xw69C3ppNdAkCSetcdxG&branch=master)](https://travis-ci.com/idavidgeo/pdx-connect)
+[![Build Status](https://travis-ci.com/pdx-connect/pdx-connect.svg?branch=master)](https://travis-ci.com/pdx-connect/pdx-connect)
 
 > A capstone project by **Team-Connect** to create a responsive web platform to connect the community of [Portland State University](https://www.pdx.edu/).
 
