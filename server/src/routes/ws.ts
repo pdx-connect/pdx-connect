@@ -1,5 +1,5 @@
-import {Express, Request, NextFunction, response} from "express";
-import {Connection, ReplSet} from "typeorm";
+import {Express, Request, NextFunction} from "express";
+import {Connection} from "typeorm";
 import * as expressWs from "express-ws";
 import * as ws from "ws";
 import {User} from "../entity/User";
@@ -22,11 +22,11 @@ class connectionsWrapper {
     public readonly push = (conn: {socket: ws, user: number}) => {
         //console.log("Connection added to cw: ", conn);
         connectionsWrapper.connections.push(conn);
-    }
+    };
 
     public readonly length = () => {
         return connectionsWrapper.connections.length;
-    }
+    };
 
     public readonly index = (i: number) => {
         return connectionsWrapper.connections[i];
@@ -42,9 +42,9 @@ export function route(app: Express, db: Connection) {
             // TODO send error
             return;
         }
-        const user: User = req.user;
+        const user: User|undefined = req.user;
         if (user == null) {
-            console.log("Closing due to invalid user id")
+            console.log("Closing due to invalid user id");
             socket.close();
             return;
         }
@@ -52,7 +52,7 @@ export function route(app: Express, db: Connection) {
         cw.push({
             socket: socket,
             user: user.id
-        })
+        });
 
         // Define event handlers
         socket.on("message", async (msg: ws.Data) => {
@@ -68,7 +68,7 @@ export function route(app: Express, db: Connection) {
             let userIDs: number[] = message.userIDs;
             if ( type == null ) {
                     // TODO send an error
-                    console.log("Type null")
+                    console.log("Type null");
                     return;
             }
             // Handle message type cases
@@ -94,8 +94,7 @@ export function route(app: Express, db: Connection) {
                     // TODO send error
                     return;
                 }
-                let timeSeen: Date = new Date(Date.parse(message.content));
-                conversationIn.lastSeen = timeSeen;
+                conversationIn.lastSeen = new Date(Date.parse(message.content));
                 await conversationIn.save();
                 return;
             } else if (type == "message") {
@@ -113,7 +112,7 @@ export function route(app: Express, db: Connection) {
                 }
                 let conversationIn: ConversationParticipant|undefined = await ConversationParticipant.findOne({
                     where: {
-                        conversationID: conversationID, 
+                        conversationID: conversationID,
                         userID: user.id
                     }
                 });
@@ -127,7 +126,7 @@ export function route(app: Express, db: Connection) {
                         id: conversationIn.conversationID
                     }
                 });
-                if ( conversation == null ) {
+                if (conversation == null) {
                     // TODO send error
                     return;
                 }
@@ -166,7 +165,7 @@ export function route(app: Express, db: Connection) {
                     }
                 }
                 // Transmit to all logged on participants
-    
+
             } else if (type == "new") {
                 // Define variables for later use
                 let conversation: Conversation|undefined;
@@ -175,17 +174,17 @@ export function route(app: Express, db: Connection) {
                 // Ensure userIDs exist
                 if (userIDs == null) {
                     // TODO send an error
-                    console.log("UserIDs null"); 
+                    console.log("UserIDs null");
                     return;
                 }
-                // Ensure that this user is in the userIDs 
+                // Ensure that this user is in the userIDs
                 let found = false;
                 for (let i = 0; i < userIDs.length; ++i) {
                     if (userIDs[i] == user.id) {
                         found = true;
                     }
                 }
-                if (found == false) {
+                if (!found) {
                     //TODO throw an error
                     return;
                 }
@@ -199,7 +198,7 @@ export function route(app: Express, db: Connection) {
                             userID: user.id
                         }
                     });
-                    // For each conversation participantion, get the conversation, check the number of particpants, 
+                    // For each conversation participantion, get the conversation, check the number of particpants,
                     // and (if the number is two and the second participant is the targe), return the conversationID
                     for (let i = 0; i < myConversationParticipation.length; ++i) {
                         conversation = await myConversationParticipation[i].conversation;
@@ -220,7 +219,7 @@ export function route(app: Express, db: Connection) {
                             }
                         }
                     }
-                } 
+                }
                 if (makeNew) {
                     // Otherwise create a new conversation and conversation participants
                     conversation = await new Conversation().save();
@@ -278,7 +277,7 @@ export function route(app: Express, db: Connection) {
         // On error
         socket.on("error", (error) => {
             // TODO maybe send error?
-            console.log("Closing because of socket error")
+            console.log("Closing because of socket error");
             socket.close();
             return;
         });
@@ -290,7 +289,7 @@ export function route(app: Express, db: Connection) {
                 return value.socket == socket && value.user == user.id;
             })
             console.log("Removing connection, after: ", connectionsWrapper.connections);
-            console.log("Connection closing for some reason")
+            console.log("Connection closing for some reason");
             return;
         });
     });

@@ -16,7 +16,7 @@ async function getMessages (conversations: ConversationParticipant[]) {
         let messages: Message[] = await Message.find({
             where: {
                 conversationID: conversations[i].conversationID
-            }, 
+            },
             order: {
                 timeSent: "DESC"
             },
@@ -41,11 +41,11 @@ async function getMessages (conversations: ConversationParticipant[]) {
 
 export function route(app: Express, db: Connection) {
     app.get("/api/messages/backlog", async (request: Request, response: Response) => {
-        if (typeof request.user == null) {
-            // TODO send error
+        const user: User|undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in."));
             return;
         }
-        const user: User = request.user;
         const conversations: ConversationParticipant[] = await ConversationParticipant.find({
             where: {
                 userID: user.id
@@ -56,12 +56,12 @@ export function route(app: Express, db: Connection) {
     });
 
     app.post("/api/messages/start", async (request: Request, response, Response) => {
-        if (typeof request.user == null) {
-            // TODO send error
+        // Get the request information and validate format
+        const user: User|undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in."));
             return;
         }
-        // Get the request information and validate format
-        const user: User = request.user;
         if (typeof request.body !== "object") {
             response.sendStatus(400); // HTTP 400: Bad client request
             return;
@@ -123,16 +123,17 @@ export function route(app: Express, db: Connection) {
     });
 
     app.post("/api/messages/more", async (request: Request, response: Response) => {
-        if (typeof request.user == null) {
-            // TODO send error
-            return;
-        } else if (typeof request.body !== "object") {
+        if (typeof request.body !== "object") {
             response.sendStatus(400); // HTTP 400: Bad client request
             return;
         }
-        const user: User = request.user;
+        const user: User|undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
         const body: any = request.body;
-        if (typeof body.conversationID !== "number" || 
+        if (typeof body.conversationID !== "number" ||
             typeof body.alreadyHave !== "number") {
             response.sendStatus(400); // HTTP 400: Bad client request
             return;
@@ -176,15 +177,16 @@ export function route(app: Express, db: Connection) {
 
     app.post("/api/messages/participants", async (request: Request, response: Response) => {
         // Verify that the request is valid
-        if (typeof request.user == null) {
-            // TODO send error
-            return;
-        } else if (typeof request.body !== "object") {
+        if (typeof request.body !== "object") {
             response.sendStatus(400); // HTTP 400: Bad client request
             return;
         }
         // Get the user and body objects, validate fields
-        const user: User = request.user;
+        const user: User|undefined = request.user;
+        if (user == null) {
+            response.send(JSON.stringify("Not logged in."));
+            return;
+        }
         const body: any = request.body;
         if (typeof body.conversationID !== "number") {
             response.sendStatus(400); // HTTP 400: Bad client request

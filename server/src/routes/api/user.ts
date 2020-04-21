@@ -104,7 +104,7 @@ export function route(app: Express, db: Connection) {
                     error: "Profile not created yet."
                 }));
             }
-            
+
         } else {
             response.send(JSON.stringify({
                 error: "Not logged in."
@@ -140,7 +140,7 @@ export function route(app: Express, db: Connection) {
             major: major
         }));
     });
-    // Post major data to the database. 
+    // Post major data to the database.
     app.post("/api/user/major", async (request: Request, response: Response) => {
         // Parse the request body
         // It should be an object.
@@ -170,7 +170,7 @@ export function route(app: Express, db: Connection) {
                         id: incomingMajor
                     }
                 });
-                
+
                 // Tag should not be null
                 if (incomingTag != null) {
                     profile.major = Promise.resolve(incomingTag);
@@ -277,7 +277,7 @@ export function route(app: Express, db: Connection) {
                 profile.isMiscellaneous = isMiscellaneous;
                 profile.isDirectMessage = isDirectMessage;
                 profile.isProfileComment = isProfileComment;
-                
+
                 await profile.save();
 
                 // Send success response

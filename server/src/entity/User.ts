@@ -10,7 +10,7 @@ import { EventAttending } from './EventAttending';
 
 @Entity("user")
 export class User extends BaseEntity {
-    
+
     @PrimaryGeneratedColumn({
         name: "user_id",
         type: "int",
@@ -28,7 +28,7 @@ export class User extends BaseEntity {
 
     @OneToMany(type => UserEmail, userEmail => userEmail.user)
     readonly emails!: Promise<UserEmail[]>;
-    
+
     @Column({
         name: "password",
         type: "varchar",
@@ -37,13 +37,13 @@ export class User extends BaseEntity {
         comment: "Bcrypt'd password"
     })
     password!: string;
-    
+
     @Column({
         name: "creation_date",
         type: "datetime"
     })
     readonly creationDate!: Date;
-    
+
     @OneToOne(type => UserProfile, profile => profile.user)
     readonly profile!: Promise<UserProfile|undefined>;
 
@@ -55,7 +55,7 @@ export class User extends BaseEntity {
 
     @OneToMany(type => Listing, listing => listing.user)
     readonly listings!: Promise<Listing[]>;
-    
+
     @OneToMany(type => ConversationParticipant, conversations => conversations.user, {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE"
@@ -79,7 +79,7 @@ export class User extends BaseEntity {
      * @param password
      */
     constructor(displayName: string, password: string);
-    
+
     constructor(displayName?: string, password?: string) {
         super();
         if (displayName != null && password != null) {
@@ -93,7 +93,7 @@ export class User extends BaseEntity {
             this.deactivated = false;
         }
     }
-    
+
     /**
      * Deactivates this user and saves to the database.
      */
@@ -101,9 +101,9 @@ export class User extends BaseEntity {
         this.deactivated = true;
         return this.save();
     }
-    
+
     /**
-     * 
+     *
      * @param email
      */
     public static async findActiveByEmail(email: string): Promise<User|string> {
@@ -129,7 +129,7 @@ export class User extends BaseEntity {
     public static async hashPassword(password: string): Promise<string> {
         return hash(password, 10);
     }
-    
+
     /**
      * Generates a secure random code string (for email verification and password resets)
      * @param count The number of characters to generate.
@@ -151,5 +151,5 @@ export class User extends BaseEntity {
             });
         });
     }
-    
+
 }

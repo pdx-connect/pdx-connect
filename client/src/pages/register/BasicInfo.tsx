@@ -1,11 +1,11 @@
 import * as React from "react";
 import {Component, SyntheticEvent} from "react";
 import {Form, InputGroup, Button} from "react-bootstrap";
-import {FormControlProps} from "../../components/types";
+
 import '../Register.css';
 
 interface Props {
-    handleChange: React.FormEventHandler<FormControlProps>;
+    handleChange: React.FormEventHandler<HTMLInputElement>;
     email: string;
     displayName: string;
     password: string;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export class BasicInfo extends Component<Props, any> {
-    
+
     /**
      * @override
      */
@@ -64,7 +64,7 @@ export class BasicInfo extends Component<Props, any> {
                         disabled={passwordDisabled}
                     />
                 </Form.Group>
-                
+
                 {disabled?<div className="align-center"><Button variant="light" className="register-reset-button" onClick={resetRegistration}>reset</Button></div>:null}
             </Form>
         );

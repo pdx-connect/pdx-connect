@@ -1,11 +1,11 @@
 import * as React from "react";
 import {Component, SyntheticEvent} from "react";
 import {Form, Button} from "react-bootstrap";
-import {FormControlProps} from "../../components/types";
+
 import "../Register.css";
 
 interface Props {
-    handleChange: React.FormEventHandler<FormControlProps>;
+    handleChange: React.FormEventHandler<HTMLInputElement>;
     email: string;
     confirmCode: (e: SyntheticEvent) => void;
     resendCode: (e: SyntheticEvent) => void;

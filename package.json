@@ -40,11 +40,11 @@
   "devDependencies": {
     "npm-run-all": "^4.1.5",
     "shx": "^0.3.2",
-    "typescript": "^3.4.5",
-    "yarn": "^1.15.2"
+    "typescript": "^3.8.3",
+    "yarn": "^1.22.4"
   },
   "scripts": {
-    "setup": "npm install && yarn install",
+    "setup": "npx yarn install",
     "update": "yarn upgrade",
     "reinstall": "run-s -cs clean-all setup",
     "build": "tsc -b .",
@@ -62,7 +62,7 @@
     "_deploy": "npm run build && npm run client && npm start"
   },
   "engines": {
-    "node": ">=11.0.0",
+    "node": ">=12.0.0",
     "npm": ">=6.0.0"
   }
 }

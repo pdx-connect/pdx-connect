@@ -21,6 +21,14 @@ import opn = require("open");
 import {init as initMail} from "./mail";
 import {compare} from "bcrypt";
 
+// TODO This is a work-around for the new TypeScript definitions for the passport.js library
+type UserEntity = User;
+declare global {
+    namespace Express {
+        export interface User extends UserEntity {}
+    }
+}
+
 interface Args extends minimist.ParsedArgs {
     dev: boolean;
 }
@@ -59,7 +67,7 @@ function generateSessionKey(): string {
         console.error("Run 'npm run client' to build the client package.");
         return;
     }
-    
+
     // Load configuration files
     let serverConfig: ServerConfiguration;
     const serverConfigFile: string = path.join(configDirectory, "server.json");
@@ -79,7 +87,7 @@ function generateSessionKey(): string {
         console.error("See the README.md file for the server configuration JSON format.");
         return;
     }
-    
+
     const databaseConfigFile: string = path.join(configDirectory, "db.json");
     if (!fs.existsSync(databaseConfigFile)) {
         console.error("No database configuration file: " + databaseConfigFile);
@@ -132,7 +140,7 @@ function generateSessionKey(): string {
         console.error("See the README.md file for the mail configuration JSON format.");
         return;
     }
-    
+
     // Initialize TypeORM connection to MySQL database
     const db: Connection = await createConnection({
         type: "mysql",
@@ -155,7 +163,7 @@ function generateSessionKey(): string {
         }
         throw err;
     });
-    
+
     // Initialize session management and user authentication with the "passport" library
     passport.use(new LocalStrategy({
         usernameField: "email",
@@ -191,14 +199,14 @@ function generateSessionKey(): string {
             done(err);
         }
     });
-    
+
     // Initialize Express app
     const port: number = serverConfig.port || 9999;
     const app: Express = express();
 
     // Serve static files from the public directory
     app.use(express.static(publicDirectory));
-    
+
     // Configure session support
     app.use(session({
         secret: serverConfig.sessionKey || generateSessionKey(),
@@ -212,7 +220,7 @@ function generateSessionKey(): string {
     }));
     app.use(passport.initialize());
     app.use(passport.session());
-    
+
     // Configure API routes
     routes.configure(app, db);
 
